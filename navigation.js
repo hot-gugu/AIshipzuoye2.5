@@ -1,0 +1,337 @@
+(() => {
+  const SIDEBAR_WIDTH = 240;
+
+  const menuGroups = [
+    { title: '首页', icon: 'fa-home', href: '首页.html' },
+    { title: '监测一张图', icon: 'fa-picture-o', href: '方案图册.html' },
+    { title: '作业计划管理', icon: 'fa-list-alt', href: '作业计划管理.html' },
+    { title: '实时在线巡检', icon: 'fa-video-camera', href: '实时监控.html' },
+    { title: '事后视频倒查', icon: 'fa-history', href: '视频倒查列表页面.html' },
+    { title: 'AI预警核查', icon: 'fa-bell', href: 'AI隐患核查.html' },
+    {
+      title: '隐患违章管理',
+      icon: 'fa-exclamation-triangle',
+      children: [
+        { title: '违章查处', href: '隐患违章管理-违章查处.html' },
+        { title: '隐患查处', href: '隐患违章管理-隐患查处.html' }
+      ]
+    },
+    {
+      title: '履职统计',
+      icon: 'fa-bar-chart',
+      children: [
+        { title: '领导履职统计', href: '领导履职台账.html' },
+        { title: '违章统计分析', href: '违章统计分析.html' },
+        { title: '隐患统计分析', href: '隐患统计分析.html' }
+      ]
+    },
+        {
+            title: '智能运维',
+            icon: 'fa-microchip',
+            children: [
+                { title: '设备管理', href: '设备管理列表.html' },
+                  { title: '算法管理', href: '算法管理.html' },
+                  { title: '算法精准度分析', href: '算法精准度分析列表.html' },
+                 { title: '训练样本库', href: '数据回溯正负样本.html' },
+                 { title: '算力智能调度', href: '算力智能调度简版.html' }
+              ]
+          },
+    {
+      title: '基础管理',
+      icon: 'fa-cogs',
+      children: [
+        { title: '违章规则管理', href: '违章规则管理.html' },
+        { title: '违章类型管理', href: '违章类型管理.html' },
+        { title: '违章等级管理', href: '违章等级管理.html' },
+        { title: '隐患分类管理', href: '隐患分类管理.html' },
+        { title: '隐患等级管理', href: '隐患等级管理.html' },
+        { title: '作业区域管理', href: '作业区域管理.html' },
+        { title: '作业类型管理', href: '作业类型管理.html' },
+        { title: '人脸采集库', href: '人脸采集库.html' },
+        { title: '作业班次', href: '作业班次.html' }
+      ]
+    },
+    {
+      title: '系统管理',
+      icon: 'fa-gear',
+      children: [
+        { title: '成员管理' },
+        { title: '组织架构' },
+        { title: '角色管理' },
+        { title: '岗位管理' }
+      ]
+    },
+    { title: '产品功能说明', icon: 'fa-book', href: '产品功能说明.html' }
+  ];
+
+  const actionRoutes = [
+    { labels: ['新增作业计划', '新建作业计划'], href: '新增作业计划.html', exact: true },
+    { labels: ['选择摄像头'], href: '选择摄像头.html', exact: true },
+    { labels: ['无视频作业', '无视频作业(8)'], href: '无视频作业.html', exact: true },
+    { labels: ['查看监控'], href: '实时监控.html', exact: true },
+    { labels: ['标记违章'], href: 'AI预警实时和倒查标记.html', exact: true },
+    { labels: ['抓拍'], href: '抓拍违章.html', exact: true },
+    { labels: ['倒查'], href: '视频倒查按作业计划.html', exact: true },
+    { labels: ['查看回放'], href: '视频倒查按作业计划.html', exact: true },
+    { labels: ['复核'], href: 'AI识别的违章复核.html', exact: true },
+    { labels: ['树状预览'], href: '设备管理树状.html', exact: true },
+    { labels: ['详情'], href: '算法精准度分析.html', exact: true, pages: ['算法精准度分析列表.html'] }
+  ];
+
+  const normalize = text => (text || '').replace(/\s+/g, '').trim();
+  const currentFile = decodeURIComponent(location.pathname.split('/').pop() || '');
+  const isSamePage = href => currentFile === href;
+  const go = href => {
+    if (!isSamePage(href)) location.href = href;
+  };
+
+  const flattenMenu = groups => groups.flatMap(group => group.children ? group.children : [group]);
+  const activeGroup = group => group.children?.some(child => isSamePage(child.href));
+
+  const injectStyle = () => {
+    if (document.getElementById('unified-navigation-style')) return;
+    const style = document.createElement('style');
+    style.id = 'unified-navigation-style';
+    style.textContent = `
+      .unified-sidebar {
+        position: fixed !important;
+        left: 0 !important;
+        top: 0 !important;
+        bottom: 0 !important;
+        width: ${SIDEBAR_WIDTH}px !important;
+        min-width: ${SIDEBAR_WIDTH}px !important;
+        z-index: 9999 !important;
+        background: #0f244e !important;
+        color: #dbe7ff !important;
+        display: flex !important;
+        flex-direction: column !important;
+        overflow: hidden !important;
+        box-shadow: 4px 0 18px rgba(15, 36, 78, 0.16) !important;
+      }
+      .unified-sidebar * { box-sizing: border-box; }
+      .unified-sidebar-logo {
+        height: 72px;
+        padding: 16px 18px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        flex-shrink: 0;
+      }
+      .unified-logo-mark {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: #fff;
+        color: #165dff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 18px;
+      }
+      .unified-menu {
+        flex: 1;
+        padding: 14px 10px 18px;
+        overflow-y: auto;
+      }
+      .unified-menu::-webkit-scrollbar { width: 5px; }
+      .unified-menu::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.18); border-radius: 999px; }
+      .unified-menu-item,
+      .unified-menu-group-title {
+        min-height: 42px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 12px;
+        color: #c7d5f5;
+        text-decoration: none;
+        font-size: 14px;
+        line-height: 1.2;
+        transition: all .18s ease;
+      }
+      .unified-menu-item:hover {
+        background: rgba(255,255,255,0.09);
+        color: #fff;
+        transform: translateX(2px);
+      }
+      .unified-menu-item.active {
+        background: rgba(22,93,255,0.28);
+        color: #fff;
+        font-weight: 600;
+        box-shadow: inset 3px 0 0 #4f8cff;
+      }
+      .unified-menu-group { margin-top: 4px; }
+      .unified-menu-group-title {
+        color: #8fa4cf;
+        font-weight: 600;
+        cursor: default;
+        justify-content: space-between;
+      }
+      .unified-menu-group-title.active { color: #fff; }
+      .unified-group-main {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .unified-menu-children {
+        margin: 2px 0 8px 26px;
+        padding-left: 8px;
+        border-left: 1px solid rgba(255,255,255,0.12);
+      }
+      .unified-menu-children .unified-menu-item {
+        min-height: 34px;
+        padding: 8px 10px;
+        font-size: 13px;
+        border-radius: 8px;
+      }
+      .unified-menu-item.placeholder {
+        cursor: default;
+        color: #8fa4cf;
+      }
+      .unified-menu-item.placeholder:hover {
+        background: transparent;
+        color: #8fa4cf;
+        transform: none;
+      }
+      .unified-menu-footer {
+        padding: 12px 16px;
+        color: #8fa4cf;
+        font-size: 12px;
+        border-top: 1px solid rgba(255,255,255,0.1);
+      }
+      .unified-content-shift {
+        margin-left: ${SIDEBAR_WIDTH}px !important;
+        width: calc(100% - ${SIDEBAR_WIDTH}px) !important;
+      }
+      @media (max-width: 900px) {
+        .unified-sidebar { transform: translateX(-${SIDEBAR_WIDTH}px); }
+        .unified-content-shift { margin-left: 0 !important; width: 100% !important; }
+      }
+    `;
+    document.head.appendChild(style);
+  };
+
+  const createLogo = () => {
+    const logo = document.createElement('div');
+    logo.className = 'unified-sidebar-logo';
+    logo.innerHTML = `
+      <div class="unified-logo-mark"><i class="fa fa-cube"></i></div>
+      <div>
+        <div style="font-size:13px;font-weight:700;color:#fff;line-height:1.35;">视频AI识别自进化能力平台</div>
+        <div style="font-size:12px;color:#8fa4cf;margin-top:3px;">智慧管控系统</div>
+      </div>
+    `;
+    return logo;
+  };
+
+  const createItem = ({ title, icon, href }) => {
+    const item = document.createElement(href ? 'a' : 'div');
+    if (href) item.href = href;
+    item.className = `unified-menu-item${href && isSamePage(href) ? ' active' : ''}${href ? '' : ' placeholder'}`;
+    item.innerHTML = `${icon ? `<i class="fa ${icon}" style="width:18px;text-align:center;"></i>` : '<span style="width:7px;height:7px;border-radius:999px;background:currentColor;opacity:.65;"></span>'}<span>${title}</span>`;
+    return item;
+  };
+
+  const createGroup = group => {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'unified-menu-group';
+
+    const title = document.createElement('div');
+    title.className = `unified-menu-group-title${activeGroup(group) ? ' active' : ''}`;
+    title.innerHTML = `
+      <span class="unified-group-main"><i class="fa ${group.icon}" style="width:18px;text-align:center;"></i><span>${group.title}</span></span>
+      <i class="fa fa-angle-down"></i>
+    `;
+
+    const children = document.createElement('div');
+    children.className = 'unified-menu-children';
+    group.children.forEach(child => children.appendChild(createItem(child)));
+
+    wrapper.append(title, children);
+    return wrapper;
+  };
+
+  const shiftContent = aside => {
+    const parent = aside.parentElement;
+    const target = aside.nextElementSibling || (parent !== document.body ? parent : null);
+    if (target) target.classList.add('unified-content-shift');
+  };
+
+  const renderMenu = () => {
+    injectStyle();
+    let aside = document.querySelector('aside');
+    if (!aside && currentFile.startsWith('算力算法调度管理-')) {
+      aside = document.createElement('aside');
+      document.body.insertBefore(aside, document.body.firstChild);
+    }
+    if (!aside || aside.dataset.unifiedMenu === 'true') return;
+
+    aside.dataset.unifiedMenu = 'true';
+    aside.className = 'unified-sidebar';
+    aside.innerHTML = '';
+
+    const nav = document.createElement('nav');
+    nav.className = 'unified-menu';
+    menuGroups.forEach(group => {
+      nav.appendChild(group.children ? createGroup(group) : createItem(group));
+    });
+
+    const footer = document.createElement('div');
+    footer.className = 'unified-menu-footer';
+    footer.innerHTML = '<i class="fa fa-location-arrow"></i> 菜单已统一固定，点击可跳转页面';
+
+    aside.append(createLogo(), nav, footer);
+    shiftContent(aside);
+  };
+
+  const bindElement = (element, href) => {
+    if (!element || element.dataset.linkBound === href) return;
+    element.dataset.linkBound = href;
+    element.style.cursor = 'pointer';
+    element.addEventListener('click', event => {
+      event.preventDefault();
+      event.stopPropagation();
+      go(href);
+    });
+  };
+
+  const bindByText = ({ labels, href, exact = true }, scope = document) => {
+    const normalizedLabels = labels.map(normalize);
+    const candidates = scope.querySelectorAll('a, button, span, div, i, li, td');
+    candidates.forEach(element => {
+      const text = normalize(element.getAttribute('title') || element.textContent);
+      if (!text) return;
+      const matched = exact
+        ? normalizedLabels.some(label => text === label)
+        : normalizedLabels.some(label => text === label || text.includes(label));
+      if (matched) bindElement(element.closest('a, button') || element, href);
+    });
+  };
+
+  const bindActions = () => {
+    actionRoutes.forEach(route => {
+      if (route.pages && !route.pages.includes(currentFile)) return;
+      bindByText(route);
+    });
+  };
+
+  const setup = () => {
+    renderMenu();
+    bindActions();
+    if (!document.querySelector('script[data-global-ai-assistant]') && !document.getElementById('global-ai-assistant')) {
+      const script = document.createElement('script');
+      const navigationScript = Array.from(document.scripts).find((item) => /navigation\.js(?:\?|$)/.test(item.src));
+      script.src = new URL('ai-assistant.js?v=20260825-2', navigationScript?.src || location.href).href;
+      script.dataset.globalAiAssistant = 'true';
+      document.head.appendChild(script);
+    }
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setup);
+  } else {
+    setup();
+  }
+})();

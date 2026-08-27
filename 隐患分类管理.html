@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>隐患分类管理</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
+  <script>tailwind.config={theme:{extend:{colors:{primary:'#2563EB',pageBg:'#F8FAFC',line:'#E5E7EB',muted:'#64748B'}}}}</script>
+  <style>.switch{width:36px;height:20px;border-radius:20px;background:#10b981;position:relative;cursor:pointer}.switch:after{content:"";position:absolute;width:16px;height:16px;top:2px;right:2px;border-radius:50%;background:white}.switch.off{background:#cbd5e1}.switch.off:after{right:18px}.child-row{padding-left:44px}</style>
+</head>
+<body class="h-screen overflow-hidden bg-pageBg text-slate-800 flex">
+  <aside></aside>
+  <main class="flex-1 min-w-0 flex flex-col overflow-hidden">
+    <header class="h-16 bg-white border-b border-line px-6 flex items-center justify-between shrink-0"><div><i class="fa fa-bars text-muted mr-4"></i><span class="font-medium">基础管理 / 隐患分类管理</span></div><div class="text-sm"><i class="fa fa-user-circle text-primary mr-2"></i>安全管理员</div></header>
+    <section class="flex-1 overflow-auto p-6">
+      <div class="flex items-center justify-between mb-5"><div><h1 class="text-xl font-semibold">隐患分类和二级分类配置</h1><p class="text-sm text-muted mt-1">统一维护隐患一级分类及其二级分类</p></div><div class="flex gap-3"><div class="relative"><i class="fa fa-search absolute left-3 top-3 text-slate-400"></i><input id="search" class="w-64 border border-line rounded-lg py-2 pl-9 pr-3 text-sm" placeholder="搜索隐患分类或二级分类"></div><button id="addRoot" class="bg-primary text-white rounded-lg px-4 py-2 text-sm"><i class="fa fa-plus mr-1"></i>新增隐患分类</button></div></div>
+      <div class="bg-white border border-line rounded-lg overflow-hidden shadow-sm">
+        <div class="grid grid-cols-[280px_140px_1fr_130px_220px] px-4 py-3 bg-slate-100 text-xs text-muted"><div>名称</div><div>类型</div><div>描述</div><div>状态</div><div class="text-right pr-5">操作</div></div>
+        <div id="categoryRows" class="divide-y divide-slate-100"></div>
+      </div>
+    </section>
+  </main>
+  <div id="modal" class="hidden fixed inset-0 z-[80] bg-black/40 items-center justify-center p-5"><form id="form" class="w-[520px] max-w-[95vw] bg-white rounded-xl shadow-2xl"><header class="px-5 py-4 border-b flex justify-between"><h2 id="modalTitle" class="font-semibold"></h2><button type="button" data-close><i class="fa fa-times"></i></button></header><div class="p-5 space-y-4"><label class="block text-sm">分类名称 <b class="text-red-500">*</b><input id="name" required class="mt-2 w-full border border-line rounded px-3 py-2"></label><label class="block text-sm">分类描述<textarea id="desc" rows="3" class="mt-2 w-full border border-line rounded px-3 py-2"></textarea></label></div><footer class="px-5 py-4 border-t flex justify-end gap-3"><button type="button" data-close class="border border-line rounded px-5 py-2">取消</button><button class="bg-primary text-white rounded px-5 py-2">确认</button></footer></form></div>
+  <script>
+    const data=[{name:'人的不安全行为',desc:'人员行为、操作及防护方面的隐患',children:['劳动防护用品使用不规范','违章操作','人员资质不符合']},{name:'物的不安全状态',desc:'设备设施及物料状态方面的隐患',children:['设备设施缺陷','安全防护装置失效','物料堆放不规范']},{name:'作业环境隐患',desc:'现场环境与作业条件方面的隐患',children:['通风照明不足','消防通道堵塞','高处临边防护缺失']},{name:'管理缺陷',desc:'制度、流程和现场管理方面的隐患',children:['制度执行不到位','安全交底缺失']}];
+    const rows=document.getElementById('categoryRows');let parentIndex=null,editTarget=null;
+    function row(name,type,desc,child=false){return `<div class="category-row grid grid-cols-[280px_140px_1fr_130px_220px] items-center px-4 py-3 text-sm hover:bg-blue-50/50 ${child?'child-row':''}" data-name="${name}"><div class="flex items-center gap-2">${child?'<i class="fa fa-file-o text-slate-400"></i>':'<i class="fa fa-angle-down text-slate-500"></i><i class="fa fa-folder-open text-primary"></i>'}<span>${name}</span></div><div><span class="px-2 py-1 rounded text-xs ${child?'bg-green-50 text-green-600':'bg-blue-50 text-primary'}">${type}</span></div><div class="text-xs text-muted">${desc}</div><div class="flex items-center gap-2"><span class="switch"></span><span class="text-xs">启用</span></div><div class="text-right text-xs space-x-3"><button class="text-primary edit">编辑</button>${child?'':`<button class="text-amber-500 add-child">新增下级</button>`}<button class="text-red-500 delete">删除</button></div></div>`}
+    function render(){rows.innerHTML=data.map((x,i)=>row(x.name,'隐患分类',x.desc)+x.children.map(c=>row(c,'二级分类','归属于'+x.name,true)).join('')).join('');bind()}
+    function openModal(title,pIndex=null,target=null){parentIndex=pIndex;editTarget=target;document.getElementById('modalTitle').textContent=title;document.getElementById('name').value=target?.dataset.name||'';document.getElementById('desc').value='';document.getElementById('modal').classList.remove('hidden');document.getElementById('modal').classList.add('flex')}
+    function close(){document.getElementById('modal').classList.add('hidden');document.getElementById('modal').classList.remove('flex')}
+    function bind(){document.querySelectorAll('.switch').forEach(x=>x.onclick=()=>x.classList.toggle('off'));document.querySelectorAll('.delete').forEach(x=>x.onclick=()=>x.closest('.category-row').remove());document.querySelectorAll('.edit').forEach(x=>x.onclick=()=>openModal('编辑隐患分类',null,x.closest('.category-row')));document.querySelectorAll('.add-child').forEach((x,i)=>x.onclick=()=>openModal('新增二级分类',i))}
+    document.getElementById('addRoot').onclick=()=>openModal('新增隐患分类');document.querySelectorAll('[data-close]').forEach(x=>x.onclick=close);document.getElementById('form').onsubmit=e=>{e.preventDefault();const n=document.getElementById('name').value.trim();if(editTarget){editTarget.querySelector('span:last-child').textContent=n;editTarget.dataset.name=n}else if(parentIndex!==null){data[parentIndex].children.push(n);render()}else{data.push({name:n,desc:document.getElementById('desc').value||'暂无描述',children:[]});render()}close()};document.getElementById('search').oninput=e=>{const q=e.target.value.trim();document.querySelectorAll('.category-row').forEach(x=>x.classList.toggle('hidden',q&&!x.dataset.name.includes(q)))};render();
+  </script>
+  <script src="navigation.js?v=20260819-2"></script>
+</body></html>

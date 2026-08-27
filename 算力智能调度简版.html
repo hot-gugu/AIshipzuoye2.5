@@ -1,0 +1,1655 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>万路视频AI - 算力智能调度平台</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+  <script>
+    tailwind.config = {
+      theme:{
+        extend:{
+          colors:{
+            primary:'#165DFF',
+            success:'#00B42A',
+            warning:'#FF7D00',
+            danger:'#F53F3F',
+            purple:'#722ED1',
+            cyan:'#0FC6C2',
+            bgMain:'#131722',
+            cardBg:'#1E2534',
+            borderLine:'#303848',
+            hoverBg:'#272F40'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body{background:#131722;color:#E4E7ED}
+    ::-webkit-scrollbar{width:6px;height:6px}
+    ::-webkit-scrollbar-thumb{background:#444b5c;border-radius:3px}
+    .menu-active{background:rgba(22,93,255,0.2);border-left:4px solid #165DFF;color:#165DFF}
+    .tab-item{padding:10px 20px;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s}
+    .tab-active{border-bottom:2px solid #165DFF;color:#165DFF;font-weight:500}
+    input,select{background:#272F40;border:1px solid #444b5c;color:#fff;padding:4px 8px;border-radius:4px;font-size:13px}
+    input:focus,select:focus{outline:none;border-color:#165DFF}
+    button.primary{background:#165DFF;padding:6px 16px;border-radius:4px;color:#fff;font-size:13px;transition:all .2s}
+    button.primary:hover{background:#0E42D2}
+    button.gray{background:#364156;padding:6px 16px;border-radius:4px;color:#fff;font-size:13px;transition:all .2s}
+    button.gray:hover{background:#444b5c}
+    button.success{background:#00B42A;padding:6px 16px;border-radius:4px;color:#fff;font-size:13px}
+    button.danger{background:#F53F3F;padding:6px 16px;border-radius:4px;color:#fff;font-size:13px}
+    
+    /* 场景策略相关样式 */
+    .scene-row{transition:background .2s}
+    .scene-row:hover{background:#272F40}
+    .scene-row.expanded{background:#272F40}
+    .scene-expand-btn{transition:transform .2s}
+    .scene-row.expanded .scene-expand-btn{transform:rotate(90deg)}
+    .algo-detail-row{background:#1A2030;border-top:1px solid #303848}
+    .algo-table th{background:#272F40;color:#94A3B8;font-weight:500;font-size:12px;padding:8px 12px;text-align:left}
+    .algo-table td{padding:10px 12px;font-size:13px;border-top:1px solid #303848}
+    .algo-table tr:hover td{background:#272F40}
+    
+    .priority-badge{display:inline-block;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:600}
+    .p0{background:rgba(22,93,255,0.15);color:#165DFF}
+    .p1{background:rgba(0,180,42,0.15);color:#00B42A}
+    .p2{background:rgba(255,125,0,0.15);color:#FF7D00}
+    .p3{background:rgba(245,63,63,0.15);color:#F53F3F}
+    
+    .poll-badge{display:inline-block;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:500}
+    .poll-high{background:rgba(0,180,42,0.15);color:#00B42A}
+    .poll-mid{background:rgba(255,125,0,0.15);color:#FF7D00}
+    .poll-low{background:rgba(148,163,184,0.15);color:#94A3B8}
+    
+    .time-tag{display:inline-block;padding:2px 8px;border-radius:3px;font-size:11px;background:rgba(114,46,209,0.15);color:#722ED1}
+    
+    .scene-category-tag{display:inline-block;padding:2px 10px;border-radius:4px;font-size:12px;font-weight:500}
+    .cat-danger{background:rgba(245,63,63,0.12);color:#F53F3F;border:1px solid rgba(245,63,63,0.3)}
+    .cat-maintain{background:rgba(255,125,0,0.12);color:#FF7D00;border:1px solid rgba(255,125,0,0.3)}
+    .cat-normal{background:rgba(22,93,255,0.12);color:#165DFF;border:1px solid rgba(22,93,255,0.3)}
+    .cat-idle{background:rgba(148,163,184,0.12);color:#94A3B8;border:1px solid rgba(148,163,184,0.3)}
+    
+    .status-switch{position:relative;width:36px;height:20px;border-radius:10px;background:#444b5c;cursor:pointer;transition:all .2s}
+    .status-switch.on{background:#00B42A}
+    .status-switch::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:all .2s}
+    .status-switch.on::after{left:18px}
+  </style>
+</head>
+<body class="h-screen overflow-hidden">
+<div class="flex h-full w-full">
+<!--左侧侧边栏（由navigation.js统一渲染） -->
+<aside></aside>
+<!--主内容区域 -->
+<div class="flex-1 flex flex-col overflow-hidden">
+<!--顶部导航 -->
+<header class="h-14 bg-[#1A202E] border-b border-borderLine flex items-center justify-between px-5 shrink-0">
+  <div class="text-lg font-semibold"><i class="fa fa-microchip text-primary mr-2"></i>万路视频AI算力智能调度平台</div>
+  <div class="flex gap-6 text-sm items-center">
+    <span id="timeShow"></span>
+    <span><i class="fa fa-bell text-warning"></i> 系统告警(1)</span>
+    <span>系统管理员</span>
+  </div>
+</header>
+
+<!--主内容：Tab切换容器 -->
+<main class="flex-1 overflow-y-auto p-5">
+  <!-- Tab标签栏 -->
+  <div class="flex border-b border-borderLine mb-5">
+    <div class="tab-item tab-active" onclick="switchTab('monitor',this)">算力监控</div>
+    <div class="tab-item" onclick="switchTab('task',this)">推理任务队列</div>
+    <div class="tab-item" onclick="switchTab('policy',this)">调度策略配置</div>
+    <div class="tab-item" onclick="switchTab('scene',this)">场景策略配置</div>
+  </div>
+
+  <!-- Tab1 算力监控 -->
+  <div id="tab-monitor">
+    <div class="grid grid-cols-4 gap-4 mb-5">
+      <div class="bg-cardBg p-4 rounded-lg">
+        <div class="text-gray-400 text-sm">集群整体状态</div>
+        <div class="text-xl font-bold mt-2">运行正常 <span class="text-success">●</span></div>
+        <div class="mt-3 text-sm space-y-1">
+          <div>AI服务器：6台（4U-8卡）</div>
+          <div>总GPU卡：48卡</div>
+          <div>已占用：23卡 / 空闲25卡</div>
+          <div>集群平均负载：57% <span class="text-warning">(阈值70%)</span></div>
+          <div>当前排队任务：11个</div>
+        </div>
+      </div>
+      <div class="bg-cardBg p-4 rounded-lg">
+        <div class="text-gray-400 text-sm">四级任务实时算力占比</div>
+        <div class="mt-3 space-y-2 text-sm">
+          <div class="flex justify-between"><span class="text-primary">P0 实时告警(智盒+移动布控)</span><span>29%</span></div>
+          <div class="flex justify-between"><span class="text-green-400">P1 普通区域轮巡</span><span>14%</span></div>
+          <div class="flex justify-between"><span class="text-orange-400">P2 事后视频倒查</span><span>15%</span></div>
+          <div class="flex justify-between"><span class="text-red-400">P3 样本&大模型迭代</span><span>0%</span></div>
+        </div>
+        <div class="mt-2 text-gray-400 text-xs">当前时段：白天08:00-18:00，P3自动限流退让</div>
+      </div>
+      <div class="bg-cardBg p-4 rounded-lg">
+        <div class="text-gray-400 text-sm">实时系统告警</div>
+        <div class="mt-3 text-sm max-h-28 overflow-y-auto space-y-2">
+          <div class="text-warning">⚠ AI-03服务器单卡负载81%，超告警阈值</div>
+        </div>
+      </div>
+      <div class="bg-cardBg p-4 rounded-lg">
+        <div class="text-gray-400 text-sm">全域接入终端统计</div>
+        <div class="mt-3 text-sm space-y-1">
+          <div>固定高危智盒：130台</div>
+          <div>AI移动布控球：按需弹性接入</div>
+          <div>普通IPC点位：6000路</div>
+          <div>全网视频授权：10000路</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-cardBg p-4 rounded-lg mb-5">
+      <div class="font-medium mb-3">算力24小时分时负载曲线</div>
+      <div class="h-60"><canvas id="chartTotal"></canvas></div>
+    </div>
+
+    <div class="bg-cardBg p-4 rounded-lg mb-4">
+      <div class="flex justify-between items-center mb-4">
+        <div class="text-lg font-medium">6台4U-8卡AI推理服务器集群明细</div>
+        <div>
+          <button class="primary mr-2">手动刷新</button>
+          <button class="gray">导出报表</button>
+        </div>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="text-gray-400 border-b border-borderLine">
+            <tr>
+              <th class="text-left py-2">服务器ID</th>
+              <th class="text-left py-2">硬件规格</th>
+              <th class="text-left py-2">CPU使用率</th>
+              <th class="text-left py-2">GPU平均负载</th>
+              <th class="text-left py-2">显存平均</th>
+              <th class="text-left py-2">整机温度</th>
+              <th class="text-left py-2">运行状态</th>
+              <th class="text-left py-2">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-b border-[#2a3142]">
+              <td>AI-01</td>
+              <td>4U/8卡/256G</td>
+              <td>31%</td>
+              <td>43%</td>
+              <td>36%</td>
+              <td>60℃</td>
+              <td><span class="text-success">正常</span></td>
+              <td><button class="text-primary text-sm">查看GPU详情</button></td>
+            </tr>
+            <tr class="border-b border-[#2a3142]">
+              <td>AI-02</td>
+              <td>4U/8卡/256G</td>
+              <td>35%</td>
+              <td>49%</td>
+              <td>40%</td>
+              <td>62℃</td>
+              <td><span class="text-success">正常</span></td>
+              <td><button class="text-primary text-sm">查看GPU详情</button></td>
+            </tr>
+            <tr class="border-b border-[#2a3142]">
+              <td>AI-03</td>
+              <td>4U/8卡/256G</td>
+              <td>41%</td>
+              <td class="text-warning">78%</td>
+              <td>62%</td>
+              <td class="text-warning">73℃</td>
+              <td><span class="text-warning">负载预警</span></td>
+              <td><button class="text-primary text-sm">查看GPU详情</button></td>
+            </tr>
+            <tr>
+              <td>AI-04~06</td>
+              <td>4U/8卡/256G</td>
+              <td>24~29%</td>
+              <td>27~34%</td>
+              <td>23~31%</td>
+              <td>55~60℃</td>
+              <td><span class="text-success">正常</span></td>
+              <td><button class="text-primary text-sm">查看GPU详情</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-5">
+      <div class="bg-cardBg p-4 rounded-lg">
+        <div class="font-medium mb-3">24小时集群总负载趋势</div>
+        <div class="h-60"><canvas id="c1"></canvas></div>
+      </div>
+      <div class="bg-cardBg p-4 rounded-lg">
+        <div class="font-medium mb-3">四类任务算力占比饼图</div>
+        <div class="h-60"><canvas id="c2"></canvas></div>
+      </div>
+      <div class="bg-cardBg p-4 rounded-lg">
+        <div class="font-medium mb-3">平均显存占用24h曲线</div>
+        <div class="h-60"><canvas id="c3"></canvas></div>
+      </div>
+      <div class="bg-cardBg p-4 rounded-lg">
+        <div class="font-medium mb-3">服务器温度分布统计</div>
+        <div class="h-60"><canvas id="c4"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab2 推理任务队列 -->
+  <div id="tab-task" class="hidden">
+    <div class="bg-cardBg p-4 rounded-lg">
+      <div class="flex justify-between items-center mb-4">
+        <div class="text-lg font-medium">全域AI推理任务管理队列</div>
+        <div class="flex gap-3 items-center">
+          <select>
+            <option>全部优先级</option>
+            <option>P0-实时告警复核</option>
+            <option>P1-普通区域轮巡</option>
+            <option>P2-事后视频倒查</option>
+            <option>P3-样本&大模型迭代</option>
+          </select>
+          <button class="primary">刷新队列</button>
+        </div>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="text-gray-400 border-b border-borderLine">
+            <tr>
+              <th class="text-left py-2">任务ID</th>
+              <th class="text-left py-2">任务类型</th>
+              <th class="text-left py-2">事件优先级</th>
+              <th class="text-left py-2">来源终端</th>
+              <th class="text-left py-2">关联场景策略</th>
+              <th class="text-left py-2">绑定服务器</th>
+              <th class="text-left py-2">算力占用</th>
+              <th class="text-left py-2">状态</th>
+              <th class="text-left py-2">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-b border-[#2a3142]">
+              <td>T0806-0001</td>
+              <td>固定智盒+移动布控告警复核</td>
+              <td><span class="text-primary">P0</span></td>
+              <td>矿山一移动布控+智盒</td>
+              <td>高空作业,爆破作业</td>
+              <td>AI-01</td>
+              <td>11%</td>
+              <td><span class="text-success">运行中</span></td>
+              <td class="text-gray-400">不可操作</td>
+            </tr>
+            <tr class="border-b border-[#2a3142]">
+              <td>T0806-0043</td>
+              <td>普通区域AI轮巡</td>
+              <td><span class="text-green-400">P1</span></td>
+              <td>全厂区普通IPC</td>
+              <td>皮带传送区域</td>
+              <td>AI-02</td>
+              <td>9%</td>
+              <td><span class="text-success">运行中</span></td>
+              <td class="text-gray-400">不可操作</td>
+            </tr>
+            <tr class="border-b border-[#2a3142]">
+              <td>T0806-0108</td>
+              <td>事后批量视频倒查</td>
+              <td>P2</td>
+              <td>矿山三事故溯源</td>
+              <td>采矿一号区域</td>
+              <td>AI-03</td>
+              <td>17%</td>
+              <td><span class="text-warning">运行中</span></td>
+              <td><button class="text-orange-400">暂停</button> <button class="text-primary">重调度</button></td>
+            </tr>
+            <tr class="border-b border-[#2a3142]">
+              <td>T0806-0215</td>
+              <td>事后批量视频倒查</td>
+              <td>P2</td>
+              <td>矿山二隐患复盘</td>
+              <td>动火作业</td>
+              <td>--</td>
+              <td>0%</td>
+              <td><span class="text-blue-400">排队等待</span></td>
+              <td><button class="text-primary">上调优先级</button> <button class="text-danger">取消</button></td>
+            </tr>
+            <tr>
+              <td>T0806-0302</td>
+              <td>样本清洗+大模型迭代</td>
+              <td><span class="text-red-400">P3</span></td>
+              <td>集团中心样本库</td>
+              <td>受限空间作业</td>
+              <td>--</td>
+              <td>0%</td>
+              <td><span class="text-blue-400">高峰退让排队</span></td>
+              <td><button class="text-primary">上调优先级</button> <button class="text-danger">取消</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="mt-4 text-xs text-gray-400">
+        说明：P0/P1为安全生产核心实时业务，禁止人工暂停；P2、P3离线任务支持暂停、上调优先级、取消；集群负载超过70%自动压缩P2/P3算力。
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab3 调度策略配置 -->
+  <div id="tab-policy" class="hidden">
+    <div class="bg-cardBg p-5 rounded-lg">
+      <div class="text-lg font-medium mb-6">算力智能调度自定义策略配置</div>
+      <div class="grid grid-cols-2 gap-8">
+        <div>
+          <div class="mb-5">
+            <div class="font-medium mb-2">集群全局阈值配置</div>
+            <div class="mb-3">
+              集群安全负载告警阈值：<input value="70" style="width:60px"> %
+              <div class="text-xs text-gray-400 mt-1">整体负载超过该值，自动限流P2、P3任务，保障P0/P1核心安全业务</div>
+            </div>
+            <div class="mb-3">
+              GPU单卡负载告警阈值：<input value="80" style="width:60px"> %
+            </div>
+            <div class="mb-3">
+              GPU温度告警阈值：<input value="75" style="width:60px"> ℃
+            </div>
+          </div>
+          <div class="mb-5">
+            <div class="font-medium mb-2">四级任务优先级定义（固定规则）</div>
+            <div class="text-sm space-y-2">
+              <div>P0｜固定高危智盒+移动布控实时告警复核：最高优先级，不可抢占、不可暂停</div>
+              <div>P1｜普通区域AI轮巡：次高优先级，保障日常履职抽查</div>
+              <div>P2｜事后批量视频倒查：离线脉冲任务，算力紧张自动排队限速</div>
+              <div>P3｜样本预处理+行业大模型迭代：最低优先级，白天高峰自动退让算力</div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="font-medium mb-3">潮汐错峰调度时段自定义</div>
+          <div class="mb-4">
+            <div>白天生产时段：08:00 ~ 18:00</div>
+            <div class="mt-1">P3任务最大算力限制：<input value="20" style="width:60px"> %</div>
+            <div class="text-xs text-gray-400">白天限制离线任务算力，不干扰现场实时监管</div>
+          </div>
+          <div class="mb-4">
+            <div>夜间/停产空闲时段：18:00 ~ 次日08:00</div>
+            <div class="mt-1">P3算力无上限，自动占用全部空闲GPU资源</div>
+          </div>
+          <div class="font-medium mb-3 mt-6">推理差异化策略开关</div>
+          <div class="text-sm space-y-2">
+            <div><input type="checkbox" checked> P0告警任务启用人形级联推理，降低持续算力消耗</div>
+            <div><input type="checkbox" checked> P1轮巡任务关闭级联，全算法完整分析不漏检</div>
+            <div><input type="checkbox" checked> P2/P3离线任务禁用节能，完整解析录像与样本</div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-8">
+        <button class="primary mr-3">保存全部自定义策略</button>
+        <button class="gray">恢复系统默认配置</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab4 场景策略配置 -->
+  <div id="tab-scene" class="hidden">
+    <!-- 顶部统计卡片 -->
+    <!-- <div class="grid grid-cols-4 gap-4 mb-5">
+      <div class="bg-cardBg p-4 rounded-lg">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="text-gray-400 text-sm">场景策略总数</div>
+            <div class="text-2xl font-bold mt-1 text-primary">36<span class="text-sm font-normal ml-1">个</span></div>
+          </div>
+          <div class="w-12 h-12 rounded-lg bg-primary/15 flex items-center justify-center text-primary text-xl">
+            <i class="fa fa-layer-group"></i>
+          </div>
+        </div>
+        <div class="mt-3 text-xs text-gray-400 flex gap-4">
+          <span><i class="fa fa-circle text-success mr-1" style="font-size:6px"></i>启用 28</span>
+          <span><i class="fa fa-circle text-gray-500 mr-1" style="font-size:6px"></i>停用 8</span>
+        </div>
+      </div>
+      <div class="bg-cardBg p-4 rounded-lg">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="text-gray-400 text-sm">关联算法总数</div>
+            <div class="text-2xl font-bold mt-1 text-success">58<span class="text-sm font-normal ml-1">个</span></div>
+          </div>
+          <div class="w-12 h-12 rounded-lg bg-success/15 flex items-center justify-center text-success text-xl">
+            <i class="fa fa-cubes"></i>
+          </div>
+        </div>
+        <div class="mt-3 text-xs text-gray-400 flex gap-4">
+          <span><i class="fa fa-circle text-primary mr-1" style="font-size:6px"></i>算法模型 42</span>
+          <span><i class="fa fa-circle text-purple mr-1" style="font-size:6px"></i>规则算法 16</span>
+        </div>
+      </div>
+      <div class="bg-cardBg p-4 rounded-lg">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="text-gray-400 text-sm">高危作业场景</div>
+            <div class="text-2xl font-bold mt-1 text-danger">8<span class="text-sm font-normal ml-1">个</span></div>
+          </div>
+          <div class="w-12 h-12 rounded-lg bg-danger/15 flex items-center justify-center text-danger text-xl">
+            <i class="fa fa-exclamation-triangle"></i>
+          </div>
+        </div>
+        <div class="mt-3 text-xs text-gray-400">
+          动火/高空/受限空间/爆破等
+        </div>
+      </div>
+      <div class="bg-cardBg p-4 rounded-lg">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="text-gray-400 text-sm">今日策略触发</div>
+            <div class="text-2xl font-bold mt-1 text-warning">1,258<span class="text-sm font-normal ml-1">次</span></div>
+          </div>
+          <div class="w-12 h-12 rounded-lg bg-warning/15 flex items-center justify-center text-warning text-xl">
+            <i class="fa fa-bolt"></i>
+          </div>
+        </div>
+        <div class="mt-3 text-xs text-gray-400 flex gap-4">
+          <span><i class="fa fa-circle text-warning mr-1" style="font-size:6px"></i>预警 856</span>
+          <span><i class="fa fa-circle text-danger mr-1" style="font-size:6px"></i>告警 402</span>
+        </div>
+      </div>
+    </div> -->
+
+    <!-- 筛选和操作栏 -->
+    <div class="bg-cardBg p-4 rounded-lg mb-4">
+      <div class="flex items-center justify-between flex-wrap gap-3">
+        <div class="flex items-center gap-3 flex-wrap">
+          <select>
+            <option>全部场景分类</option>
+            <option>高危作业场景</option>
+            <option>检维修场景</option>
+            <option>常规作业场景</option>
+            <option>闲置场景</option>
+          </select>
+          <select>
+            <option>全部启用状态</option>
+            <option>已启用</option>
+            <option>已停用</option>
+          </select>
+          <select>
+            <option>全部分析优先级</option>
+            <option>P0-最高优先</option>
+            <option>P1-高优先</option>
+            <option>P2-中优先</option>
+            <option>P3-低优先</option>
+          </select>
+          <div class="relative">
+            <i class="fa fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-xs"></i>
+            <input type="text" placeholder="搜索场景名称或编码" style="padding-left:30px;width:200px">
+          </div>
+          <!-- <button class="gray">重置</button> -->
+        </div>
+        <div class="flex gap-2">
+          <button class="gray"><i class="fa fa-upload mr-1"></i>批量导入</button>
+          <button class="gray"><i class="fa fa-download mr-1"></i>导出配置</button>
+          <button class="primary"><i class="fa fa-plus mr-1"></i>新增场景策略</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 场景策略列表台账 -->
+    <div class="bg-cardBg rounded-lg overflow-hidden">
+      <!-- 表头 -->
+      <div class="flex items-center px-4 py-3 bg-[#272F40] text-gray-400 text-xs font-medium border-b border-borderLine">
+        <div class="w-10"></div>
+        <div class="w-24">场景编码</div>
+        <div class="w-40">场景名称</div>
+        <div class="w-28">场景分类</div>
+        <div class="w-24">关联算法数</div>
+        <div class="w-28">最高分析优先级</div>
+        <div class="w-28">轮询策略</div>
+        <div class="w-36">生效时段</div>
+        <div class="w-20">状态</div>
+        <div class="flex-1 text-right">操作</div>
+      </div>
+
+      <!-- 场景行1：动火作业（高危作业场景） -->
+      <div class="scene-row border-b border-[#2a3142] cursor-pointer" onclick="toggleScene(this)">
+        <div class="flex items-center px-4 py-3.5">
+          <div class="w-10">
+            <i class="fa fa-chevron-right scene-expand-btn text-gray-500 text-xs"></i>
+          </div>
+          <div class="w-24 text-sm font-mono text-primary">SC-DG-001</div>
+          <div class="w-40 text-sm font-medium">动火作业监测</div>
+          <div class="w-28">
+            <span class="scene-category-tag cat-danger">高危作业</span>
+          </div>
+          <div class="w-24 text-sm">
+            <span class="text-white font-medium">6</span> 个
+          </div>
+          <div class="w-28">
+            <span class="priority-badge p0">P0 最高优先</span>
+          </div>
+          <div class="w-28">
+            <span class="poll-badge poll-high">5秒</span>
+          </div>
+          <div class="w-36 text-sm text-gray-300">
+            <i class="fa fa-clock-o text-purple mr-1 text-xs"></i>
+            全天 00:00-24:00
+          </div>
+          <div class="w-20">
+            <div class="status-switch on" onclick="event.stopPropagation()"></div>
+          </div>
+          <div class="flex-1 text-right">
+            <button class="text-primary text-sm mr-3" onclick="event.stopPropagation()">编辑</button>
+            <button class="text-gray-400 text-sm" onclick="event.stopPropagation()">更多</button>
+          </div>
+        </div>
+        <!-- 展开的算法详情 -->
+        <div class="algo-detail-row hidden">
+          <div class="px-10 py-4">
+            <div class="flex items-center justify-between mb-3">
+              <div class="text-sm font-medium text-white">
+                <i class="fa fa-cubes text-primary mr-2"></i>
+                关联算法配置（6个）
+              </div>
+              <button class="primary" style="padding:4px 12px;font-size:12px" onclick="event.stopPropagation()">
+                <i class="fa fa-plus mr-1"></i>添加算法
+              </button>
+            </div>
+            <table class="w-full algo-table">
+              <thead>
+                <tr>
+                  <th style="width:50px">序号</th>
+                  <th>算法名称</th>
+                  <th style="width:120px">算法类型</th>
+                  <!-- <th style="width:120px">分析优先级</th> -->
+                  <!-- <th style="width:120px">轮询优先级</th> -->
+                  <!-- <th style="width:180px">生效计划时间段</th> -->
+                  <th style="width:100px">状态</th>
+                  <th style="width:120px">置信度阈值</th>
+                  <th style="width:120px;text-align:right">操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="text-gray-500">1</td>
+                  <td>明火识别</td>
+                  <td><span class="text-danger">环境与设备</span></td>
+                  <!-- <td><span class="priority-badge p0">P0 最高</span></td> -->
+                  <!-- <td><span class="poll-badge poll-high">实时监测</span></td> -->
+                  <!-- <td><span class="time-tag">全天 00:00-24:00</span></td> -->
+                  <td><span class="text-gray-400">禁用</span></td>
+                  <td class="text-warning font-medium">85%</td>
+                  <td class="text-right">
+                    <button class="text-primary text-xs mr-2">编辑</button>
+                    <button class="text-danger text-xs">移除</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="text-gray-500">2</td>
+                  <td>烟雾识别</td>
+                  <td><span class="text-danger">环境与设备</span></td>
+                  <!-- <td><span class="priority-badge p0">P0 最高</span></td>
+                  <td><span class="poll-badge poll-high">实时监测</span></td>
+                  <td><span class="time-tag">全天 00:00-24:00</span></td> -->
+                  <td><span class="text-gray-400">禁用</span></td>
+                  <td class="text-warning font-medium">80%</td>
+                  <td class="text-right">
+                    <button class="text-primary text-xs mr-2">编辑</button>
+                    <button class="text-danger text-xs">移除</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="text-gray-500">3</td>
+                  <td>未佩戴安全帽识别</td>
+                  <td><span class="text-primary">人员行为</span></td>
+                  <!-- <td><span class="priority-badge p0">P0 最高</span></td>
+                  <td><span class="poll-badge poll-high">5秒</span></td>
+                  <td><span class="time-tag">作业时段 08:00-18:00</span></td> -->
+                  <td><span class="text-success">启用</span></td>
+                  <td class="text-warning font-medium">75%</td>
+                  <td class="text-right">
+                    <button class="text-primary text-xs mr-2">编辑</button>
+                    <button class="text-danger text-xs">移除</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="text-gray-500">4</td>
+                  <td>未穿阻燃服识别</td>
+                  <td><span class="text-primary">人员行为</span></td>
+                  <!-- <td><span class="priority-badge p1">P1 高优先</span></td>
+                  <td><span class="poll-badge poll-mid">1分钟</span></td>
+                  <td><span class="time-tag">作业时段 08:00-18:00</span></td> -->
+                  <td><span class="text-success">启用</span></td>
+                  <td class="text-warning font-medium">70%</td>
+                  <td class="text-right">
+                    <button class="text-primary text-xs mr-2">编辑</button>
+                    <button class="text-danger text-xs">移除</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="text-gray-500">5</td>
+                  <td>抽烟识别</td>
+                  <td><span class="text-primary">人员行为</span></td>
+                  <!-- <td><span class="priority-badge p1">P1 高优先</span></td>
+                  <td><span class="poll-badge poll-mid">1分钟</span></td>
+                  <td><span class="time-tag">全天 00:00-24:00</span></td> -->
+                  <td><span class="text-success">启用</span></td>
+                  <td class="text-warning font-medium">72%</td>
+                  <td class="text-right">
+                    <button class="text-primary text-xs mr-2">编辑</button>
+                    <button class="text-danger text-xs">移除</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="text-gray-500">6</td>
+                  <td>违规动火作业识别</td>
+                  <td><span class="text-purple">作业流程</span></td>
+                  <!-- <td><span class="priority-badge p0">P0 最高</span></td>
+                  <td><span class="poll-badge poll-high">实时监测</span></td>
+                  <td><span class="time-tag">全天 00:00-24:00</span></td> -->
+                  <td><span class="text-gray-400">禁用</span></td>
+                  <td class="text-warning font-medium">78%</td>
+                  <td class="text-right">
+                    <button class="text-primary text-xs mr-2">编辑</button>
+                    <button class="text-danger text-xs">移除</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 场景行2：高空作业（高危作业场景） -->
+      <div class="scene-row border-b border-[#2a3142] cursor-pointer" onclick="toggleScene(this)">
+        <div class="flex items-center px-4 py-3.5">
+          <div class="w-10">
+            <i class="fa fa-chevron-right scene-expand-btn text-gray-500 text-xs"></i>
+          </div>
+          <div class="w-24 text-sm font-mono text-primary">SC-GK-002</div>
+          <div class="w-40 text-sm font-medium">高空作业监测</div>
+          <div class="w-28">
+            <span class="scene-category-tag cat-danger">高危作业</span>
+          </div>
+          <div class="w-24 text-sm">
+            <span class="text-white font-medium">5</span> 个
+          </div>
+          <div class="w-28">
+            <span class="priority-badge p0">P0 最高优先</span>
+          </div>
+          <div class="w-28">
+            <span class="poll-badge poll-high">5秒</span>
+          </div>
+          <div class="w-36 text-sm text-gray-300">
+            <i class="fa fa-clock-o text-purple mr-1 text-xs"></i>
+            作业时段 08:00-18:00
+          </div>
+          <div class="w-20">
+            <div class="status-switch on" onclick="event.stopPropagation()"></div>
+          </div>
+          <div class="flex-1 text-right">
+            <button class="text-primary text-sm mr-3" onclick="event.stopPropagation()">编辑</button>
+            <button class="text-gray-400 text-sm" onclick="event.stopPropagation()">更多</button>
+          </div>
+        </div>
+        <div class="algo-detail-row hidden">
+          <div class="px-10 py-4">
+            <div class="flex items-center justify-between mb-3">
+              <div class="text-sm font-medium text-white">
+                <i class="fa fa-cubes text-primary mr-2"></i>
+                关联算法配置（5个）
+              </div>
+              <button class="primary" style="padding:4px 12px;font-size:12px" onclick="event.stopPropagation()">
+                <i class="fa fa-plus mr-1"></i>添加算法
+              </button>
+            </div>
+            <table class="w-full algo-table">
+              <thead>
+                <tr>
+                  <th style="width:50px">序号</th>
+                  <th>算法名称</th>
+                  <th style="width:120px">算法类型</th>
+                  <th style="width:120px">分析优先级</th>
+                  <th style="width:120px">轮询优先级</th>
+                  <th style="width:180px">生效计划时间段</th>
+                  <th style="width:100px">人形级联</th>
+                  <th style="width:120px">置信度阈值</th>
+                  <th style="width:120px;text-align:right">操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="text-gray-500">1</td>
+                  <td>未系安全带识别</td>
+                  <td><span class="text-primary">人员行为</span></td>
+                  <td><span class="priority-badge p0">P0 最高</span></td>
+                  <td><span class="poll-badge poll-high">实时监测</span></td>
+                  <td><span class="time-tag">作业时段 08:00-18:00</span></td>
+                  <td><span class="text-success">启用</span></td>
+                  <td class="text-warning font-medium">80%</td>
+                  <td class="text-right">
+                    <button class="text-primary text-xs mr-2">编辑</button>
+                    <button class="text-danger text-xs">移除</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="text-gray-500">2</td>
+                  <td>高空坠落识别</td>
+                  <td><span class="text-danger">安全事件</span></td>
+                  <td><span class="priority-badge p0">P0 最高</span></td>
+                  <td><span class="poll-badge poll-high">实时监测</span></td>
+                  <td><span class="time-tag">作业时段 08:00-18:00</span></td>
+                  <td><span class="text-gray-400">禁用</span></td>
+                  <td class="text-warning font-medium">85%</td>
+                  <td class="text-right">
+                    <button class="text-primary text-xs mr-2">编辑</button>
+                    <button class="text-danger text-xs">移除</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="text-gray-500">3</td>
+                  <td>临边越界识别</td>
+                  <td><span class="text-primary">人员行为</span></td>
+                  <td><span class="priority-badge p0">P0 最高</span></td>
+                  <td><span class="poll-badge poll-high">5秒</span></td>
+                  <td><span class="time-tag">作业时段 08:00-18:00</span></td>
+                  <td><span class="text-success">启用</span></td>
+                  <td class="text-warning font-medium">75%</td>
+                  <td class="text-right">
+                    <button class="text-primary text-xs mr-2">编辑</button>
+                    <button class="text-danger text-xs">移除</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="text-gray-500">4</td>
+                  <td>未佩戴安全帽识别</td>
+                  <td><span class="text-primary">人员行为</span></td>
+                  <td><span class="priority-badge p1">P1 高优先</span></td>
+                  <td><span class="poll-badge poll-mid">1分钟</span></td>
+                  <td><span class="time-tag">作业时段 08:00-18:00</span></td>
+                  <td><span class="text-success">启用</span></td>
+                  <td class="text-warning font-medium">75%</td>
+                  <td class="text-right">
+                    <button class="text-primary text-xs mr-2">编辑</button>
+                    <button class="text-danger text-xs">移除</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="text-gray-500">5</td>
+                  <td>安全带使用不规范识别</td>
+                  <td><span class="text-primary">人员行为</span></td>
+                  <td><span class="priority-badge p1">P1 高优先</span></td>
+                  <td><span class="poll-badge poll-mid">1分钟</span></td>
+                  <td><span class="time-tag">作业时段 08:00-18:00</span></td>
+                  <td><span class="text-success">启用</span></td>
+                  <td class="text-warning font-medium">70%</td>
+                  <td class="text-right">
+                    <button class="text-primary text-xs mr-2">编辑</button>
+                    <button class="text-danger text-xs">移除</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 场景行3：受限空间作业（高危作业场景） -->
+      <div class="scene-row border-b border-[#2a3142] cursor-pointer" onclick="toggleScene(this)">
+        <div class="flex items-center px-4 py-3.5">
+          <div class="w-10">
+            <i class="fa fa-chevron-right scene-expand-btn text-gray-500 text-xs"></i>
+          </div>
+          <div class="w-24 text-sm font-mono text-primary">SC-SX-003</div>
+          <div class="w-40 text-sm font-medium">受限空间作业监测</div>
+          <div class="w-28">
+            <span class="scene-category-tag cat-danger">高危作业</span>
+          </div>
+          <div class="w-24 text-sm">
+            <span class="text-white font-medium">4</span> 个
+          </div>
+          <div class="w-28">
+            <span class="priority-badge p0">P0 最高优先</span>
+          </div>
+          <div class="w-28">
+            <span class="poll-badge poll-high">5秒</span>
+          </div>
+          <div class="w-36 text-sm text-gray-300">
+            <i class="fa fa-clock-o text-purple mr-1 text-xs"></i>
+            作业时段 08:00-20:00
+          </div>
+          <div class="w-20">
+            <div class="status-switch on" onclick="event.stopPropagation()"></div>
+          </div>
+          <div class="flex-1 text-right">
+            <button class="text-primary text-sm mr-3" onclick="event.stopPropagation()">编辑</button>
+            <button class="text-gray-400 text-sm" onclick="event.stopPropagation()">更多</button>
+          </div>
+        </div>
+        <div class="algo-detail-row hidden">
+          <div class="px-10 py-4">
+            <div class="flex items-center justify-between mb-3">
+              <div class="text-sm font-medium text-white">
+                <i class="fa fa-cubes text-primary mr-2"></i>
+                关联算法配置（4个）
+              </div>
+              <button class="primary" style="padding:4px 12px;font-size:12px" onclick="event.stopPropagation()">
+                <i class="fa fa-plus mr-1"></i>添加算法
+              </button>
+            </div>
+            <table class="w-full algo-table">
+              <thead>
+                <tr>
+                  <th style="width:50px">序号</th>
+                  <th>算法名称</th>
+                  <th style="width:120px">算法类型</th>
+                  <th style="width:120px">分析优先级</th>
+                  <th style="width:120px">轮询优先级</th>
+                  <th style="width:180px">生效计划时间段</th>
+                  <th style="width:100px">人形级联</th>
+                  <th style="width:120px">置信度阈值</th>
+                  <th style="width:120px;text-align:right">操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="text-gray-500">1</td>
+                  <td>有毒气体检测联动</td>
+                  <td><span class="text-danger">环境监测</span></td>
+                  <td><span class="priority-badge p0">P0 最高</span></td>
+                  <td><span class="poll-badge poll-high">实时监测</span></td>
+                  <td><span class="time-tag">作业时段 08:00-20:00</span></td>
+                  <td><span class="text-gray-400">禁用</span></td>
+                  <td class="text-warning font-medium">90%</td>
+                  <td class="text-right">
+                    <button class="text-primary text-xs mr-2">编辑</button>
+                    <button class="text-danger text-xs">移除</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="text-gray-500">2</td>
+                  <td>人员闯入识别</td>
+                  <td><span class="text-primary">人员行为</span></td>
+                  <td><span class="priority-badge p0">P0 最高</span></td>
+                  <td><span class="poll-badge poll-high">实时监测</span></td>
+                  <td><span class="time-tag">全天 00:00-24:00</span></td>
+                  <td><span class="text-success">启用</span></td>
+                  <td class="text-warning font-medium">80%</td>
+                  <td class="text-right">
+                    <button class="text-primary text-xs mr-2">编辑</button>
+                    <button class="text-danger text-xs">移除</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="text-gray-500">3</td>
+                  <td>未佩戴安全帽识别</td>
+                  <td><span class="text-primary">人员行为</span></td>
+                  <td><span class="priority-badge p1">P1 高优先</span></td>
+                  <td><span class="poll-badge poll-mid">1分钟</span></td>
+                  <td><span class="time-tag">作业时段 08:00-20:00</span></td>
+                  <td><span class="text-success">启用</span></td>
+                  <td class="text-warning font-medium">75%</td>
+                  <td class="text-right">
+                    <button class="text-primary text-xs mr-2">编辑</button>
+                    <button class="text-danger text-xs">移除</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="text-gray-500">4</td>
+                  <td>人员离岗识别</td>
+                  <td><span class="text-primary">人员行为</span></td>
+                  <td><span class="priority-badge p1">P1 高优先</span></td>
+                  <td><span class="poll-badge poll-mid">1分钟</span></td>
+                  <td><span class="time-tag">作业时段 08:00-20:00</span></td>
+                  <td><span class="text-success">启用</span></td>
+                  <td class="text-warning font-medium">70%</td>
+                  <td class="text-right">
+                    <button class="text-primary text-xs mr-2">编辑</button>
+                    <button class="text-danger text-xs">移除</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 场景行4：设备检修（检维修场景） -->
+      <div class="scene-row border-b border-[#2a3142] cursor-pointer" onclick="toggleScene(this)">
+        <div class="flex items-center px-4 py-3.5">
+          <div class="w-10">
+            <i class="fa fa-chevron-right scene-expand-btn text-gray-500 text-xs"></i>
+          </div>
+          <div class="w-24 text-sm font-mono text-primary">SC-JX-004</div>
+          <div class="w-40 text-sm font-medium">设备检修作业监测</div>
+          <div class="w-28">
+            <span class="scene-category-tag cat-maintain">检维修</span>
+          </div>
+          <div class="w-24 text-sm">
+            <span class="text-white font-medium">5</span> 个
+          </div>
+          <div class="w-28">
+            <span class="priority-badge p1">P1 高优先</span>
+          </div>
+          <div class="w-28">
+            <span class="poll-badge poll-mid">1分钟</span>
+          </div>
+          <div class="w-36 text-sm text-gray-300">
+            <i class="fa fa-clock-o text-purple mr-1 text-xs"></i>
+            检修工单触发
+          </div>
+          <div class="w-20">
+            <div class="status-switch on" onclick="event.stopPropagation()"></div>
+          </div>
+          <div class="flex-1 text-right">
+            <button class="text-primary text-sm mr-3" onclick="event.stopPropagation()">编辑</button>
+            <button class="text-gray-400 text-sm" onclick="event.stopPropagation()">更多</button>
+          </div>
+        </div>
+        <div class="algo-detail-row hidden">
+          <div class="px-10 py-4">
+            <div class="flex items-center justify-between mb-3">
+              <div class="text-sm font-medium text-white">
+                <i class="fa fa-cubes text-primary mr-2"></i>
+                关联算法配置（5个）
+              </div>
+              <button class="primary" style="padding:4px 12px;font-size:12px" onclick="event.stopPropagation()">
+                <i class="fa fa-plus mr-1"></i>添加算法
+              </button>
+            </div>
+            <table class="w-full algo-table">
+              <thead>
+                <tr>
+                  <th style="width:50px">序号</th>
+                  <th>算法名称</th>
+                  <th style="width:120px">算法类型</th>
+                  <th style="width:120px">分析优先级</th>
+                  <th style="width:120px">轮询优先级</th>
+                  <th style="width:180px">生效计划时间段</th>
+                  <th style="width:100px">人形级联</th>
+                  <th style="width:120px">置信度阈值</th>
+                  <th style="width:120px;text-align:right">操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="text-gray-500">1</td>
+                  <td>未佩戴安全帽识别</td>
+                  <td><span class="text-primary">人员行为</span></td>
+                  <td><span class="priority-badge p1">P1 高优先</span></td>
+                  <td><span class="poll-badge poll-high">5秒</span></td>
+                  <td><span class="time-tag">工单触发-工单结束</span></td>
+                  <td><span class="text-success">启用</span></td>
+                  <td class="text-warning font-medium">75%</td>
+                  <td class="text-right">
+                    <button class="text-primary text-xs mr-2">编辑</button>
+                    <button class="text-danger text-xs">移除</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="text-gray-500">2</td>
+                  <td>未穿劳保鞋识别</td>
+                  <td><span class="text-primary">人员行为</span></td>
+                  <td><span class="priority-badge p1">P1 高优先</span></td>
+                  <td><span class="poll-badge poll-mid">1分钟</span></td>
+                  <td><span class="time-tag">工单触发-工单结束</span></td>
+                  <td><span class="text-success">启用</span></td>
+                  <td class="text-warning font-medium">70%</td>
+                  <td class="text-right">
+                    <button class="text-primary text-xs mr-2">编辑</button>
+                    <button class="text-danger text-xs">移除</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="text-gray-500">3</td>
+                  <td>违规操作识别</td>
+                  <td><span class="text-purple">作业流程</span></td>
+                  <td><span class="priority-badge p1">P1 高优先</span></td>
+                  <td><span class="poll-badge poll-mid">1分钟</span></td>
+                  <td><span class="time-tag">工单触发-工单结束</span></td>
+                  <td><span class="text-success">启用</span></td>
+                  <td class="text-warning font-medium">72%</td>
+                  <td class="text-right">
+                    <button class="text-primary text-xs mr-2">编辑</button>
+                    <button class="text-danger text-xs">移除</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="text-gray-500">4</td>
+                  <td>设备防护罩缺失识别</td>
+                  <td><span class="text-danger">设备状态</span></td>
+                  <td><span class="priority-badge p2">P2 中优先</span></td>
+                  <td><span class="poll-badge poll-mid">1分钟</span></td>
+                  <td><span class="time-tag">工单触发-工单结束</span></td>
+                  <td><span class="text-gray-400">禁用</span></td>
+                  <td class="text-warning font-medium">68%</td>
+                  <td class="text-right">
+                    <button class="text-primary text-xs mr-2">编辑</button>
+                    <button class="text-danger text-xs">移除</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="text-gray-500">5</td>
+                  <td>人员聚集识别</td>
+                  <td><span class="text-primary">人员行为</span></td>
+                  <td><span class="priority-badge p2">P2 中优先</span></td>
+                  <td><span class="poll-badge poll-low">30分钟</span></td>
+                  <td><span class="time-tag">工单触发-工单结束</span></td>
+                  <td><span class="text-success">启用</span></td>
+                  <td class="text-warning font-medium">65%</td>
+                  <td class="text-right">
+                    <button class="text-primary text-xs mr-2">编辑</button>
+                    <button class="text-danger text-xs">移除</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 场景行5：皮带检修（检维修场景） -->
+      <div class="scene-row border-b border-[#2a3142] cursor-pointer" onclick="toggleScene(this)">
+        <div class="flex items-center px-4 py-3.5">
+          <div class="w-10">
+            <i class="fa fa-chevron-right scene-expand-btn text-gray-500 text-xs"></i>
+          </div>
+          <div class="w-24 text-sm font-mono text-primary">SC-PD-005</div>
+          <div class="w-40 text-sm font-medium">皮带检修作业监测</div>
+          <div class="w-28">
+            <span class="scene-category-tag cat-maintain">检维修</span>
+          </div>
+          <div class="w-24 text-sm">
+            <span class="text-white font-medium">3</span> 个
+          </div>
+          <div class="w-28">
+            <span class="priority-badge p1">P1 高优先</span>
+          </div>
+          <div class="w-28">
+            <span class="poll-badge poll-mid">1分钟</span>
+          </div>
+          <div class="w-36 text-sm text-gray-300">
+            <i class="fa fa-clock-o text-purple mr-1 text-xs"></i>
+            检修工单触发
+          </div>
+          <div class="w-20">
+            <div class="status-switch on" onclick="event.stopPropagation()"></div>
+          </div>
+          <div class="flex-1 text-right">
+            <button class="text-primary text-sm mr-3" onclick="event.stopPropagation()">编辑</button>
+            <button class="text-gray-400 text-sm" onclick="event.stopPropagation()">更多</button>
+          </div>
+        </div>
+        <div class="algo-detail-row hidden">
+          <div class="px-10 py-4">
+            <div class="flex items-center justify-between mb-3">
+              <div class="text-sm font-medium text-white">
+                <i class="fa fa-cubes text-primary mr-2"></i>
+                关联算法配置（3个）
+              </div>
+              <button class="primary" style="padding:4px 12px;font-size:12px" onclick="event.stopPropagation()">
+                <i class="fa fa-plus mr-1"></i>添加算法
+              </button>
+            </div>
+            <table class="w-full algo-table">
+              <thead>
+                <tr>
+                  <th style="width:50px">序号</th>
+                  <th>算法名称</th>
+                  <th style="width:120px">算法类型</th>
+                  <th style="width:120px">分析优先级</th>
+                  <th style="width:120px">轮询优先级</th>
+                  <th style="width:180px">生效计划时间段</th>
+                  <th style="width:100px">人形级联</th>
+                  <th style="width:120px">置信度阈值</th>
+                  <th style="width:120px;text-align:right">操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="text-gray-500">1</td>
+                  <td>皮带跑偏识别</td>
+                  <td><span class="text-danger">设备状态</span></td>
+                  <td><span class="priority-badge p1">P1 高优先</span></td>
+                  <td><span class="poll-badge poll-high">实时监测</span></td>
+                  <td><span class="time-tag">工单触发-工单结束</span></td>
+                  <td><span class="text-gray-400">禁用</span></td>
+                  <td class="text-warning font-medium">80%</td>
+                  <td class="text-right">
+                    <button class="text-primary text-xs mr-2">编辑</button>
+                    <button class="text-danger text-xs">移除</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="text-gray-500">2</td>
+                  <td>未佩戴安全帽识别</td>
+                  <td><span class="text-primary">人员行为</span></td>
+                  <td><span class="priority-badge p1">P1 高优先</span></td>
+                  <td><span class="poll-badge poll-mid">1分钟</span></td>
+                  <td><span class="time-tag">工单触发-工单结束</span></td>
+                  <td><span class="text-success">启用</span></td>
+                  <td class="text-warning font-medium">75%</td>
+                  <td class="text-right">
+                    <button class="text-primary text-xs mr-2">编辑</button>
+                    <button class="text-danger text-xs">移除</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="text-gray-500">3</td>
+                  <td>人员闯入识别</td>
+                  <td><span class="text-primary">人员行为</span></td>
+                  <td><span class="priority-badge p0">P0 最高</span></td>
+                  <td><span class="poll-badge poll-high">实时监测</span></td>
+                  <td><span class="time-tag">工单触发-工单结束</span></td>
+                  <td><span class="text-success">启用</span></td>
+                  <td class="text-warning font-medium">82%</td>
+                  <td class="text-right">
+                    <button class="text-primary text-xs mr-2">编辑</button>
+                    <button class="text-danger text-xs">移除</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 场景行6：日常巡检（常规作业场景） -->
+      <div class="scene-row border-b border-[#2a3142] cursor-pointer" onclick="toggleScene(this)">
+        <div class="flex items-center px-4 py-3.5">
+          <div class="w-10">
+            <i class="fa fa-chevron-right scene-expand-btn text-gray-500 text-xs"></i>
+          </div>
+          <div class="w-24 text-sm font-mono text-primary">SC-XJ-006</div>
+          <div class="w-40 text-sm font-medium">日常巡检监测</div>
+          <div class="w-28">
+            <span class="scene-category-tag cat-normal">常规作业</span>
+          </div>
+          <div class="w-24 text-sm">
+            <span class="text-white font-medium">4</span> 个
+          </div>
+          <div class="w-28">
+            <span class="priority-badge p2">P2 中优先</span>
+          </div>
+          <div class="w-28">
+            <span class="poll-badge poll-mid">1分钟</span>
+          </div>
+          <div class="w-36 text-sm text-gray-300">
+            <i class="fa fa-clock-o text-purple mr-1 text-xs"></i>
+            白天 08:00-18:00
+          </div>
+          <div class="w-20">
+            <div class="status-switch on" onclick="event.stopPropagation()"></div>
+          </div>
+          <div class="flex-1 text-right">
+            <button class="text-primary text-sm mr-3" onclick="event.stopPropagation()">编辑</button>
+            <button class="text-gray-400 text-sm" onclick="event.stopPropagation()">更多</button>
+          </div>
+        </div>
+        <div class="algo-detail-row hidden">
+          <div class="px-10 py-4">
+            <div class="flex items-center justify-between mb-3">
+              <div class="text-sm font-medium text-white">
+                <i class="fa fa-cubes text-primary mr-2"></i>
+                关联算法配置（4个）
+              </div>
+              <button class="primary" style="padding:4px 12px;font-size:12px" onclick="event.stopPropagation()">
+                <i class="fa fa-plus mr-1"></i>添加算法
+              </button>
+            </div>
+            <table class="w-full algo-table">
+              <thead>
+                <tr>
+                  <th style="width:50px">序号</th>
+                  <th>算法名称</th>
+                  <th style="width:120px">算法类型</th>
+                  <th style="width:120px">分析优先级</th>
+                  <th style="width:120px">轮询优先级</th>
+                  <th style="width:180px">生效计划时间段</th>
+                  <th style="width:100px">人形级联</th>
+                  <th style="width:120px">置信度阈值</th>
+                  <th style="width:120px;text-align:right">操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="text-gray-500">1</td>
+                  <td>未佩戴安全帽识别</td>
+                  <td><span class="text-primary">人员行为</span></td>
+                  <td><span class="priority-badge p2">P2 中优先</span></td>
+                  <td><span class="poll-badge poll-mid">1分钟</span></td>
+                  <td><span class="time-tag">白天 08:00-18:00</span></td>
+                  <td><span class="text-success">启用</span></td>
+                  <td class="text-warning font-medium">70%</td>
+                  <td class="text-right">
+                    <button class="text-primary text-xs mr-2">编辑</button>
+                    <button class="text-danger text-xs">移除</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="text-gray-500">2</td>
+                  <td>抽烟识别</td>
+                  <td><span class="text-primary">人员行为</span></td>
+                  <td><span class="priority-badge p2">P2 中优先</span></td>
+                  <td><span class="poll-badge poll-mid">1分钟</span></td>
+                  <td><span class="time-tag">全天 00:00-24:00</span></td>
+                  <td><span class="text-success">启用</span></td>
+                  <td class="text-warning font-medium">72%</td>
+                  <td class="text-right">
+                    <button class="text-primary text-xs mr-2">编辑</button>
+                    <button class="text-danger text-xs">移除</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="text-gray-500">3</td>
+                  <td>人员离岗识别</td>
+                  <td><span class="text-primary">人员行为</span></td>
+                  <td><span class="priority-badge p2">P2 中优先</span></td>
+                  <td><span class="poll-badge poll-low">30分钟</span></td>
+                  <td><span class="time-tag">白天 08:00-18:00</span></td>
+                  <td><span class="text-success">启用</span></td>
+                  <td class="text-warning font-medium">65%</td>
+                  <td class="text-right">
+                    <button class="text-primary text-xs mr-2">编辑</button>
+                    <button class="text-danger text-xs">移除</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="text-gray-500">4</td>
+                  <td>通道堵塞识别</td>
+                  <td><span class="text-danger">环境与设备</span></td>
+                  <td><span class="priority-badge p3">P3 低优先</span></td>
+                  <td><span class="poll-badge poll-low">30分钟</span></td>
+                  <td><span class="time-tag">白天 08:00-18:00</span></td>
+                  <td><span class="text-gray-400">禁用</span></td>
+                  <td class="text-warning font-medium">60%</td>
+                  <td class="text-right">
+                    <button class="text-primary text-xs mr-2">编辑</button>
+                    <button class="text-danger text-xs">移除</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 场景行7：运输作业（常规作业场景） -->
+      <div class="scene-row border-b border-[#2a3142] cursor-pointer" onclick="toggleScene(this)">
+        <div class="flex items-center px-4 py-3.5">
+          <div class="w-10">
+            <i class="fa fa-chevron-right scene-expand-btn text-gray-500 text-xs"></i>
+          </div>
+          <div class="w-24 text-sm font-mono text-primary">SC-YS-007</div>
+          <div class="w-40 text-sm font-medium">运输作业监测</div>
+          <div class="w-28">
+            <span class="scene-category-tag cat-normal">常规作业</span>
+          </div>
+          <div class="w-24 text-sm">
+            <span class="text-white font-medium">3</span> 个
+          </div>
+          <div class="w-28">
+            <span class="priority-badge p2">P2 中优先</span>
+          </div>
+          <div class="w-28">
+            <span class="poll-badge poll-mid">1分钟</span>
+          </div>
+          <div class="w-36 text-sm text-gray-300">
+            <i class="fa fa-clock-o text-purple mr-1 text-xs"></i>
+            全天 00:00-24:00
+          </div>
+          <div class="w-20">
+            <div class="status-switch on" onclick="event.stopPropagation()"></div>
+          </div>
+          <div class="flex-1 text-right">
+            <button class="text-primary text-sm mr-3" onclick="event.stopPropagation()">编辑</button>
+            <button class="text-gray-400 text-sm" onclick="event.stopPropagation()">更多</button>
+          </div>
+        </div>
+        <div class="algo-detail-row hidden">
+          <div class="px-10 py-4">
+            <div class="flex items-center justify-between mb-3">
+              <div class="text-sm font-medium text-white">
+                <i class="fa fa-cubes text-primary mr-2"></i>
+                关联算法配置（3个）
+              </div>
+              <button class="primary" style="padding:4px 12px;font-size:12px" onclick="event.stopPropagation()">
+                <i class="fa fa-plus mr-1"></i>添加算法
+              </button>
+            </div>
+            <table class="w-full algo-table">
+              <thead>
+                <tr>
+                  <th style="width:50px">序号</th>
+                  <th>算法名称</th>
+                  <th style="width:120px">算法类型</th>
+                  <th style="width:120px">分析优先级</th>
+                  <th style="width:120px">轮询优先级</th>
+                  <th style="width:180px">生效计划时间段</th>
+                  <th style="width:100px">人形级联</th>
+                  <th style="width:120px">置信度阈值</th>
+                  <th style="width:120px;text-align:right">操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="text-gray-500">1</td>
+                  <td>车辆违停识别</td>
+                  <td><span class="text-warning">车辆行为</span></td>
+                  <td><span class="priority-badge p2">P2 中优先</span></td>
+                  <td><span class="poll-badge poll-mid">1分钟</span></td>
+                  <td><span class="time-tag">全天 00:00-24:00</span></td>
+                  <td><span class="text-gray-400">禁用</span></td>
+                  <td class="text-warning font-medium">70%</td>
+                  <td class="text-right">
+                    <button class="text-primary text-xs mr-2">编辑</button>
+                    <button class="text-danger text-xs">移除</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="text-gray-500">2</td>
+                  <td>人员占道识别</td>
+                  <td><span class="text-primary">人员行为</span></td>
+                  <td><span class="priority-badge p2">P2 中优先</span></td>
+                  <td><span class="poll-badge poll-low">30分钟</span></td>
+                  <td><span class="time-tag">白天 08:00-18:00</span></td>
+                  <td><span class="text-success">启用</span></td>
+                  <td class="text-warning font-medium">65%</td>
+                  <td class="text-right">
+                    <button class="text-primary text-xs mr-2">编辑</button>
+                    <button class="text-danger text-xs">移除</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="text-gray-500">3</td>
+                  <td>超速行驶识别</td>
+                  <td><span class="text-warning">车辆行为</span></td>
+                  <td><span class="priority-badge p1">P1 高优先</span></td>
+                  <td><span class="poll-badge poll-mid">1分钟</span></td>
+                  <td><span class="time-tag">全天 00:00-24:00</span></td>
+                  <td><span class="text-gray-400">禁用</span></td>
+                  <td class="text-warning font-medium">75%</td>
+                  <td class="text-right">
+                    <button class="text-primary text-xs mr-2">编辑</button>
+                    <button class="text-danger text-xs">移除</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 场景行8：设备闲置区域（闲置场景） -->
+      <div class="scene-row border-b border-[#2a3142] cursor-pointer" onclick="toggleScene(this)">
+        <div class="flex items-center px-4 py-3.5">
+          <div class="w-10">
+            <i class="fa fa-chevron-right scene-expand-btn text-gray-500 text-xs"></i>
+          </div>
+          <div class="w-24 text-sm font-mono text-primary">SC-XZ-008</div>
+          <div class="w-40 text-sm font-medium">设备闲置区域监测</div>
+          <div class="w-28">
+            <span class="scene-category-tag cat-idle">闲置场景</span>
+          </div>
+          <div class="w-24 text-sm">
+            <span class="text-white font-medium">2</span> 个
+          </div>
+          <div class="w-28">
+            <span class="priority-badge p3">P3 低优先</span>
+          </div>
+          <div class="w-28">
+            <span class="poll-badge poll-low">30分钟</span>
+          </div>
+          <div class="w-36 text-sm text-gray-300">
+            <i class="fa fa-clock-o text-purple mr-1 text-xs"></i>
+            夜间错峰 18:00-08:00
+          </div>
+          <div class="w-20">
+            <div class="status-switch on" onclick="event.stopPropagation()"></div>
+          </div>
+          <div class="flex-1 text-right">
+            <button class="text-primary text-sm mr-3" onclick="event.stopPropagation()">编辑</button>
+            <button class="text-gray-400 text-sm" onclick="event.stopPropagation()">更多</button>
+          </div>
+        </div>
+        <div class="algo-detail-row hidden">
+          <div class="px-10 py-4">
+            <div class="flex items-center justify-between mb-3">
+              <div class="text-sm font-medium text-white">
+                <i class="fa fa-cubes text-primary mr-2"></i>
+                关联算法配置（2个）
+              </div>
+              <button class="primary" style="padding:4px 12px;font-size:12px" onclick="event.stopPropagation()">
+                <i class="fa fa-plus mr-1"></i>添加算法
+              </button>
+            </div>
+            <table class="w-full algo-table">
+              <thead>
+                <tr>
+                  <th style="width:50px">序号</th>
+                  <th>算法名称</th>
+                  <th style="width:120px">算法类型</th>
+                  <th style="width:120px">分析优先级</th>
+                  <th style="width:120px">轮询优先级</th>
+                  <th style="width:180px">生效计划时间段</th>
+                  <th style="width:100px">人形级联</th>
+                  <th style="width:120px">置信度阈值</th>
+                  <th style="width:120px;text-align:right">操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="text-gray-500">1</td>
+                  <td>非法入侵识别</td>
+                  <td><span class="text-primary">人员行为</span></td>
+                  <td><span class="priority-badge p3">P3 低优先</span></td>
+                  <td><span class="poll-badge poll-low">30分钟</span></td>
+                  <td><span class="time-tag">夜间 18:00-08:00</span></td>
+                  <td><span class="text-success">启用</span></td>
+                  <td class="text-warning font-medium">70%</td>
+                  <td class="text-right">
+                    <button class="text-primary text-xs mr-2">编辑</button>
+                    <button class="text-danger text-xs">移除</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="text-gray-500">2</td>
+                  <td>设备异常状态识别</td>
+                  <td><span class="text-danger">设备状态</span></td>
+                  <td><span class="priority-badge p3">P3 低优先</span></td>
+                  <td><span class="poll-badge poll-low">30分钟</span></td>
+                  <td><span class="time-tag">夜间 18:00-08:00</span></td>
+                  <td><span class="text-gray-400">禁用</span></td>
+                  <td class="text-warning font-medium">65%</td>
+                  <td class="text-right">
+                    <button class="text-primary text-xs mr-2">编辑</button>
+                    <button class="text-danger text-xs">移除</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 场景行9：场地闲置区域（闲置场景） -->
+      <div class="scene-row cursor-pointer" onclick="toggleScene(this)">
+        <div class="flex items-center px-4 py-3.5">
+          <div class="w-10">
+            <i class="fa fa-chevron-right scene-expand-btn text-gray-500 text-xs"></i>
+          </div>
+          <div class="w-24 text-sm font-mono text-primary">SC-CD-009</div>
+          <div class="w-40 text-sm font-medium">场地闲置区域监测</div>
+          <div class="w-28">
+            <span class="scene-category-tag cat-idle">闲置场景</span>
+          </div>
+          <div class="w-24 text-sm">
+            <span class="text-white font-medium">2</span> 个
+          </div>
+          <div class="w-28">
+            <span class="priority-badge p3">P3 低优先</span>
+          </div>
+          <div class="w-28">
+            <span class="poll-badge poll-low">30分钟</span>
+          </div>
+          <div class="w-36 text-sm text-gray-300">
+            <i class="fa fa-clock-o text-purple mr-1 text-xs"></i>
+            夜间错峰 18:00-08:00
+          </div>
+          <div class="w-20">
+            <div class="status-switch" onclick="event.stopPropagation()"></div>
+          </div>
+          <div class="flex-1 text-right">
+            <button class="text-primary text-sm mr-3" onclick="event.stopPropagation()">编辑</button>
+            <button class="text-gray-400 text-sm" onclick="event.stopPropagation()">更多</button>
+          </div>
+        </div>
+        <div class="algo-detail-row hidden">
+          <div class="px-10 py-4">
+            <div class="flex items-center justify-between mb-3">
+              <div class="text-sm font-medium text-white">
+                <i class="fa fa-cubes text-primary mr-2"></i>
+                关联算法配置（2个）
+              </div>
+              <button class="primary" style="padding:4px 12px;font-size:12px" onclick="event.stopPropagation()">
+                <i class="fa fa-plus mr-1"></i>添加算法
+              </button>
+            </div>
+            <table class="w-full algo-table">
+              <thead>
+                <tr>
+                  <th style="width:50px">序号</th>
+                  <th>算法名称</th>
+                  <th style="width:120px">算法类型</th>
+                  <th style="width:120px">分析优先级</th>
+                  <th style="width:120px">轮询优先级</th>
+                  <th style="width:180px">生效计划时间段</th>
+                  <th style="width:100px">人形级联</th>
+                  <th style="width:120px">置信度阈值</th>
+                  <th style="width:120px;text-align:right">操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="text-gray-500">1</td>
+                  <td>人员聚集识别</td>
+                  <td><span class="text-primary">人员行为</span></td>
+                  <td><span class="priority-badge p3">P3 低优先</span></td>
+                  <td><span class="poll-badge poll-low">30分钟</span></td>
+                  <td><span class="time-tag">夜间 18:00-08:00</span></td>
+                  <td><span class="text-success">启用</span></td>
+                  <td class="text-warning font-medium">60%</td>
+                  <td class="text-right">
+                    <button class="text-primary text-xs mr-2">编辑</button>
+                    <button class="text-danger text-xs">移除</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="text-gray-500">2</td>
+                  <td>物品遗留识别</td>
+                  <td><span class="text-danger">环境与设备</span></td>
+                  <td><span class="priority-badge p3">P3 低优先</span></td>
+                  <td><span class="poll-badge poll-low">30分钟</span></td>
+                  <td><span class="time-tag">夜间 18:00-08:00</span></td>
+                  <td><span class="text-gray-400">禁用</span></td>
+                  <td class="text-warning font-medium">58%</td>
+                  <td class="text-right">
+                    <button class="text-primary text-xs mr-2">编辑</button>
+                    <button class="text-danger text-xs">移除</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 分页 -->
+      <div class="flex items-center justify-between px-4 py-3 border-t border-borderLine text-sm">
+        <div class="text-gray-400">共 36 条记录，当前显示第 1-9 条</div>
+        <div class="flex items-center gap-2">
+          <button class="w-8 h-8 rounded border border-borderLine flex items-center justify-center text-gray-400 hover:border-primary hover:text-primary">
+            <i class="fa fa-chevron-left text-xs"></i>
+          </button>
+          <button class="w-8 h-8 rounded bg-primary text-white flex items-center justify-center">1</button>
+          <button class="w-8 h-8 rounded border border-borderLine flex items-center justify-center text-gray-400 hover:border-primary hover:text-primary">2</button>
+          <button class="w-8 h-8 rounded border border-borderLine flex items-center justify-center text-gray-400 hover:border-primary hover:text-primary">3</button>
+          <button class="w-8 h-8 rounded border border-borderLine flex items-center justify-center text-gray-400 hover:border-primary hover:text-primary">4</button>
+          <span class="text-gray-500">...</span>
+          <button class="w-8 h-8 rounded border border-borderLine flex items-center justify-center text-gray-400 hover:border-primary hover:text-primary">
+            <i class="fa fa-chevron-right text-xs"></i>
+          </button>
+          <span class="text-gray-400 ml-2">跳至</span>
+          <input type="text" value="1" style="width:50px;text-align:center">
+          <span class="text-gray-400">页</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+  </div><!-- /content wrapper -->
+</div><!-- /flex wrapper -->
+
+<script src="navigation.js?v=20260819-2"></script>
+<script>
+// 顶部时间
+function time(){document.getElementById('timeShow').innerText=new Date().toLocaleString()}
+time();setInterval(time,1000);
+
+// Tab切换控制
+function switchTab(tabName, el){
+  // 隐藏全部面板
+  document.getElementById('tab-monitor').classList.add('hidden');
+  document.getElementById('tab-task').classList.add('hidden');
+  document.getElementById('tab-policy').classList.add('hidden');
+  document.getElementById('tab-scene').classList.add('hidden');
+  // 显示当前面板
+  document.getElementById('tab-'+tabName).classList.remove('hidden');
+  // 切换Tab激活样式
+  document.querySelectorAll('.tab-item').forEach(item=>item.classList.remove('tab-active'));
+  el.classList.add('tab-active');
+}
+
+// 场景行展开/收起
+function toggleScene(row){
+  const detail = row.querySelector('.algo-detail-row');
+  const isExpanded = row.classList.contains('expanded');
+  
+  if(isExpanded){
+    row.classList.remove('expanded');
+    detail.classList.add('hidden');
+  } else {
+    row.classList.add('expanded');
+    detail.classList.remove('hidden');
+  }
+}
+
+// 状态开关切换
+document.querySelectorAll('.status-switch').forEach(sw => {
+  sw.addEventListener('click', function(){
+    this.classList.toggle('on');
+  });
+});
+
+// 24小时总负载曲线
+new Chart(document.getElementById('chartTotal').getContext('2d'),{
+type:'line',
+data:{
+labels:["00:00","04:00","08:00","12:00","16:00","20:00"],
+datasets:[
+{label:'P0实时告警',data:[7,9,40,39,37,11],borderColor:'#165DFF',tension:0.3},
+{label:'P1轮巡',data:[3,4,17,16,15,6],borderColor:'#00B42A',tension:0.3},
+{label:'P2事后倒查',data:[19,17,13,14,13,22],borderColor:'#FF7D00',tension:0.3},
+{label:'P3大模型',data:[39,34,0,0,0,34],borderColor:'#F53F3F',tension:0.3}
+]
+},
+options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#ccc'}}},
+scales:{x:{ticks:{color:'#aaa'},grid:{color:'#303848'}},y:{min:0,max:100,ticks:{color:'#aaa'},grid:{color:'#303848'}}}
+}});
+
+// 四张统计图表
+new Chart(document.getElementById('c1').getContext('2d'),{type:'line',data:{labels:["00","06","10","14","18","22"],datasets:[{label:'集群总负载',data:[32,28,56,59,41,36],borderColor:'#165DFF'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#ccc'}}}}});
+new Chart(document.getElementById('c2').getContext('2d'),{type:'pie',data:{labels:['P0','P1','P2','P3'],datasets:[{data:[29,14,15,0],backgroundColor:['#165DFF','#00B42A','#FF7D00','#F53F3F']}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#ccc'}}}}});
+new Chart(document.getElementById('c3').getContext('2d'),{type:'line',data:{labels:["00","06","10","14","18","22"],datasets:[{label:'平均显存占用',data:[22,20,45,47,33,29],borderColor:'#00B42A'}]},options:{responsive:true,maintainAspectRatio:false}});
+new Chart(document.getElementById('c4').getContext('2d'),{type:'bar',data:{labels:['50-60℃','60-70℃','70℃以上'],datasets:[{data:[4,1,1],backgroundColor:['#00B42A','#FF7D00','#F53F3F']}]},options:{responsive:true,maintainAspectRatio:false}});
+</script>
+</body>
+</html>

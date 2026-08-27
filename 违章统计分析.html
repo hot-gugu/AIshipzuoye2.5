@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>“三维”无视频不作业智慧管控平台 - 违章查处统计分析</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1690FF',
+                        darkBg: '#0B1426',
+                        darkCard: '#111E38',
+                        darkBorder: '#21355E',
+                        textWhite: '#E8F0FF',
+                        textGray: '#8492B3',
+                        blueStat: '#1690FF',
+                        greenStat: '#00C48C',
+                        orangeStat: '#FF9500',
+                        redStat: '#FF4D4F',
+                        purpleStat: '#9254FF',
+                    },
+                    fontFamily: {
+                        system: ['PingFang SC', 'Microsoft YaHei', 'system-ui', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .scrollbar-hide::-webkit-scrollbar { display: none; }
+            .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+            .menu-active { @apply bg-primary/20 text-white border-l-[3px] border-primary; }
+            .card-glow { box-shadow: 0 0 16px rgba(22,144,255,0.08); }
+        }
+        body { overflow: hidden; background: #0B1426; }
+        .chart-wrap { height: 220px; }
+        /* 饼图左右布局：左侧画布，右侧图例 */
+        .pie-layout {
+            display: flex;
+            align-items: center;
+            gap:16px;
+        }
+        .pie-canvas-box {
+            flex: 1;
+        }
+        .pie-legend-box {
+            width: 140px;
+        }
+        .legend-item {
+            display:flex;
+            align-items:center;
+            gap:6px;
+            font-size:11px;
+            color:#8492B3;
+            margin-bottom:6px;
+        }
+        .legend-dot {
+            width:10px;
+            height:10px;
+            border-radius:50%;
+            flex-shrink:0;
+        }
+    </style>
+</head>
+<body class="font-system text-textWhite h-screen flex">
+    <!-- 左侧主导航菜单 -->
+    <aside class="w-[210px] bg-darkBg flex flex-col flex-shrink-0 text-textGray border-r border-darkBorder">
+        <!-- Logo标题 -->
+        <div class="h-[64px] flex items-center px-4 border-b border-darkBorder gap-2">
+            <div class="w-8 h-8 rounded bg-white flex items-center justify-center">
+                <i class="fa fa-cube text-primary text-lg"></i>
+            </div>
+            <div class="leading-tight">
+                <div class="text-white text-sm font-medium">视频AI识别自进化能力平台</div>
+                <div class="text-[10px] text-textGray">隐患违章管控系统</div>
+            </div>
+        </div>
+        <!-- 侧边菜单 -->
+        <nav class="flex-1 py-3 overflow-y-auto scrollbar-hide text-sm">
+            <div class="flex items-center gap-3 px-4 py-2.5 hover:bg-darkCard cursor-pointer">
+                <i class="fa fa-home w-5 text-center"></i>
+                <span>首页</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-2.5 hover:bg-darkCard cursor-pointer">
+                <i class="fa fa-video-camera w-5 text-center"></i>
+                <span>实时监控</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-2.5 hover:bg-darkCard cursor-pointer">
+                <i class="fa fa-history w-5 text-center"></i>
+                <span>视频管理</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-2.5 hover:bg-darkCard cursor-pointer">
+                <i class="fa fa-bolt w-5 text-center"></i>
+                <span>AI隐患管理</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-2.5 hover:bg-darkCard cursor-pointer">
+                <i class="fa fa-exclamation-triangle w-5 text-center"></i>
+                <span>隐患违章管理</span>
+            </div>
+            <div class="pl-8 flex flex-col gap-1 py-1">
+                <div class="flex items-center gap-3 px-4 py-2 hover:bg-darkCard cursor-pointer">
+                    <span>违章查处台账</span>
+                </div>
+                <div class="menu-active flex items-center gap-3 px-4 py-2 cursor-pointer">
+                    <span>违章查处统计分析</span>
+                </div>
+                <div class="flex items-center gap-3 px-4 py-2 hover:bg-darkCard cursor-pointer">
+                    <span>隐患查处台账</span>
+                </div>
+                <div class="flex items-center gap-3 px-4 py-2 hover:bg-darkCard cursor-pointer">
+                    <span>隐患查处统计分析</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-2.5 hover:bg-darkCard cursor-pointer">
+                <i class="fa fa-list-alt w-5 text-center"></i>
+                <span>考核管理</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-2.5 hover:bg-darkCard cursor-pointer">
+                <i class="fa fa-sitemap w-5 text-center"></i>
+                <span>组织架构</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-2.5 hover:bg-darkCard cursor-pointer">
+                <i class="fa fa-camera w-5 text-center"></i>
+                <span>设备管理</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-2.5 hover:bg-darkCard cursor-pointer">
+                <i class="fa fa-cog w-5 text-center"></i>
+                <span>系统设置</span>
+            </div>
+        </nav>
+        <div class="h-10 border-t border-darkBorder flex items-center justify-center text-xs text-textGray cursor-pointer hover:text-white">
+            <i class="fa fa-angle-double-left mr-1"></i>收起菜单
+        </div>
+    </aside>
+
+    <!-- 主内容区域 -->
+    <main class="flex-1 flex flex-col overflow-hidden">
+        <!-- 顶部栏 -->
+        <header class="h-[60px] bg-darkBg border-b border-darkBorder flex items-center justify-between px-6 flex-shrink-0">
+            <div class="flex items-center gap-2">
+                <i class="fa fa-bars cursor-pointer"></i>
+                <span class="text-base font-medium">隐患违章管理 / 违章查处统计分析</span>
+            </div>
+            <div class="flex items-center gap-6">
+                <div class="relative cursor-pointer">
+                    <i class="fa fa-bell-o text-textGray text-lg"></i>
+                </div>
+                <div class="flex items-center gap-2 cursor-pointer">
+                    <div class="w-7 h-7 rounded-full bg-darkCard flex items-center justify-center">
+                        <i class="fa fa-user text-textGray"></i>
+                    </div>
+                    <span class="text-sm">张安全 <span class="text-textGray text-xs">安全环保部·安全科</span></span>
+                </div>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-5 scrollbar-hide">
+            <!-- 筛选栏 -->
+            <div class="flex items-center flex-wrap gap-3 mb-5">
+                <div class="flex items-center gap-2">
+                    <span class="text-sm text-textGray">统计周期：</span>
+                    <input value="2024-05-01 至 2024-05-18" class="bg-darkCard border border-darkBorder rounded px-3 py-1.5 text-sm w-[230px]">
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-sm text-textGray">所属单位：</span>
+                    <select class="bg-darkCard border border-darkBorder rounded px-3 py-1.5 text-sm w-[110px]">
+                        <option>全部</option>
+                    </select>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-sm text-textGray">所属部门：</span>
+                    <select class="bg-darkCard border border-darkBorder rounded px-3 py-1.5 text-sm w-[110px]">
+                        <option>全部</option>
+                    </select>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-sm text-textGray">违章等级：</span>
+                    <select class="bg-darkCard border border-darkBorder rounded px-3 py-1.5 text-sm w-[110px]">
+                        <option>全部</option>
+                    </select>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-sm text-textGray">违章类型：</span>
+                    <select class="bg-darkCard border border-darkBorder rounded px-3 py-1.5 text-sm w-[110px]">
+                        <option>全部</option>
+                    </select>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-sm text-textGray">复核状态：</span>
+                    <select class="bg-darkCard border border-darkBorder rounded px-3 py-1.5 text-sm w-[110px]">
+                        <option>全部</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 顶部指标卡片 6栏 -->
+            <div class="grid grid-cols-6 gap-3 mb-5">
+                <div class="bg-darkCard rounded-lg p-3 border border-darkBorder card-glow flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-purpleStat/20 flex items-center justify-center">
+                        <i class="fa fa-folder-open text-purpleStat text-lg"></i>
+                    </div>
+                    <div>
+                        <div class="text-textGray text-xs mb-1">违章总数</div>
+                        <div class="text-lg font-semibold">2146 条</div>
+                        <div class="text-xs text-purpleStat mt-1">环比 ↑12.3%</div>
+                    </div>
+                </div>
+                <div class="bg-darkCard rounded-lg p-3 border border-darkBorder card-glow flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-greenStat/20 flex items-center justify-center">
+                        <i class="fa fa-check text-greenStat text-lg"></i>
+                    </div>
+                    <div>
+                        <div class="text-textGray text-xs mb-1">已复核</div>
+                        <div class="text-lg font-semibold">1526 条</div>
+                        <div class="text-xs text-greenStat mt-1">占比 71.11%</div>
+                    </div>
+                </div>
+                <div class="bg-darkCard rounded-lg p-3 border border-darkBorder card-glow flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-orangeStat/20 flex items-center justify-center">
+                        <i class="fa fa-clock-o text-orangeStat text-lg"></i>
+                    </div>
+                    <div>
+                        <div class="text-textGray text-xs mb-1">待复核</div>
+                        <div class="text-lg font-semibold">362 条</div>
+                        <div class="text-xs text-orangeStat mt-1">占比 16.87%</div>
+                    </div>
+                </div>
+                <div class="bg-darkCard rounded-lg p-3 border border-darkBorder card-glow flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-blueStat/20 flex items-center justify-center">
+                        <i class="fa fa-bolt text-blueStat text-lg"></i>
+                    </div>
+                    <div>
+                        <div class="text-textGray text-xs mb-1">AI预警误报</div>
+                        <div class="text-lg font-semibold">258 条</div>
+                        <div class="text-xs text-blueStat mt-1">占比 12.02%</div>
+                    </div>
+                </div>
+                <div class="bg-darkCard rounded-lg p-3 border border-darkBorder card-glow flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-redStat/20 flex items-center justify-center">
+                        <i class="fa fa-exclamation-circle text-redStat text-lg"></i>
+                    </div>
+                    <div>
+                        <div class="text-textGray text-xs mb-1">严重违章数</div>
+                        <div class="text-lg font-semibold">136 条</div>
+                        <div class="text-xs text-redStat mt-1">环比 ↑8.6%</div>
+                    </div>
+                </div>
+                <div class="bg-darkCard rounded-lg p-3 border border-darkBorder card-glow flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-greenStat/20 flex items-center justify-center">
+                        <i class="fa fa-shield text-greenStat text-lg"></i>
+                    </div>
+                    <div>
+                        <div class="text-textGray text-xs mb-1">有效违章占比</div>
+                        <div class="text-lg font-semibold">62.4%</div>
+                        <div class="text-xs text-greenStat mt-1">环比 ↑4.2%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 第一行图表 3栏 -->
+            <div class="grid grid-cols-3 gap-3 mb-5">
+                <div class="bg-darkCard rounded-lg p-3 border border-darkBorder card-glow">
+                    <div class="text-sm mb-2">违章等级分布</div>
+                    <div class="chart-wrap pie-layout">
+                        <div class="pie-canvas-box h-full">
+                            <canvas id="chartLevel"></canvas>
+                        </div>
+                        <div class="pie-legend-box" id="legendLevel"></div>
+                    </div>
+                </div>
+                <div class="bg-darkCard rounded-lg p-3 border border-darkBorder card-glow">
+                    <div class="text-sm mb-2">违章来源分布</div>
+                    <div class="chart-wrap pie-layout">
+                        <div class="pie-canvas-box h-full">
+                            <canvas id="chartSource"></canvas>
+                        </div>
+                        <div class="pie-legend-box" id="legendSource"></div>
+                    </div>
+                </div>
+                <div class="bg-darkCard rounded-lg p-3 border border-darkBorder card-glow">
+                    <div class="text-sm mb-2">违章类型分布(TOP10)</div>
+                    <div class="chart-wrap">
+                        <canvas id="chartType"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 第二行图表 3栏 -->
+            <div class="grid grid-cols-3 gap-3 mb-5">
+                <div class="bg-darkCard rounded-lg p-3 border border-darkBorder card-glow">
+                    <div class="text-sm mb-2">复核结果分布</div>
+                    <div class="chart-wrap pie-layout">
+                        <div class="pie-canvas-box h-full">
+                            <canvas id="chartReviewStatus"></canvas>
+                        </div>
+                        <div class="pie-legend-box" id="legendReviewStatus"></div>
+                    </div>
+                </div>
+                <div class="bg-darkCard rounded-lg p-3 border border-darkBorder card-glow">
+                    <div class="text-sm mb-2">违章按月趋势</div>
+                    <div class="chart-wrap">
+                        <canvas id="chartMonthTrend"></canvas>
+                    </div>
+                </div>
+                <div class="bg-darkCard rounded-lg p-3 border border-darkBorder card-glow">
+                    <div class="text-sm mb-2">违章时段分布(24小时)</div>
+                    <div class="chart-wrap pie-layout">
+                        <div class="pie-canvas-box h-full">
+                            <canvas id="chartTimeSlot"></canvas>
+                        </div>
+                        <div class="pie-legend-box" id="legendTimeSlot"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 第三行图表 3栏 -->
+            <div class="grid grid-cols-3 gap-3 mb-5">
+                <div class="bg-darkCard rounded-lg p-3 border border-darkBorder card-glow">
+                    <div class="text-sm mb-2">违章单位分布(TOP10)</div>
+                    <div class="chart-wrap">
+                        <canvas id="chartUnit"></canvas>
+                    </div>
+                </div>
+                <div class="bg-darkCard rounded-lg p-3 border border-darkBorder card-glow">
+                    <div class="text-sm mb-2">违章人员分布(TOP10)</div>
+                    <div class="chart-wrap">
+                        <canvas id="chartPerson"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 第四行图表 3栏 -->
+            <div class="grid grid-cols-3 gap-3 mb-3">
+                <div class="bg-darkCard rounded-lg p-3 border border-darkBorder card-glow">
+                    <div class="text-sm mb-2">重复违章人员分析</div>
+                    <div class="chart-wrap pie-layout">
+                        <div class="pie-canvas-box h-full">
+                            <canvas id="chartRepeat"></canvas>
+                        </div>
+                        <div class="pie-legend-box" id="legendRepeat"></div>
+                    </div>
+                </div>
+                <div class="bg-darkCard rounded-lg p-3 border border-darkBorder card-glow">
+                    <div class="text-sm mb-2">预警误报类型分析</div>
+                    <div class="chart-wrap pie-layout">
+                        <div class="pie-canvas-box h-full">
+                            <canvas id="chartFalseAlarm"></canvas>
+                        </div>
+                        <div class="pie-legend-box" id="legendFalseAlarm"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-xs text-textGray">注：统计数据截止至 2024-05-18 23:59:59 <span class="float-right">数据每30分钟自动更新 ⟳</span></div>
+        </div>
+    </main>
+
+    <script>
+        const colorList = ["#1690FF","#FF7D00","#FFC53D","#00C48C","#9254FF","#FF4D4F","#36CFC9","#722ED1"];
+        const darkChartOpt = {
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+            },
+        }
+
+        // 动态生成右侧图例
+        function buildLegend(containerId, labels, colors){
+            const box = document.getElementById(containerId);
+            box.innerHTML = "";
+            labels.forEach((lab,i)=>{
+                const div = document.createElement("div");
+                div.className = "legend-item";
+                div.innerHTML = `<span class="legend-dot" style="background:${colors[i]}"></span><span>${lab}</span>`;
+                box.appendChild(div);
+            })
+        }
+
+        // 1.违章等级分布
+        const levelLabels = ["严重违章","较大违章","一般违章","轻微违章"];
+        const levelData = [136,328,1142,540];
+        new Chart(document.getElementById("chartLevel"),{
+            type:"doughnut",
+            data:{ labels:levelLabels, datasets:[{data:levelData, backgroundColor:colorList}] },
+            options:{...darkChartOpt}
+        })
+        buildLegend("legendLevel", levelLabels, colorList);
+
+        //2.违章来源
+        const sourceLabels = ["AI智能识别","现场人工巡查","视频倒查"];
+        const sourceData = [1462,426,258];
+        new Chart(document.getElementById("chartSource"),{
+            type:"doughnut",
+            data:{ labels:sourceLabels, datasets:[{data:sourceData, backgroundColor:colorList}] },
+            options:{...darkChartOpt}
+        })
+        buildLegend("legendSource", sourceLabels, colorList);
+
+        //3.违章类型TOP10 横向柱状
+        new Chart(document.getElementById("chartType"),{
+            type:"bar",indexAxis:"y",
+            data:{
+                labels:["未佩戴防护用品","违规进入危险区域","违章操作设备","车辆违规行驶","高空作业不规范","物料乱堆放","电气违规","有限空间违规","动火不规范","其他"],
+                datasets:[{data:[426,362,314,246,186,142,124,96,72,58],backgroundColor:"#1690FF"}]
+            },
+            options:{
+                maintainAspectRatio:false,
+                plugins:{legend:{display:false}},
+                scales:{
+                    x:{grid:{color:"#21355E"},ticks:{color:"#8492B3"}},
+                    y:{grid:{color:"#21355E"},ticks:{color:"#8492B3"}}
+                }
+            }
+        })
+
+        //4.复核结果分布
+        const reviewLabels = ["确认违章","判定误报","待复核"];
+        const reviewData = [1342,184,362];
+        new Chart(document.getElementById("chartReviewStatus"),{
+            type:"doughnut",
+            data:{ labels:reviewLabels, datasets:[{data:reviewData, backgroundColor:colorList}] },
+            options:{...darkChartOpt}
+        })
+        buildLegend("legendReviewStatus", reviewLabels, colorList);
+
+        //5.按月趋势折线
+        new Chart(document.getElementById("chartMonthTrend"),{
+            type:"line",
+            data:{
+                labels:["12月","1月","2月","3月","4月","5月"],
+                datasets:[{data:[212,266,302,376,428,462],tension:0.3,borderColor:"#1690FF",backgroundColor:"rgba(22,144,255,0.1)"}]
+            },
+            options:{
+                maintainAspectRatio:false,
+                plugins:{legend:{display:false}},
+                scales:{
+                    x:{grid:{color:"#21355E"},ticks:{color:"#8492B3"}},
+                    y:{grid:{color:"#21355E"},ticks:{color:"#8492B3"}}
+                }
+            }
+        })
+
+        //6.时段分布环形图
+        const timeSlotLabels = ["夜班(00:00-08:00)","白班上午(08:00-12:00)","白班下午(12:00-18:00)","中班(18:00-24:00)"];
+        const timeSlotData = [416,624,672,434];
+        new Chart(document.getElementById("chartTimeSlot"),{
+            type:"doughnut",
+            data:{ labels:timeSlotLabels, datasets:[{data:timeSlotData, backgroundColor:colorList}] },
+            options:{...darkChartOpt}
+        })
+        buildLegend("legendTimeSlot", timeSlotLabels, colorList);
+
+        //7.单位TOP10
+        new Chart(document.getElementById("chartUnit"),{
+            type:"bar",indexAxis:"y",
+            data:{
+                labels:["齐大山选矿厂","弓长岭铁矿","眼前山分公司","东鞍山铁矿","机电检修中心","运输工区","外协一队","外协二队","后勤保障部","监测管控中心"],
+                datasets:[{data:[386,324,276,232,184,146,112,96,82,64],backgroundColor:"#1690FF"}]
+            },
+            options:{
+                maintainAspectRatio:false,
+                plugins:{legend:{display:false}},
+                scales:{
+                    x:{grid:{color:"#21355E"},ticks:{color:"#8492B3"}},
+                    y:{grid:{color:"#21355E"},ticks:{color:"#8492B3"}}
+                }
+            }
+        })
+
+        //9.人员TOP10
+        new Chart(document.getElementById("chartPerson"),{
+            type:"bar",indexAxis:"y",
+            data:{
+                labels:["王某","李某","张某","赵某","孙某","周某","吴某","郑某","黄某","陈某"],
+                datasets:[{data:[62,48,42,36,32,28,24,22,18,16],backgroundColor:"#1690FF"}]
+            },
+            options:{
+                maintainAspectRatio:false,
+                plugins:{legend:{display:false}},
+                scales:{
+                    x:{grid:{color:"#21355E"},ticks:{color:"#8492B3"}},
+                    y:{grid:{color:"#21355E"},ticks:{color:"#8492B3"}}
+                }
+            }
+        })
+
+        //10.重复违章人员分析
+        const repeatLabels = ["首次违章","重复违章(2次)","多次违章(≥3次)"];
+        const repeatData = [1642,364,140];
+        new Chart(document.getElementById("chartRepeat"),{
+            type:"doughnut",
+            data:{ labels:repeatLabels, datasets:[{data:repeatData, backgroundColor:colorList}] },
+            options:{...darkChartOpt, cutout:"68%"}
+        })
+        buildLegend("legendRepeat", repeatLabels, colorList);
+
+        //11.误报类型分析
+        const falseAlarmLabels = ["光影干扰","人员姿态误判","设备遮挡","其他环境干扰"];
+        const falseAlarmData = [102,76,54,26];
+        new Chart(document.getElementById("chartFalseAlarm"),{
+            type:"doughnut",
+            data:{ labels:falseAlarmLabels, datasets:[{data:falseAlarmData, backgroundColor:colorList}] },
+            options:{...darkChartOpt}
+        })
+        buildLegend("legendFalseAlarm", falseAlarmLabels, colorList);
+
+    </script>
+    <script src="navigation.js?v=20260819-2"></script>
+</body>
+</html>

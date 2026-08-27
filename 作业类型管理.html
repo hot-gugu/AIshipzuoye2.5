@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>矿山智能算力管控平台 - 作业类型和二级分类配置</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#2563EB',
+            sidebarDark: '#0F172A',
+            sidebarActive: '#1E293B',
+            pageBg: '#F8FAFC',
+            tableHeaderBg: '#F1F5F9',
+            textPrimary: '#1E293B',
+            textSecondary: '#64748B',
+            tagLevel1Bg: '#DBEAFE',
+            tagLevel1Text: '#2563EB',
+            tagLevel2Bg: '#DCFCE7',
+            tagLevel2Text: '#16A34A',
+            dangerRed: '#EF4444',
+            successGreen: '#10B981'
+          },
+          boxShadow: {
+            figma: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)'
+          }
+        }
+      }
+    }
+  </script>
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .scrollbar-thin::-webkit-scrollbar {
+        width: 6px;
+        height:6px;
+      }
+      .scrollbar-thin::-webkit-scrollbar-thumb {
+        background-color:#CBD5E1;
+        border-radius:999px;
+      }
+      .scrollbar-thin::-webkit-scrollbar-track {
+        background:transparent;
+      }
+      .tree-row-hover:hover{
+        background-color:#EFF6FF;
+      }
+      .toggle-switch{
+        width:36px;
+        height:20px;
+        border-radius:999px;
+        background:#D1D5DB;
+        position:relative;
+        transition: all 0.2s;
+        cursor:pointer;
+      }
+      .toggle-switch.on{
+        background:#10B981;
+      }
+      .toggle-switch::after{
+        content:"";
+        width:16px;
+        height:16px;
+        background:white;
+        border-radius:50%;
+        position:absolute;
+        top:2px;
+        left:2px;
+        transition:all 0.2s;
+      }
+      .toggle-switch.on::after{
+        transform:translateX(16px);
+      }
+    }
+  </style>
+</head>
+<body class="bg-pageBg h-screen flex flex-col overflow-hidden font-sans">
+  <!-- 全局左侧深色主导航（由 navigation.js 统一渲染） -->
+  <aside></aside>
+
+  <!-- 主内容容器 -->
+  <div class="flex-1 flex flex-col overflow-hidden">
+  <!-- 顶部全局导航 -->
+  <header class="h-12 bg-white border-b border-slate-200 flex items-center justify-between px-4 shrink-0">
+    <div class="flex items-center gap-2">
+      <div class="font-bold text-lg text-primary flex items-center gap-2">
+        <i class="fa fa-cube text-primary"></i>
+        <span>矿山智能算力管控平台</span>
+      </div>
+      <!-- <div class="text-slate-400 text-xs">|</div> -->
+      <!-- <div class="text-sm text-textSecondary">基础管理 / 作业类型管理 / 作业类型和二级分类配置</div> -->
+    </div>
+    <div class="flex items-center gap-5">
+      <i class="fa fa-bell-o text-textSecondary cursor-pointer relative">
+        <span class="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+      </i>
+      <i class="fa fa-question-circle-o text-textSecondary cursor-pointer"></i>
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center">
+          <i class="fa fa-user"></i>
+        </div>
+        <div class="text-sm leading-tight">
+          <div>张伟</div>
+          <div class="text-xs text-textSecondary">安全管理员</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主内容区域 -->
+  <main class="flex-1 overflow-auto scrollbar-thin p-6">
+      <div class="max-w-full">
+        <!-- 页面头部 -->
+        <div class="flex justify-between items-start mb-4">
+          <div>
+            <h1 class="text-xl font-semibold text-textPrimary">作业类型和二级分类配置</h1>
+            <!-- <p class="text-xs text-textSecondary mt-1">通过组织结构树配置作业类型及二级分类，支持新增、编辑、删除、排序及启用/停用操作</p> -->
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="relative">
+              <i class="fa fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+              <input class="pl-9 pr-3 py-2 rounded-lg border border-slate-200 bg-white w-64 text-sm focus:outline-none focus:ring-1 focus:ring-primary" placeholder="搜索作业类型或二级分类">
+            </div>
+            <!-- <button class="border border-slate-200 bg-white px-4 py-2 rounded-lg text-sm flex items-center gap-1 text-textSecondary hover:bg-slate-50">
+              <i class="fa fa-refresh"></i>刷新
+            </button> -->
+            <button class="bg-primary text-white px-4 py-2 rounded-lg text-sm flex items-center gap-1 shadow-figma hover:bg-blue-700">
+              <i class="fa fa-plus"></i>新增作业类型
+            </button>
+          </div>
+        </div>
+
+        <!-- 表格树形面板 -->
+        <div class="bg-white rounded-lg shadow-figma overflow-hidden">
+          <!-- 表头 -->
+          <div class="grid grid-cols-[280px_140px_1fr_140px_220px] bg-tableHeaderBg text-xs text-textSecondary font-medium py-3 px-4">
+            <div>名称</div>
+            <div>类型</div>
+            <div>描述</div>
+            <div>状态</div>
+            <div class="text-right pr-6">操作</div>
+          </div>
+
+          <!-- 树形表格行 -->
+          <div class="divide-y divide-slate-100">
+            <!-- 作业类型：危险作业场景 -->
+            <div class="tree-row-hover grid grid-cols-[280px_140px_1fr_140px_220px] items-center py-3 px-4 text-sm">
+              <div class="flex items-center gap-2">
+                <i class="fa fa-angle-down text-slate-500"></i>
+                <i class="fa fa-exclamation-triangle text-red-500"></i>
+                <span>施工项目</span>
+              </div>
+              <div><span class="px-2 py-1 rounded bg-tagLevel1Bg text-tagLevel1Text text-xs">作业类型</span></div>
+              <div class="text-textSecondary text-xs">涉及危险因素，需要重点监控的作业场景</div>
+              <div class="flex items-center gap-2">
+                <div class="toggle-switch on"></div>
+                <span class="text-xs">启用</span>
+              </div>
+              <div class="text-right pr-6 text-xs space-x-3">
+                <a class="text-primary cursor-pointer">编辑</a>
+                <a class="text-amber-500 cursor-pointer">新增下级</a>
+                <a class="text-dangerRed cursor-pointer">删除</a>
+              </div>
+            </div>
+            <!-- 二级分类 -->
+            <div class="tree-row-hover grid grid-cols-[280px_140px_1fr_140px_220px] items-center py-3 px-4 text-sm pl-6">
+              <div class="flex items-center gap-2">
+                <i class="fa fa-file-o text-slate-400"></i>
+                <span>高空作业</span>
+              </div>
+              <div><span class="px-2 py-1 rounded bg-tagLevel2Bg text-tagLevel2Text text-xs">二级分类</span></div>
+              <div class="text-textSecondary text-xs">在高处进行的作业活动</div>
+              <div class="flex items-center gap-2">
+                <div class="toggle-switch on"></div>
+                <span class="text-xs">启用</span>
+              </div>
+              <div class="text-right pr-6 text-xs space-x-3">
+                <a class="text-primary cursor-pointer">编辑</a>
+                <a class="text-dangerRed cursor-pointer">删除</a>
+              </div>
+            </div>
+            <div class="tree-row-hover grid grid-cols-[280px_140px_1fr_140px_220px] items-center py-3 px-4 text-sm pl-6">
+              <div class="flex items-center gap-2">
+                <i class="fa fa-file-o text-slate-400"></i>
+                <span>动火作业</span>
+              </div>
+              <div><span class="px-2 py-1 rounded bg-tagLevel2Bg text-tagLevel2Text text-xs">二级分类</span></div>
+              <div class="text-textSecondary text-xs">使用明火或产生火花的作业</div>
+              <div class="flex items-center gap-2">
+                <div class="toggle-switch on"></div>
+                <span class="text-xs">启用</span>
+              </div>
+              <div class="text-right pr-6 text-xs space-x-3">
+                <a class="text-primary cursor-pointer">编辑</a>
+                <a class="text-dangerRed cursor-pointer">删除</a>
+              </div>
+            </div>
+            <div class="tree-row-hover grid grid-cols-[280px_140px_1fr_140px_220px] items-center py-3 px-4 text-sm pl-6">
+              <div class="flex items-center gap-2">
+                <i class="fa fa-file-o text-slate-400"></i>
+                <span>有限空间作业</span>
+              </div>
+              <div><span class="px-2 py-1 rounded bg-tagLevel2Bg text-tagLevel2Text text-xs">二级分类</span></div>
+              <div class="text-textSecondary text-xs">在有限空间内进行的作业</div>
+              <div class="flex items-center gap-2">
+                <div class="toggle-switch on"></div>
+                <span class="text-xs">启用</span>
+              </div>
+              <div class="text-right pr-6 text-xs space-x-3">
+                <a class="text-primary cursor-pointer">编辑</a>
+                <a class="text-dangerRed cursor-pointer">删除</a>
+              </div>
+            </div>
+            <div class="tree-row-hover grid grid-cols-[280px_140px_1fr_140px_220px] items-center py-3 px-4 text-sm pl-6">
+              <div class="flex items-center gap-2">
+                <i class="fa fa-file-o text-slate-400"></i>
+                <span>吊装作业</span>
+              </div>
+              <div><span class="px-2 py-1 rounded bg-tagLevel2Bg text-tagLevel2Text text-xs">二级分类</span></div>
+              <div class="text-textSecondary text-xs">使用吊装设备进行的作业</div>
+              <div class="flex items-center gap-2">
+                <div class="toggle-switch on"></div>
+                <span class="text-xs">启用</span>
+              </div>
+              <div class="text-right pr-6 text-xs space-x-3">
+                <a class="text-primary cursor-pointer">编辑</a>
+                <a class="text-dangerRed cursor-pointer">删除</a>
+              </div>
+            </div>
+            <div class="tree-row-hover grid grid-cols-[280px_140px_1fr_140px_220px] items-center py-3 px-4 text-sm pl-6">
+              <div class="flex items-center gap-2">
+                <i class="fa fa-file-o text-slate-400"></i>
+                <span>临时用电作业</span>
+              </div>
+              <div><span class="px-2 py-1 rounded bg-tagLevel2Bg text-tagLevel2Text text-xs">二级分类</span></div>
+              <div class="text-textSecondary text-xs">临时用电设备的安装与使用</div>
+              <div class="flex items-center gap-2">
+                <div class="toggle-switch on"></div>
+                <span class="text-xs">启用</span>
+              </div>
+              <div class="text-right pr-6 text-xs space-x-3">
+                <a class="text-primary cursor-pointer">编辑</a>
+                <a class="text-dangerRed cursor-pointer">删除</a>
+              </div>
+            </div>
+
+            <!-- 作业类型：常规作业场景 -->
+            <div class="tree-row-hover grid grid-cols-[280px_140px_1fr_140px_220px] items-center py-3 px-4 text-sm">
+              <div class="flex items-center gap-2">
+                <i class="fa fa-angle-down text-slate-500"></i>
+                <i class="fa fa-tag text-blue-500"></i>
+                <span>检维修</span>
+              </div>
+              <div><span class="px-2 py-1 rounded bg-tagLevel1Bg text-tagLevel1Text text-xs">作业类型</span></div>
+              <div class="text-textSecondary text-xs">日常生产作业场景的常规监控</div>
+              <div class="flex items-center gap-2">
+                <div class="toggle-switch on"></div>
+                <span class="text-xs">启用</span>
+              </div>
+              <div class="text-right pr-6 text-xs space-x-3">
+                <a class="text-primary cursor-pointer">编辑</a>
+                <a class="text-amber-500 cursor-pointer">新增下级</a>
+                <a class="text-dangerRed cursor-pointer">删除</a>
+              </div>
+            </div>
+            <div class="tree-row-hover grid grid-cols-[280px_140px_1fr_140px_220px] items-center py-3 px-4 text-sm pl-6">
+              <div class="flex items-center gap-2">
+                <i class="fa fa-file-o text-slate-400"></i>
+                <span>设备巡检</span>
+              </div>
+              <div><span class="px-2 py-1 rounded bg-tagLevel2Bg text-tagLevel2Text text-xs">二级分类</span></div>
+              <div class="text-textSecondary text-xs">设备巡检与检查作业</div>
+              <div class="flex items-center gap-2">
+                <div class="toggle-switch on"></div>
+                <span class="text-xs">启用</span>
+              </div>
+              <div class="text-right pr-6 text-xs space-x-3">
+                <a class="text-primary cursor-pointer">编辑</a>
+                <a class="text-dangerRed cursor-pointer">删除</a>
+              </div>
+            </div>
+            <div class="tree-row-hover grid grid-cols-[280px_140px_1fr_140px_220px] items-center py-3 px-4 text-sm pl-6">
+              <div class="flex items-center gap-2">
+                <i class="fa fa-file-o text-slate-400"></i>
+                <span>物料运输</span>
+              </div>
+              <div><span class="px-2 py-1 rounded bg-tagLevel2Bg text-tagLevel2Text text-xs">二级分类</span></div>
+              <div class="text-textSecondary text-xs">物料运输与搬运作业</div>
+              <div class="flex items-center gap-2">
+                <div class="toggle-switch on"></div>
+                <span class="text-xs">启用</span>
+              </div>
+              <div class="text-right pr-6 text-xs space-x-3">
+                <a class="text-primary cursor-pointer">编辑</a>
+                <a class="text-dangerRed cursor-pointer">删除</a>
+              </div>
+            </div>
+            <div class="tree-row-hover grid grid-cols-[280px_140px_1fr_140px_220px] items-center py-3 px-4 text-sm pl-6">
+              <div class="flex items-center gap-2">
+                <i class="fa fa-file-o text-slate-400"></i>
+                <span>日常作业</span>
+              </div>
+              <div><span class="px-2 py-1 rounded bg-tagLevel2Bg text-tagLevel2Text text-xs">二级分类</span></div>
+              <div class="text-textSecondary text-xs">日常生产相关的作业活动</div>
+              <div class="flex items-center gap-2">
+                <div class="toggle-switch on"></div>
+                <span class="text-xs">启用</span>
+              </div>
+              <div class="text-right pr-6 text-xs space-x-3">
+                <a class="text-primary cursor-pointer">编辑</a>
+                <a class="text-dangerRed cursor-pointer">删除</a>
+              </div>
+            </div>
+            <div class="tree-row-hover grid grid-cols-[280px_140px_1fr_140px_220px] items-center py-3 px-4 text-sm pl-6">
+              <div class="flex items-center gap-2">
+                <i class="fa fa-file-o text-slate-400"></i>
+                <span>区域内作业</span>
+              </div>
+              <div><span class="px-2 py-1 rounded bg-tagLevel2Bg text-tagLevel2Text text-xs">二级分类</span></div>
+              <div class="text-textSecondary text-xs">指定区域内的作业活动</div>
+              <div class="flex items-center gap-2">
+                <div class="toggle-switch on"></div>
+                <span class="text-xs">启用</span>
+              </div>
+              <div class="text-right pr-6 text-xs space-x-3">
+                <a class="text-primary cursor-pointer">编辑</a>
+                <a class="text-dangerRed cursor-pointer">删除</a>
+              </div>
+            </div>
+
+            <!-- 作业类型：高风险区域场景 -->
+            <div class="tree-row-hover grid grid-cols-[280px_140px_1fr_140px_220px] items-center py-3 px-4 text-sm">
+              <div class="flex items-center gap-2">
+                <i class="fa fa-angle-down text-slate-500"></i>
+                <i class="fa fa-exclamation-circle text-amber-500"></i>
+                <span>工程施工</span>
+              </div>
+              <div><span class="px-2 py-1 rounded bg-tagLevel1Bg text-tagLevel1Text text-xs">作业类型</span></div>
+              <div class="text-textSecondary text-xs">风险等级较高的区域场景</div>
+              <div class="flex items-center gap-2">
+                <div class="toggle-switch on"></div>
+                <span class="text-xs">启用</span>
+              </div>
+              <div class="text-right pr-6 text-xs space-x-3">
+                <a class="text-primary cursor-pointer">编辑</a>
+                <a class="text-amber-500 cursor-pointer">新增下级</a>
+                <a class="text-dangerRed cursor-pointer">删除</a>
+              </div>
+            </div>
+            <div class="tree-row-hover grid grid-cols-[280px_140px_1fr_140px_220px] items-center py-3 px-4 text-sm pl-6">
+              <div class="flex items-center gap-2">
+                <i class="fa fa-file-o text-slate-400"></i>
+                <span>边坡区域</span>
+              </div>
+              <div><span class="px-2 py-1 rounded bg-tagLevel2Bg text-tagLevel2Text text-xs">二级分类</span></div>
+              <div class="text-textSecondary text-xs">边坡及其周边区域</div>
+              <div class="flex items-center gap-2">
+                <div class="toggle-switch on"></div>
+                <span class="text-xs">启用</span>
+              </div>
+              <div class="text-right pr-6 text-xs space-x-3">
+                <a class="text-primary cursor-pointer">编辑</a>
+                <a class="text-dangerRed cursor-pointer">删除</a>
+              </div>
+            </div>
+            <div class="tree-row-hover grid grid-cols-[280px_140px_1fr_140px_220px] items-center py-3 px-4 text-sm pl-6">
+              <div class="flex items-center gap-2">
+                <i class="fa fa-file-o text-slate-400"></i>
+                <span>危险区域进入</span>
+              </div>
+              <div><span class="px-2 py-1 rounded bg-tagLevel2Bg text-tagLevel2Text text-xs">二级分类</span></div>
+              <div class="text-textSecondary text-xs">人员进入危险区域的行为</div>
+              <div class="flex items-center gap-2">
+                <div class="toggle-switch on"></div>
+                <span class="text-xs">启用</span>
+              </div>
+              <div class="text-right pr-6 text-xs space-x-3">
+                <a class="text-primary cursor-pointer">编辑</a>
+                <a class="text-dangerRed cursor-pointer">删除</a>
+              </div>
+            </div>
+
+            <!-- 作业类型：重点部位场景 -->
+            <div class="tree-row-hover grid grid-cols-[280px_140px_1fr_140px_220px] items-center py-3 px-4 text-sm">
+              <div class="flex items-center gap-2">
+                <i class="fa fa-angle-down text-slate-500"></i>
+                <i class="fa fa-bullseye text-purple-500"></i>
+                <span>维保</span>
+              </div>
+              <div><span class="px-2 py-1 rounded bg-tagLevel1Bg text-tagLevel1Text text-xs">作业类型</span></div>
+              <div class="text-textSecondary text-xs">重点部位的作业场景</div>
+              <div class="flex items-center gap-2">
+                <div class="toggle-switch on"></div>
+                <span class="text-xs">启用</span>
+              </div>
+              <div class="text-right pr-6 text-xs space-x-3">
+                <a class="text-primary cursor-pointer">编辑</a>
+                <a class="text-amber-500 cursor-pointer">新增下级</a>
+                <a class="text-dangerRed cursor-pointer">删除</a>
+              </div>
+            </div>
+            <div class="tree-row-hover grid grid-cols-[280px_140px_1fr_140px_220px] items-center py-3 px-4 text-sm pl-6">
+              <div class="flex items-center gap-2">
+                <i class="fa fa-file-o text-slate-400"></i>
+                <span>关键设备区</span>
+              </div>
+              <div><span class="px-2 py-1 rounded bg-tagLevel2Bg text-tagLevel2Text text-xs">二级分类</span></div>
+              <div class="text-textSecondary text-xs">关键设备周边区域</div>
+              <div class="flex items-center gap-2">
+                <div class="toggle-switch on"></div>
+                <span class="text-xs">启用</span>
+              </div>
+              <div class="text-right pr-6 text-xs space-x-3">
+                <a class="text-primary cursor-pointer">编辑</a>
+                <a class="text-dangerRed cursor-pointer">删除</a>
+              </div>
+            </div>
+            <div class="tree-row-hover grid grid-cols-[280px_140px_1fr_140px_220px] items-center py-3 px-4 text-sm pl-6">
+              <div class="flex items-center gap-2">
+                <i class="fa fa-file-o text-slate-400"></i>
+                <span>高风险工序</span>
+              </div>
+              <div><span class="px-2 py-1 rounded bg-tagLevel2Bg text-tagLevel2Text text-xs">二级分类</span></div>
+              <div class="text-textSecondary text-xs">高风险工序作业区域</div>
+              <div class="flex items-center gap-2">
+                <div class="toggle-switch on"></div>
+                <span class="text-xs">启用</span>
+              </div>
+              <div class="text-right pr-6 text-xs space-x-3">
+                <a class="text-primary cursor-pointer">编辑</a>
+                <a class="text-dangerRed cursor-pointer">删除</a>
+              </div>
+            </div>
+
+            <!-- 作业类型：闲置场景 -->
+            <div class="tree-row-hover grid grid-cols-[280px_140px_1fr_140px_220px] items-center py-3 px-4 text-sm">
+              <div class="flex items-center gap-2">
+                <i class="fa fa-angle-down text-slate-500"></i>
+                <i class="fa fa-pause-circle text-green-600"></i>
+                <span>其他</span>
+              </div>
+              <div><span class="px-2 py-1 rounded bg-tagLevel1Bg text-tagLevel1Text text-xs">作业类型</span></div>
+              <div class="text-textSecondary text-xs">设备设施闲置状态的场景</div>
+              <div class="flex items-center gap-2">
+                <div class="toggle-switch on"></div>
+                <span class="text-xs">启用</span>
+              </div>
+              <div class="text-right pr-6 text-xs space-x-3">
+                <a class="text-primary cursor-pointer">编辑</a>
+                <a class="text-amber-500 cursor-pointer">新增下级</a>
+                <a class="text-dangerRed cursor-pointer">删除</a>
+              </div>
+            </div>
+            <div class="tree-row-hover grid grid-cols-[280px_140px_1fr_140px_220px] items-center py-3 px-4 text-sm pl-6">
+              <div class="flex items-center gap-2">
+                <i class="fa fa-file-o text-slate-400"></i>
+                <span>其他</span>
+              </div>
+              <div><span class="px-2 py-1 rounded bg-tagLevel2Bg text-tagLevel2Text text-xs">二级分类</span></div>
+              <div class="text-textSecondary text-xs">设备长时间未使用区域</div>
+              <div class="flex items-center gap-2">
+                <div class="toggle-switch on"></div>
+                <span class="text-xs">启用</span>
+              </div>
+              <div class="text-right pr-6 text-xs space-x-3">
+                <a class="text-primary cursor-pointer">编辑</a>
+                <a class="text-dangerRed cursor-pointer">删除</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // 开关切换交互
+    document.querySelectorAll('.toggle-switch').forEach(sw => {
+      sw.addEventListener('click', function () {
+        this.classList.toggle('on');
+        const textNode = this.nextElementSibling;
+        textNode.textContent = this.classList.contains('on') ? '启用' : '停用';
+      })
+    })
+
+    // 树形展开折叠
+    document.querySelectorAll('.tree-row-hover').forEach(row => {
+      const arrowIcon = row.querySelector('.fa-angle-down,.fa-angle-right');
+      if (!arrowIcon) return;
+      row.addEventListener('click', (e) => {
+        if (['A','SPAN'].includes(e.target.tagName)) return;
+        if(arrowIcon.classList.contains('fa-angle-down')){
+          arrowIcon.classList.remove('fa-angle-down');
+          arrowIcon.classList.add('fa-angle-right');
+        }else{
+          arrowIcon.classList.remove('fa-angle-right');
+          arrowIcon.classList.add('fa-angle-down');
+        }
+      })
+    })
+  </script>
+  <script src="navigation.js?v=20260819-2"></script>
+</body>
+</html>

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>自动轮播设置弹窗</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            modalBg: '#161E31',
+            primaryBlue: '#165DFF',
+            darkBorder: '#2A354B',
+          },
+        },
+      }
+    }
+  </script>
+  <style>
+    /* 毛玻璃遮罩 */
+    .mask-glass {
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+  </style>
+</head>
+<body class="bg-slate-900 min-h-screen">
+  <!-- 模拟页面背景内容 -->
+  <div class="p-8 text-slate-400">
+    <h2>平台背景页面（模拟）</h2>
+    <p>弹窗浮于上层，背景做毛玻璃遮罩</p>
+  </div>
+
+  <!-- 遮罩层 -->
+  <div class="fixed inset-0 bg-black/60 mask-glass z-50 flex items-center justify-center">
+    <!-- 弹窗主体 -->
+    <div class="w-[920px] bg-modalBg rounded-xl border border-darkBorder shadow-2xl text-slate-100 overflow-hidden">
+      <!-- 弹窗头部 -->
+      <div class="flex items-center justify-between px-6 py-5 border-b border-darkBorder">
+        <h3 class="text-xl font-semibold">自动轮播设置</h3>
+        <button class="text-slate-400 hover:text-white text-xl">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="px-6 py-5">
+        <p class="text-slate-400 text-sm mb-6">配置视频画面轮播的优先级规则，系统将按照以下顺序自动播放摄像头画面</p>
+
+        <!-- 1.轮播基本设置 -->
+        <div class="mb-8">
+          <div class="flex items-center gap-2 mb-4">
+            <span class="text-sky-400">|</span>
+            <h4 class="text-base">1. 轮播基本设置</h4>
+          </div>
+          <div class="flex items-center gap-6 flex-wrap">
+            <!-- 开关 -->
+            <div class="flex items-center gap-2">
+              <span class="text-slate-300 text-sm">启用自动轮播</span>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" checked class="sr-only peer">
+                <div class="w-11 h-6 bg-slate-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-sky-500"></div>
+              </label>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <span class="text-slate-300 text-sm">轮播间隔</span>
+              <select class="bg-slate-800 border border-darkBorder rounded px-3 py-1.5 text-sm w-24">
+                <option>15秒</option>
+                <option>20秒</option>
+                <option>30秒</option>
+              </select>
+            </div>
+
+           
+          </div>
+        </div>
+
+        <!-- 2.轮播排序规则 -->
+        <div>
+          <div class="flex items-center gap-2 mb-4">
+            <span class="text-sky-400">|</span>
+            <h4 class="text-base">2. 轮播排序规则</h4>
+            <span class="text-slate-400 text-xs">按优先级从高到低轮播，序号越靠前优先级越高</span>
+          </div>
+
+          <!-- 表头 -->
+          <div class="grid grid-cols-[80px_220px_1fr_40px] gap-3 bg-slate-800/60 px-4 py-3 rounded-t-md text-slate-300 text-sm">
+            <div>排序</div>
+            <div>规则名称</div>
+            <div>说明</div>
+            <div></div>
+          </div>
+
+          <!-- 列表项 -->
+          <div class="border border-t-0 border-darkBorder rounded-b-md divide-y divide-darkBorder">
+            <!-- item1 -->
+            <div class="grid grid-cols-[80px_220px_1fr_40px] gap-3 px-4 py-3 items-center">
+              <div class="flex items-center gap-2">
+                <i class="fa-solid fa-grip-lines text-slate-500 cursor-move"></i>
+                <span class="w-6 h-6 rounded bg-red-500 flex items-center justify-center text-xs font-medium">1</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <i class="fa-solid fa-triangle-exclamation text-red-400"></i>
+                <span>违章异常告警</span>
+              </div>
+              <div class="text-slate-400 text-sm">包括违章行为识别、异常事件告警等</div>
+              <!-- <div><i class="fa-solid fa-chevron-down text-slate-400"></i></div> -->
+            </div>
+            <!-- item2 -->
+            <div class="grid grid-cols-[80px_220px_1fr_40px] gap-3 px-4 py-3 items-center">
+              <div class="flex items-center gap-2">
+                <i class="fa-solid fa-grip-lines text-slate-500 cursor-move"></i>
+                <span class="w-6 h-6 rounded bg-orange-500 flex items-center justify-center text-xs font-medium">2</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <i class="fa-solid fa-fire text-orange-400"></i>
+                <span>危险作业</span>
+              </div>
+              <div class="text-slate-400 text-sm">动火作业、高处作业、受限空间作业等</div>
+              <!-- <div><i class="fa-solid fa-chevron-down text-slate-400"></i></div> -->
+            </div>
+            <!-- item3 -->
+            <div class="grid grid-cols-[80px_220px_1fr_40px] gap-3 px-4 py-3 items-center">
+              <div class="flex items-center gap-2">
+                <i class="fa-solid fa-grip-lines text-slate-500 cursor-move"></i>
+                <span class="w-6 h-6 rounded bg-blue-500 flex items-center justify-center text-xs font-medium">3</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <i class="fa-solid fa-file text-blue-400"></i>
+                <span>常规作业</span>
+              </div>
+              <div class="text-slate-400 text-sm">正在进行的常规作业场景</div>
+              <!-- <div><i class="fa-solid fa-chevron-down text-slate-400"></i></div> -->
+            </div>
+            <!-- item4 -->
+            <div class="grid grid-cols-[80px_220px_1fr_40px] gap-3 px-4 py-3 items-center">
+              <div class="flex items-center gap-2">
+                <i class="fa-solid fa-grip-lines text-slate-500 cursor-move"></i>
+                <span class="w-6 h-6 rounded bg-purple-600 flex items-center justify-center text-xs font-medium">4</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <i class="fa-solid fa-shield-halved text-purple-400"></i>
+                <span>高风险区域（重大风险、较大风险）</span>
+              </div>
+              <div class="text-slate-400 text-sm">重大风险区域、较大风险区域监控画面</div>
+              <!-- <div><i class="fa-solid fa-chevron-down text-slate-400"></i></div> -->
+            </div>
+            <!-- item5 -->
+            <div class="grid grid-cols-[80px_220px_1fr_40px] gap-3 px-4 py-3 items-center">
+              <div class="flex items-center gap-2">
+                <i class="fa-solid fa-grip-lines text-slate-500 cursor-move"></i>
+                <span class="w-6 h-6 rounded bg-green-600 flex items-center justify-center text-xs font-medium">5</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <i class="fa-solid fa-user-clock text-green-400"></i>
+                <span>人员长时间停留</span>
+              </div>
+              <div class="text-slate-400 text-sm">人员在同一区域长时间停留告警</div>
+              <!-- <div><i class="fa-solid fa-chevron-down text-slate-400"></i></div> -->
+            </div>
+            <!-- item6 -->
+            <div class="grid grid-cols-[80px_220px_1fr_40px] gap-3 px-4 py-3 items-center">
+              <div class="flex items-center gap-2">
+                <i class="fa-solid fa-grip-lines text-slate-500 cursor-move"></i>
+                <span class="w-6 h-6 rounded bg-slate-600 flex items-center justify-center text-xs font-medium">6</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <i class="fa-solid fa-ellipsis text-slate-400"></i>
+                <span>其他画面</span>
+              </div>
+              <div class="text-slate-400 text-sm">无以上规则时，轮播其他摄像头画面</div>
+              <!-- <div><i class="fa-solid fa-chevron-down text-slate-400"></i></div> -->
+            </div>
+          </div>
+
+          <p class="text-slate-400 text-xs mt-4"><i class="fa-solid fa-circle-info mr-1 text-sky-400"></i>系统将根据上述优先级顺序自动轮播摄像头，当高优先级事件停止后，继续按照当前顺序轮播</p>
+        </div>
+      </div>
+
+      <!-- 底部按钮 -->
+      <div class="flex justify-end gap-4 px-6 py-5 border-t border-darkBorder">
+        <button class="px-6 py-2 rounded bg-slate-700 hover:bg-slate-600 text-sm">取消</button>
+        <button class="px-6 py-2 rounded bg-primaryBlue hover:bg-[#0e4cd8] text-white text-sm">保存设置</button>
+      </div>
+    </div>
+  </div>
+
+<script src="ai-assistant.js?v=20260825-2"></script>
+</body>
+</html>

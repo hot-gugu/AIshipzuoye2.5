@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>“三维”无视频不作业智慧管控平台 - 违章规则管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1677ff',
+                        sidebarBg: '#0F172A',
+                        sidebarActive: '#1A2844',
+                        textSide: '#A1AFCD',
+                        tableBorder: '#E5E7EB',
+                        tagPerson: '#94bfff',
+                        tagWork: '#c3b4ff',
+                        tagDevice: '#9be4c6',
+                        tagEnv: '#87e3d0',
+                        tagScene: '#8cd6f8',
+                        tagA: '#FEE7E7',
+                        tagAText: '#E53E3E',
+                        tagB: '#FFEDD8',
+                        tagBText: '#DD6B20',
+                        tagC: '#FEF3C7',
+                        tagCText: '#D97706',
+                        tagD: '#D1FAE5',
+                        tagDText: '#059669',
+                    },
+                    fontFamily: {
+                        system: ['PingFang SC', 'Microsoft YaHei', 'system-ui', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .scrollbar-hide::-webkit-scrollbar { display: none; }
+            .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+            .menu-active {
+                background-color: #1A2844;
+                color: #ffffff;
+                border-right: 3px solid #1677ff;
+            }
+            .menu-item-hover:hover {
+                background-color: #1A2844;
+                color: #ffffff;
+            }
+        }
+        body {
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body class="font-system h-screen flex bg-gray-50 text-gray-800">
+    <!-- 左侧侧边栏 -->
+    <aside class="w-[220px] bg-sidebarBg flex flex-col flex-shrink-0 text-textSide">
+        <!-- Logo区域 -->
+        <div class="h-[64px] flex items-center px-4 gap-3 border-b border-slate-700">
+            <div class="w-9 h-9 rounded-lg bg-primary flex items-center justify-center">
+                <i class="fa fa-cube text-white text-xl"></i>
+            </div>
+            <div class="text-white leading-tight">
+                <div class="text-sm font-medium">视频AI识别自进化能力平台</div>
+                <div class="text-[10px] text-textSide">安全生产管理平台</div>
+            </div>
+        </div>
+        <!-- 侧边菜单 -->
+        <nav class="flex-1 py-3 overflow-y-auto scrollbar-hide text-sm">
+            <div class="menu-item-hover flex items-center gap-3 px-4 py-2.5 cursor-pointer">
+                <i class="fa fa-home w-5 text-center"></i>
+                <span>首页</span>
+            </div>
+            <div class="menu-item-hover flex items-center gap-3 px-4 py-2.5 cursor-pointer">
+                <i class="fa fa-video-camera w-5 text-center"></i>
+                <span>实时监控</span>
+            </div>
+            <div class="menu-item-hover flex items-center gap-3 px-4 py-2.5 cursor-pointer">
+                <i class="fa fa-history w-5 text-center"></i>
+                <span>视频管理</span>
+            </div>
+            <div class="flex flex-col">
+                <div class="menu-item-hover flex items-center gap-3 px-4 py-2.5 cursor-pointer">
+                    <i class="fa fa-bolt w-5 text-center"></i>
+                    <span>AI智能管理</span>
+                </div>
+                <div class="pl-6 flex flex-col">
+                    <div class="menu-item-hover flex items-center gap-3 px-4 py-2 cursor-pointer">
+                        <span>隐患违章台账</span>
+                    </div>
+                </div>
+            </div>
+            <div class="flex flex-col">
+                <div class="menu-item-hover flex items-center gap-3 px-4 py-2.5 cursor-pointer">
+                    <i class="fa fa-exclamation-triangle w-5 text-center"></i>
+                    <span>隐患违章管理</span>
+                </div>
+                <div class="pl-6 flex flex-col">
+                    <div class="menu-item-hover flex items-center gap-3 px-4 py-2 cursor-pointer">
+                        <span>违章查处台账</span>
+                    </div>
+                    <div class="menu-item-hover flex items-center gap-3 px-4 py-2 cursor-pointer">
+                        <span>隐患查处台账</span>
+                    </div>
+                    <div class="menu-item-hover flex items-center gap-3 px-4 py-2 cursor-pointer">
+                        <span>违章查处统计分析</span>
+                    </div>
+                    <div class="menu-item-hover flex items-center gap-3 px-4 py-2 cursor-pointer">
+                        <span>隐患查处统计分析</span>
+                    </div>
+                    <div class="menu-item-hover flex items-center gap-3 px-4 py-2 cursor-pointer">
+                        <span>考核管理</span>
+                    </div>
+                </div>
+            </div>
+            <div class="text-xs text-gray-500 px-4 py-2 mt-2">基础管理</div>
+            <div class="menu-item-hover flex items-center gap-3 px-4 py-2.5 cursor-pointer">
+                <i class="fa fa-sitemap w-5 text-center"></i>
+                <span>组织架构</span>
+            </div>
+            <div class="menu-item-hover flex items-center gap-3 px-4 py-2.5 cursor-pointer">
+                <i class="fa fa-camera w-5 text-center"></i>
+                <span>设备管理</span>
+            </div>
+            <div class="menu-item-hover flex items-center gap-3 px-4 py-2.5 cursor-pointer">
+                <i class="fa fa-database w-5 text-center"></i>
+                <span>基础数据管理</span>
+            </div>
+            <div class="flex flex-col">
+                <div class="menu-active flex items-center gap-3 px-4 py-2.5 cursor-pointer">
+                    <i class="fa fa-cogs w-5 text-center"></i>
+                    <span>管理体系</span>
+                </div>
+                <div class="pl-6 flex flex-col">
+                    <div class="menu-item-hover flex items-center gap-3 px-4 py-2 cursor-pointer">
+                        <span>制度文件管理</span>
+                    </div>
+                    <div class="menu-item-hover flex items-center gap-3 px-4 py-2 cursor-pointer">
+                        <span>违章等级管理</span>
+                    </div>
+                    <div class="menu-active flex items-center gap-3 px-4 py-2 cursor-pointer">
+                        <span>违章规则管理</span>
+                    </div>
+                    <div class="menu-item-hover flex items-center gap-3 px-4 py-2 cursor-pointer">
+                        <span>隐患等级管理</span>
+                    </div>
+                    <div class="menu-item-hover flex items-center gap-3 px-4 py-2 cursor-pointer">
+                        <span>作业类型管理</span>
+                    </div>
+                    <div class="menu-item-hover flex items-center gap-3 px-4 py-2 cursor-pointer">
+                        <span>作业区域管理</span>
+                    </div>
+                    <div class="menu-item-hover flex items-center gap-3 px-4 py-2 cursor-pointer">
+                        <span>风险分类管理</span>
+                    </div>
+                </div>
+            </div>
+            <div class="menu-item-hover flex items-center gap-3 px-4 py-2.5 cursor-pointer">
+                <i class="fa fa-wrench w-5 text-center"></i>
+                <span>系统设置</span>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- 主内容区域 -->
+    <main class="flex-1 flex flex-col overflow-hidden">
+        <!-- 顶部导航栏 -->
+        <header class="h-[60px] bg-white border-b border-tableBorder flex items-center justify-between px-6 flex-shrink-0">
+            <div class="flex items-center gap-3">
+                <i class="fa fa-bars cursor-pointer text-gray-600"></i>
+                <span class="text-base font-medium">管理体系 / 违章规则管理</span>
+            </div>
+            <div class="flex items-center gap-5">
+                <div class="relative cursor-pointer">
+                    <i class="fa fa-bell-o text-gray-500 text-lg"></i>
+                </div>
+                <div class="flex items-center gap-2 cursor-pointer">
+                    <div class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center">
+                        <i class="fa fa-user text-gray-500"></i>
+                    </div>
+                    <div class="text-sm leading-tight">
+                        <div>张安全</div>
+                        <div class="text-xs text-gray-400">安全环保部·安全科</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 页面内容 -->
+        <div class="flex-1 overflow-y-auto p-6 scrollbar-hide">
+            <!-- 提示说明栏 -->
+            <div class="bg-blue-50 border border-blue-200 rounded-md p-3 mb-5 flex items-center justify-between">
+                <div class="flex items-center gap-2 text-sm text-blue-700">
+                    <i class="fa fa-info-circle"></i>
+                    <span>说明：违章规则用于定义各类违章行为的判定条件、关联条款、关联等级及扣分标准，系统根据规则自动匹配并记录处理。</span>
+                </div>
+            </div>
+
+            <!-- 查询筛选区域 -->
+            <div class="bg-white rounded-md p-4 mb-4 flex items-center gap-4 flex-wrap border border-tableBorder">
+                <div class="flex items-center gap-2">
+                    <input type="text" placeholder="请输入违章名称/关键词" class="border border-gray-300 rounded px-3 py-1.5 text-sm w-[220px] outline-none focus:border-primary">
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-sm text-gray-600">违章类型：</span>
+                    <select class="border border-gray-300 rounded px-3 py-1.5 text-sm w-[130px] outline-none focus:border-primary">
+                        <option>全部</option>
+                    </select>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-sm text-gray-600">关联等级：</span>
+                    <select class="border border-gray-300 rounded px-3 py-1.5 text-sm w-[130px] outline-none focus:border-primary">
+                        <option>全部</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 表格卡片 -->
+            <div class="bg-white rounded-md border border-tableBorder">
+                <div class="px-4 py-3 border-b border-tableBorder flex items-center justify-between"><span id="ruleCountTitle" class="text-sm font-medium">违章规则列表（共 12 条）</span><button id="addRuleButton" class="bg-primary text-white px-4 py-1.5 rounded-md flex items-center gap-1 text-sm"><i class="fa fa-plus"></i><span>新增违章规则</span></button></div>
+                <table class="w-full text-sm">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-3 text-left font-medium text-gray-600 border-b border-tableBorder w-[70px]">序号</th>
+                            <th class="px-4 py-3 text-left font-medium text-gray-600 border-b border-tableBorder w-[160px]">违章名称</th>
+                            <th class="px-4 py-3 text-left font-medium text-gray-600 border-b border-tableBorder w-[120px]">违章类型</th>
+                            <th class="px-4 py-3 text-left font-medium text-gray-600 border-b border-tableBorder">违章条款/依据</th>
+                            <th class="px-4 py-3 text-left font-medium text-gray-600 border-b border-tableBorder w-[110px]">关联等级</th>
+                            <th class="px-4 py-3 text-left font-medium text-gray-600 border-b border-tableBorder w-[90px]">扣分数</th>
+                            <th class="px-4 py-3 text-left font-medium text-gray-600 border-b border-tableBorder w-[120px]">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ruleTableBody">
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3 border-b border-tableBorder">1</td>
+                            <td class="px-4 py-3 border-b border-tableBorder">未佩戴安全帽</td>
+                            <td class="px-4 py-3 border-b border-tableBorder">
+                                <span class="bg-tagPerson text-blue-700 px-2 py-0.5 rounded text-xs">人员行为类</span>
+                            </td>
+                            <td class="px-4 py-3 border-b border-tableBorder text-gray-700">
+                                《安全生产管理制度》第三章 第一条：进入生产现场必须正确佩戴安全帽。
+                            </td>
+                            <td class="px-4 py-3 border-b border-tableBorder">
+                                <span class="bg-tagA text-tagAText px-2 py-0.5 rounded text-xs">A类</span>
+                            </td>
+                            <td class="px-4 py-3 border-b border-tableBorder">20</td>
+                            <td class="px-4 py-3 border-b border-tableBorder">
+                                <span class="text-primary cursor-pointer mr-4">编辑</span>
+                                <span class="text-red-500 cursor-pointer">删除</span>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3 border-b border-tableBorder">2</td>
+                            <td class="px-4 py-3 border-b border-tableBorder">违规动火作业</td>
+                            <td class="px-4 py-3 border-b border-tableBorder">
+                                <span class="bg-tagWork text-purple-700 px-2 py-0.5 rounded text-xs">作业管理类</span>
+                            </td>
+                            <td class="px-4 py-3 border-b border-tableBorder text-gray-700">
+                                《动火作业安全管理规定》第五条：未办理动火许可证擅自动火作业。
+                            </td>
+                            <td class="px-4 py-3 border-b border-tableBorder">
+                                <span class="bg-tagA text-tagAText px-2 py-0.5 rounded text-xs">A类</span>
+                            </td>
+                            <td class="px-4 py-3 border-b border-tableBorder">20</td>
+                            <td class="px-4 py-3 border-b border-tableBorder">
+                                <span class="text-primary cursor-pointer mr-4">编辑</span>
+                                <span class="text-red-500 cursor-pointer">删除</span>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3 border-b border-tableBorder">3</td>
+                            <td class="px-4 py-3 border-b border-tableBorder">高处作业未系安全带</td>
+                            <td class="px-4 py-3 border-b border-tableBorder">
+                                <span class="bg-tagPerson text-blue-700 px-2 py-0.5 rounded text-xs">人员行为类</span>
+                            </td>
+                            <td class="px-4 py-3 border-b border-tableBorder text-gray-700">
+                                《高处作业安全管理规定》第六条：高处作业未正确佩戴安全带。
+                            </td>
+                            <td class="px-4 py-3 border-b border-tableBorder">
+                                <span class="bg-tagB text-tagBText px-2 py-0.5 rounded text-xs">B类</span>
+                            </td>
+                            <td class="px-4 py-3 border-b border-tableBorder">10</td>
+                            <td class="px-4 py-3 border-b border-tableBorder">
+                                <span class="text-primary cursor-pointer mr-4">编辑</span>
+                                <span class="text-red-500 cursor-pointer">删除</span>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3 border-b border-tableBorder">4</td>
+                            <td class="px-4 py-3 border-b border-tableBorder">设备防护罩缺失</td>
+                            <td class="px-4 py-3 border-b border-tableBorder">
+                                <span class="bg-tagDevice text-emerald-700 px-2 py-0.5 rounded text-xs">设备管理类</span>
+                            </td>
+                            <td class="px-4 py-3 border-b border-tableBorder text-gray-700">
+                                《设备安全管理规定》第八条：设备防护罩、盖板等安全防护装置缺失或损坏。
+                            </td>
+                            <td class="px-4 py-3 border-b border-tableBorder">
+                                <span class="bg-tagB text-tagBText px-2 py-0.5 rounded text-xs">B类</span>
+                            </td>
+                            <td class="px-4 py-3 border-b border-tableBorder">10</td>
+                            <td class="px-4 py-3 border-b border-tableBorder">
+                                <span class="text-primary cursor-pointer mr-4">编辑</span>
+                                <span class="text-red-500 cursor-pointer">删除</span>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3 border-b border-tableBorder">5</td>
+                            <td class="px-4 py-3 border-b border-tableBorder">电气箱未上锁</td>
+                            <td class="px-4 py-3 border-b border-tableBorder">
+                                <span class="bg-tagDevice text-emerald-700 px-2 py-0.5 rounded text-xs">设备管理类</span>
+                            </td>
+                            <td class="px-4 py-3 border-b border-tableBorder text-gray-700">
+                                《电气安全管理规定》第四条：配电箱、控制箱未上锁或钥匙未专人保管。
+                            </td>
+                            <td class="px-4 py-3 border-b border-tableBorder">
+                                <span class="bg-tagC text-tagCText px-2 py-0.5 rounded text-xs">C类</span>
+                            </td>
+                            <td class="px-4 py-3 border-b border-tableBorder">5</td>
+                            <td class="px-4 py-3 border-b border-tableBorder">
+                                <span class="text-primary cursor-pointer mr-4">编辑</span>
+                                <span class="text-red-500 cursor-pointer">删除</span>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3 border-b border-tableBorder">6</td>
+                            <td class="px-4 py-3 border-b border-tableBorder">吸烟未在指定区域</td>
+                            <td class="px-4 py-3 border-b border-tableBorder">
+                                <span class="bg-tagEnv text-teal-700 px-2 py-0.5 rounded text-xs">环境管理类</span>
+                            </td>
+                            <td class="px-4 py-3 border-b border-tableBorder text-gray-700">
+                                《厂区安全管理规定》第七条：在禁烟区域吸烟或未在指定区域吸烟。
+                            </td>
+                            <td class="px-4 py-3 border-b border-tableBorder">
+                                <span class="bg-tagC text-tagCText px-2 py-0.5 rounded text-xs">C类</span>
+                            </td>
+                            <td class="px-4 py-3 border-b border-tableBorder">5</td>
+                            <td class="px-4 py-3 border-b border-tableBorder">
+                                <span class="text-primary cursor-pointer mr-4">编辑</span>
+                                <span class="text-red-500 cursor-pointer">删除</span>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3 border-b border-tableBorder">7</td>
+                            <td class="px-4 py-3 border-b border-tableBorder">消防通道堵塞</td>
+                            <td class="px-4 py-3 border-b border-tableBorder">
+                                <span class="bg-tagEnv text-teal-700 px-2 py-0.5 rounded text-xs">环境管理类</span>
+                            </td>
+                            <td class="px-4 py-3 border-b border-tableBorder text-gray-700">
+                                《消防安全管理规定》第三条：堵塞、占用消防通道或安全出口。
+                            </td>
+                            <td class="px-4 py-3 border-b border-tableBorder">
+                                <span class="bg-tagD text-tagDText px-2 py-0.5 rounded text-xs">D类</span>
+                            </td>
+                            <td class="px-4 py-3 border-b border-tableBorder">2</td>
+                            <td class="px-4 py-3 border-b border-tableBorder">
+                                <span class="text-primary cursor-pointer mr-4">编辑</span>
+                                <span class="text-red-500 cursor-pointer">删除</span>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3 border-b border-tableBorder">8</td>
+                            <td class="px-4 py-3 border-b border-tableBorder">工具材料乱放</td>
+                            <td class="px-4 py-3 border-b border-tableBorder">
+                                <span class="bg-tagScene text-sky-700 px-2 py-0.5 rounded text-xs">现场管理类</span>
+                            </td>
+                            <td class="px-4 py-3 border-b border-tableBorder text-gray-700">
+                                《现场管理规定》第五条：工具、材料乱放，未定置管理。
+                            </td>
+                            <td class="px-4 py-3 border-b border-tableBorder">
+                                <span class="bg-tagD text-tagDText px-2 py-0.5 rounded text-xs">D类</span>
+                            </td>
+                            <td class="px-4 py-3 border-b border-tableBorder">2</td>
+                            <td class="px-4 py-3 border-b border-tableBorder">
+                                <span class="text-primary cursor-pointer mr-4">编辑</span>
+                                <span class="text-red-500 cursor-pointer">删除</span>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3 border-b border-tableBorder">9</td>
+                            <td class="px-4 py-3 border-b border-tableBorder">未按规定穿戴劳保用品</td>
+                            <td class="px-4 py-3 border-b border-tableBorder">
+                                <span class="bg-tagPerson text-blue-700 px-2 py-0.5 rounded text-xs">人员行为类</span>
+                            </td>
+                            <td class="px-4 py-3 border-b border-tableBorder text-gray-700">
+                                《个人防护用品管理规定》第三条：未按规定穿戴劳动防护用品。
+                            </td>
+                            <td class="px-4 py-3 border-b border-tableBorder">
+                                <span class="bg-tagC text-tagCText px-2 py-0.5 rounded text-xs">C类</span>
+                            </td>
+                            <td class="px-4 py-3 border-b border-tableBorder">5</td>
+                            <td class="px-4 py-3 border-b border-tableBorder">
+                                <span class="text-primary cursor-pointer mr-4">编辑</span>
+                                <span class="text-red-500 cursor-pointer">删除</span>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3 border-b border-tableBorder">10</td>
+                            <td class="px-4 py-3 border-b border-tableBorder">临时用电不规范</td>
+                            <td class="px-4 py-3 border-b border-tableBorder">
+                                <span class="bg-tagWork text-purple-700 px-2 py-0.5 rounded text-xs">作业管理类</span>
+                            </td>
+                            <td class="px-4 py-3 border-b border-tableBorder text-gray-700">
+                                《临时用电安全管理规定》第四条：临时用电线路敷设不规范，存在安全隐患。
+                            </td>
+                            <td class="px-4 py-3 border-b border-tableBorder">
+                                <span class="bg-tagB text-tagBText px-2 py-0.5 rounded text-xs">B类</span>
+                            </td>
+                            <td class="px-4 py-3 border-b border-tableBorder">10</td>
+                            <td class="px-4 py-3 border-b border-tableBorder">
+                                <span class="text-primary cursor-pointer mr-4">编辑</span>
+                                <span class="text-red-500 cursor-pointer">删除</span>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3 border-b border-tableBorder">11</td>
+                            <td class="px-4 py-3 border-b border-tableBorder">吊装作业无专人指挥</td>
+                            <td class="px-4 py-3 border-b border-tableBorder">
+                                <span class="bg-tagWork text-purple-700 px-2 py-0.5 rounded text-xs">作业管理类</span>
+                            </td>
+                            <td class="px-4 py-3 border-b border-tableBorder text-gray-700">
+                                《起重吊装安全管理规定》第六条：吊装作业未安排专职指挥人员。
+                            </td>
+                            <td class="px-4 py-3 border-b border-tableBorder">
+                                <span class="bg-tagA text-tagAText px-2 py-0.5 rounded text-xs">A类</span>
+                            </td>
+                            <td class="px-4 py-3 border-b border-tableBorder">20</td>
+                            <td class="px-4 py-3 border-b border-tableBorder">
+                                <span class="text-primary cursor-pointer mr-4">编辑</span>
+                                <span class="text-red-500 cursor-pointer">删除</span>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3">12</td>
+                            <td class="px-4 py-3">违规跨越运转设备</td>
+                            <td class="px-4 py-3">
+                                <span class="bg-tagPerson text-blue-700 px-2 py-0.5 rounded text-xs">人员行为类</span>
+                            </td>
+                            <td class="px-4 py-3 text-gray-700">
+                                《设备安全操作规程》：禁止跨越、触碰运转中的机械设备。
+                            </td>
+                            <td class="px-4 py-3">
+                                <span class="bg-tagB text-tagBText px-2 py-0.5 rounded text-xs">B类</span>
+                            </td>
+                            <td class="px-4 py-3">10</td>
+                            <td class="px-4 py-3">
+                                <span class="text-primary cursor-pointer mr-4">编辑</span>
+                                <span class="text-red-500 cursor-pointer">删除</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <!-- 分页区域 -->
+                <div class="px-4 py-4 flex items-center justify-between border-t border-tableBorder">
+                    <span id="ruleCountFooter" class="text-sm text-gray-600">共 12 条</span>
+                    <div class="flex items-center gap-2 text-sm">
+                        <select class="border border-gray-300 rounded px-2 py-1 text-sm">
+                            <option>10条/页</option>
+                        </select>
+                        <button class="px-2 py-1 border border-gray-300 rounded">‹</button>
+                        <button class="px-2 py-1 bg-primary text-white border border-primary rounded">1</button>
+                        <button class="px-2 py-1 border border-gray-300 rounded">2</button>
+                        <button class="px-2 py-1 border border-gray-300 rounded">›</button>
+                        <span class="ml-2">前往</span>
+                        <input class="w-10 border border-gray-300 rounded px-2 py-1 text-center" value="1">
+                        <span>页</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <div id="ruleDrawer" class="hidden fixed inset-0 z-50"><div class="absolute inset-0 bg-black/30" data-rule-close></div><aside class="absolute right-0 top-0 h-full w-[520px] max-w-[92vw] bg-white shadow-2xl flex flex-col"><div class="h-16 px-6 border-b border-tableBorder flex items-center justify-between"><h2 id="ruleDrawerTitle" class="text-lg font-semibold">编辑违章规则</h2><button data-rule-close class="w-8 h-8 rounded hover:bg-gray-100"><i class="fa fa-times text-gray-500"></i></button></div><div class="flex-1 overflow-y-auto p-6 space-y-5"><div><label class="block text-sm text-gray-600 mb-2">违章名称</label><input id="ruleName" class="w-full border border-gray-300 rounded px-3 py-2 outline-none focus:border-primary"></div><div><label class="block text-sm text-gray-600 mb-2">违章类型</label><select id="ruleType" class="w-full border border-gray-300 rounded px-3 py-2"><option>人员行为类</option><option>作业管理类</option><option>设备管理类</option><option>环境管理类</option><option>现场管理类</option></select></div><div><label class="block text-sm text-gray-600 mb-2">违章条款/依据</label><textarea id="ruleBasis" rows="5" class="w-full border border-gray-300 rounded px-3 py-2 outline-none focus:border-primary"></textarea></div><div class="grid grid-cols-2 gap-4"><div><label class="block text-sm text-gray-600 mb-2">关联等级</label><select id="ruleLevel" class="w-full border border-gray-300 rounded px-3 py-2"><option>A类</option><option>B类</option><option>C类</option><option>D类</option></select></div><div><label class="block text-sm text-gray-600 mb-2">扣分数</label><input id="ruleScore" type="number" class="w-full border border-gray-300 rounded px-3 py-2"></div></div></div><div class="h-16 px-6 border-t border-tableBorder flex justify-end items-center gap-3"><button data-rule-close class="border border-gray-300 rounded px-5 py-2">取消</button><button id="saveRuleButton" class="bg-primary text-white rounded px-5 py-2">保存</button></div></aside></div>
+    <div id="deleteConfirm" class="hidden fixed inset-0 z-[60] bg-black/35 flex items-center justify-center p-5"><div class="bg-white w-[420px] rounded-lg shadow-2xl"><div class="px-6 py-5 border-b border-tableBorder flex justify-between"><h3 class="font-semibold">删除确认</h3><button data-delete-cancel><i class="fa fa-times text-gray-500"></i></button></div><div class="p-6 text-sm text-gray-700"><p><i class="fa fa-exclamation-triangle text-orange-500 mr-2"></i>确定删除违章规则“<span id="deleteRuleName" class="font-medium text-gray-900"></span>”吗？</p><p class="text-gray-400 mt-3">删除后将无法恢复。</p></div><div class="px-6 py-4 border-t flex justify-end gap-3"><button data-delete-cancel class="border border-gray-300 rounded px-5 py-2">取消</button><button id="confirmDeleteButton" class="bg-red-500 text-white rounded px-5 py-2">确定删除</button></div></div></div>
+    <script src="navigation.js?v=20260819-2"></script>
+    <script>
+        const ruleNameInput = document.getElementById('ruleName');
+        const ruleNameSelect = document.createElement('select');
+        ruleNameSelect.id = 'ruleName';
+        ruleNameSelect.className = ruleNameInput.className;
+        ruleNameSelect.setAttribute('aria-label', '违章名称');
+        ruleNameSelect.innerHTML = `
+            <option value="">请从算法中选择</option>
+            <option value="安全帽识别">安全帽识别</option>
+            <option value="未佩戴安全帽识别">未佩戴安全帽识别</option>
+            <option value="反光衣识别">反光衣识别</option>
+            <option value="抽烟识别">抽烟识别</option>
+            <option value="离岗识别">离岗识别</option>
+            <option value="区域入侵识别">区域入侵识别</option>
+            <option value="越界闯入识别">越界闯入识别</option>
+            <option value="攀爬翻越识别">攀爬翻越识别</option>
+        `;
+        ruleNameInput.replaceWith(ruleNameSelect);
+
+        const ruleBody = document.getElementById('ruleTableBody');
+        const drawer = document.getElementById('ruleDrawer');
+        const confirmModal = document.getElementById('deleteConfirm');
+        let activeRuleRow = null;
+        let deleteRuleRow = null;
+        const cells = row => row.cells;
+        function updateRuleCount() { const count = ruleBody.rows.length; document.getElementById('ruleCountTitle').textContent = `违章规则列表（共 ${count} 条）`; document.getElementById('ruleCountFooter').textContent = `共 ${count} 条`; [...ruleBody.rows].forEach((row, i) => row.cells[0].textContent = i + 1); }
+        function openRuleDrawer(row = null) { activeRuleRow = row; document.getElementById('ruleDrawerTitle').textContent = row ? '编辑违章规则' : '新增违章规则'; document.getElementById('ruleName').value = row ? cells(row)[1].innerText.trim() : ''; document.getElementById('ruleType').value = row ? cells(row)[2].innerText.trim() : '人员行为类'; document.getElementById('ruleBasis').value = row ? cells(row)[3].innerText.trim() : ''; document.getElementById('ruleLevel').value = row ? cells(row)[4].innerText.trim() : 'A类'; document.getElementById('ruleScore').value = row ? cells(row)[5].innerText.trim() : '20'; drawer.classList.remove('hidden'); }
+        document.getElementById('addRuleButton').addEventListener('click', () => openRuleDrawer());
+        document.querySelectorAll('[data-rule-close]').forEach(button => button.addEventListener('click', () => drawer.classList.add('hidden')));
+        ruleBody.addEventListener('click', event => { const action = event.target.closest('span'); if (!action) return; const row = action.closest('tr'); if (action.textContent.trim() === '编辑') openRuleDrawer(row); if (action.textContent.trim() === '删除') { deleteRuleRow = row; document.getElementById('deleteRuleName').textContent = cells(row)[1].innerText.trim(); confirmModal.classList.remove('hidden'); } });
+        document.getElementById('saveRuleButton').addEventListener('click', () => { const name = document.getElementById('ruleName').value.trim(); if (!name) return; if (!activeRuleRow) { activeRuleRow = ruleBody.rows[0].cloneNode(true); ruleBody.appendChild(activeRuleRow); } cells(activeRuleRow)[1].textContent = name; cells(activeRuleRow)[2].querySelector('span').textContent = document.getElementById('ruleType').value; cells(activeRuleRow)[3].textContent = document.getElementById('ruleBasis').value.trim(); cells(activeRuleRow)[4].querySelector('span').textContent = document.getElementById('ruleLevel').value; cells(activeRuleRow)[5].textContent = document.getElementById('ruleScore').value; drawer.classList.add('hidden'); updateRuleCount(); });
+        document.querySelectorAll('[data-delete-cancel]').forEach(button => button.addEventListener('click', () => confirmModal.classList.add('hidden')));
+        document.getElementById('confirmDeleteButton').addEventListener('click', () => { if (deleteRuleRow) deleteRuleRow.remove(); deleteRuleRow = null; confirmModal.classList.add('hidden'); updateRuleCount(); });
+    </script>
+</body>
+</html>

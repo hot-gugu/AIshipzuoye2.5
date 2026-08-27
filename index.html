@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="三违无视频不作业智慧管控系统 2.3 静态页面演示入口">
+  <title>三违无视频不作业智慧管控系统</title>
+  <style>
+    :root{--navy:#0f244e;--blue:#165dff;--cyan:#16b8c5;--orange:#f59e0b;--bg:#f4f7fb;--text:#17233d;--muted:#69758c;--line:#dfe6f0;--white:#fff;--shadow:0 18px 50px rgba(15,36,78,.12)}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font-family:"Microsoft YaHei UI","Noto Sans SC",sans-serif}a{text-decoration:none;color:inherit}button,input{font:inherit}
+    .hero{position:relative;overflow:hidden;min-height:560px;color:#fff;background:var(--navy)}
+    .hero:before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:42px 42px;mask-image:linear-gradient(90deg,#000,transparent 88%)}
+    .hero:after{content:"";position:absolute;width:520px;height:520px;right:-130px;top:-160px;border:90px solid rgba(22,184,197,.12);border-radius:50%}
+    .nav,.hero-body,.main,.footer-inner{width:min(1180px,calc(100% - 40px));margin:auto}.nav{position:relative;z-index:2;height:76px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.12)}
+    .brand{display:flex;align-items:center;gap:12px;font-weight:700}.mark{width:38px;height:38px;border-radius:10px;background:#fff;color:var(--blue);display:grid;place-items:center;font-size:18px}.version{padding:5px 10px;border:1px solid rgba(255,255,255,.2);border-radius:999px;color:#cbd8f0;font-size:12px}
+    .nav-links{display:flex;gap:25px;color:#cbd8f0;font-size:14px}.nav-links a:hover{color:#fff}
+    .hero-body{position:relative;z-index:1;display:grid;grid-template-columns:1.16fr .84fr;gap:78px;align-items:center;padding:72px 0 92px}
+    .eyebrow{display:flex;align-items:center;gap:10px;color:#82e7ed;font-size:13px;letter-spacing:2px}.eyebrow:before{content:"";width:35px;height:2px;background:var(--cyan)}
+    h1{margin:20px 0 18px;font-size:52px;line-height:1.16;letter-spacing:1px}.hero-copy p{max-width:650px;margin:0;color:#bfcae0;font-size:17px;line-height:1.9}
+    .hero-actions{display:flex;gap:14px;margin-top:32px}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 22px;border-radius:8px;border:1px solid transparent;font-weight:700;transition:.2s}.btn-primary{background:var(--blue);color:#fff;box-shadow:0 10px 28px rgba(22,93,255,.28)}.btn-primary:hover{background:#0e4fe6;transform:translateY(-2px)}.btn-ghost{border-color:rgba(255,255,255,.25);color:#fff}.btn-ghost:hover{background:rgba(255,255,255,.09)}
+    .console{position:relative;background:rgba(6,20,48,.72);border:1px solid rgba(255,255,255,.14);border-radius:18px;box-shadow:0 25px 70px rgba(0,0,0,.27);overflow:hidden;transform:rotate(1.5deg)}.console-head{display:flex;gap:6px;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.1)}.dot{width:8px;height:8px;border-radius:50%;background:#486083}.dot:nth-child(2){background:var(--orange)}.dot:nth-child(3){background:var(--cyan)}.console-body{padding:25px}.signal{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.signal div{padding:14px 10px;background:rgba(255,255,255,.06);border-radius:9px}.signal b{display:block;font-size:22px;color:#fff}.signal span{font-size:11px;color:#8fa4c9}.flow{margin-top:20px}.flow-row{display:flex;align-items:center;gap:10px;margin:12px 0;color:#d8e2f4;font-size:13px}.flow-icon{width:30px;height:30px;display:grid;place-items:center;background:rgba(22,93,255,.2);border:1px solid rgba(86,139,255,.35);border-radius:8px}.flow-line{height:1px;flex:1;background:linear-gradient(90deg,var(--blue),var(--cyan))}
+    .main{padding:64px 0 80px}.capabilities{display:grid;grid-template-columns:1.1fr repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);box-shadow:var(--shadow);margin-top:-96px;position:relative;z-index:3}.cap{background:#fff;padding:26px}.cap.lead{background:var(--blue);color:#fff}.cap small{color:var(--muted)}.cap.lead small{color:#ccdcff}.cap h3{margin:9px 0 7px;font-size:17px}.cap p{margin:0;color:var(--muted);font-size:13px;line-height:1.65}.cap.lead p{color:#d8e5ff}
+    .section-head{display:flex;justify-content:space-between;align-items:end;margin:64px 0 24px}.section-head h2{margin:0;font-size:29px}.section-head p{margin:8px 0 0;color:var(--muted)}.search{width:280px;padding:11px 14px;border:1px solid var(--line);border-radius:8px;background:#fff;outline:none}.search:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(22,93,255,.1)}
+    .groups{display:grid;gap:26px}.group{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden}.group-title{display:flex;align-items:center;gap:12px;padding:18px 22px;border-bottom:1px solid var(--line)}.group-title i{width:7px;height:22px;background:var(--blue);border-radius:5px}.group-title h3{margin:0;font-size:18px}.links{display:grid;grid-template-columns:repeat(4,1fr);padding:9px}.page-link{display:flex;align-items:center;justify-content:space-between;min-height:58px;padding:12px 14px;border-radius:8px;color:#33415c;font-size:14px;transition:.18s}.page-link:after{content:"›";color:#a4aec0;font-size:20px}.page-link:hover{background:#edf3ff;color:var(--blue);transform:translateX(2px)}.page-link.hidden{display:none}.group.empty{display:none}
+    footer{background:#0a1937;color:#8fa4c9}.footer-inner{display:flex;justify-content:space-between;align-items:center;padding:24px 0;font-size:12px}.footer-inner b{color:#d6e1f3}
+    @media(max-width:900px){.nav-links{display:none}.hero-body{grid-template-columns:1fr;padding-top:50px}.console{display:none}h1{font-size:38px}.capabilities{grid-template-columns:1fr 1fr;margin-top:-54px}.links{grid-template-columns:1fr 1fr}.section-head{align-items:start;gap:18px;flex-direction:column}.search{width:100%}}
+    @media(max-width:560px){.nav,.hero-body,.main,.footer-inner{width:min(100% - 24px,1180px)}h1{font-size:31px}.hero-actions{flex-direction:column}.capabilities,.links{grid-template-columns:1fr}.footer-inner{align-items:flex-start;gap:8px;flex-direction:column}}
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <nav class="nav">
+      <div class="brand"><span class="mark">TZ</span><span>视频AI识别自进化能力平台</span><span class="version">V2.3</span></div>
+      <div class="nav-links"><a href="#capability">系统能力</a><a href="#pages">页面导航</a><a href="首页.html">进入系统</a></div>
+    </nav>
+    <div class="hero-body">
+      <div class="hero-copy">
+        <div class="eyebrow">SAFETY INTELLIGENCE PLATFORM</div>
+        <h1>让每一次作业<br>都有视频、有监管、有闭环</h1>
+        <p>聚合作业计划、实时视频巡检、AI预警核查、隐患违章处置与履职统计，为安全生产提供全过程可视化管控。</p>
+        <div class="hero-actions"><a class="btn btn-primary" href="首页.html">进入系统首页&nbsp; →</a><a class="btn btn-ghost" href="#pages">浏览全部页面</a></div>
+      </div>
+      <div class="console" aria-hidden="true">
+        <div class="console-head"><i class="dot"></i><i class="dot"></i><i class="dot"></i></div>
+        <div class="console-body">
+          <div class="signal"><div><b>全域</b><span>视频监测</span></div><div><b>AI</b><span>智能识别</span></div><div><b>闭环</b><span>隐患处置</span></div></div>
+          <div class="flow"><div class="flow-row"><span class="flow-icon">01</span><span>作业计划创建</span><i class="flow-line"></i></div><div class="flow-row"><span class="flow-icon">02</span><span>实时监控与倒查</span><i class="flow-line"></i></div><div class="flow-row"><span class="flow-icon">03</span><span>AI预警复核处置</span><i class="flow-line"></i></div></div>
+        </div>
+      </div>
+    </div>
+  </header>
+  <main class="main">
+    <section id="capability" class="capabilities">
+      <article class="cap lead"><small>PLATFORM 2.3</small><h3>核心能力矩阵</h3><p>围绕作业、视频、AI与安全处置构建业务闭环。</p></article>
+      <article class="cap"><small>01</small><h3>无视频不作业</h3><p>作业计划强关联摄像头，及时发现视频覆盖缺失。</p></article>
+      <article class="cap"><small>02</small><h3>AI智能预警</h3><p>实时识别隐患与违章，支持人工核查与结果复核。</p></article>
+      <article class="cap"><small>03</small><h3>统计与履职</h3><p>统一汇总处置结果，为管理分析和履职留痕提供依据。</p></article>
+    </section>
+    <section id="pages">
+      <div class="section-head"><div><h2>系统页面导航</h2><p>选择业务模块，直接查看 2.3 版本静态页面。</p></div><input id="search" class="search" type="search" placeholder="搜索页面名称" aria-label="搜索页面名称"></div>
+      <div class="groups" id="groups"></div>
+    </section>
+  </main>
+  <footer><div class="footer-inner"><b>三违无视频不作业智慧管控系统</b><span>静态页面演示 · Version 2.3</span></div></footer>
+  <script>
+    const groups=[
+      ['综合管控',[['系统首页','首页.html'],['监测一张图','方案图册.html'],['领导履职台账','领导履职台账.html'],['领导履职详情','领导履职详情.html']]],
+      ['作业与视频监管',[['作业计划管理','作业计划管理.html'],['新增作业计划','新增作业计划.html'],['选择摄像头','选择摄像头.html'],['无视频作业','无视频作业.html'],['实时监控','实时监控.html'],['视频倒查列表','视频倒查列表页面.html'],['按作业计划倒查','视频倒查按作业计划.html']]],
+      ['AI预警与处置',[['AI隐患核查','AI隐患核查.html'],['AI违章复核','AI识别的违章复核.html'],['AI预警标记','AI预警实时和倒查标记.html'],['违章查处','隐患违章管理-违章查处.html'],['隐患查处','隐患违章管理-隐患查处.html'],['违章统计分析','违章统计分析.html'],['隐患统计分析','隐患统计分析.html']]],
+      ['智能运维',[['设备管理列表','设备管理列表.html'],['设备管理树状','设备管理树状.html'],['算力智能调度','算力智能调度.html'],['算法管理','算法管理.html'],['算法精准度分析','算法精准度分析.html'],['算法精准度分析列表','算法精准度分析列表.html'],['数据回溯正负样本','数据回溯正负样本.html']]],
+      ['基础管理',[['违章规则管理','违章规则管理.html'],['违章类型管理','违章类型管理.html'],['违章等级管理','违章等级管理.html'],['隐患分类管理','隐患分类管理.html'],['隐患等级管理','隐患等级管理.html'],['准则管理-违章等级','准则管理-违章等级管理.html'],['作业区域管理','作业区域管理.html'],['作业类型管理','作业类型管理.html'],['作业班次','作业班次.html'],['人脸采集库','人脸采集库.html']]],
+      ['产品资料',[['产品功能说明','产品功能说明.html']]]
+    ];
+    const root=document.getElementById('groups');
+    root.innerHTML=groups.map(([title,pages])=>`<article class="group"><div class="group-title"><i></i><h3>${title}</h3></div><div class="links">${pages.map(([name,href])=>`<a class="page-link" data-name="${name}" href="${encodeURI(href)}">${name}</a>`).join('')}</div></article>`).join('');
+    document.getElementById('search').addEventListener('input',e=>{const q=e.target.value.trim().toLowerCase();document.querySelectorAll('.group').forEach(group=>{let visible=0;group.querySelectorAll('.page-link').forEach(link=>{const hit=link.dataset.name.toLowerCase().includes(q);link.classList.toggle('hidden',!hit);if(hit)visible++});group.classList.toggle('empty',visible===0)})});
+  </script>
+<script src="ai-assistant.js?v=20260825-2"></script>
+</body>
+</html>

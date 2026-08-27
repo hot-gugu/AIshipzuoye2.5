@@ -1,0 +1,1999 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>视频倒查管理 - 三违无视频不作业</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", PingFangSC-Regular, sans-serif;
+        }
+
+        :root {
+            --bg-main: #0b111e;
+            --bg-card: #131b2d;
+            --bg-hover: #1a253d;
+            --bg-active: #203868;
+            --color-primary: #2570f2;
+            --color-text: #e6edf7;
+            --color-text-secondary: #94a3b8;
+            --border-color: #24324e;
+            --red-danger: #ef4444;
+            --green-safe: #22c55e;
+            --gray-record: #9ca3af;
+            --warn-yellow: #f59e0b;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--color-text);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* ========== 左侧侧边栏【还原作业计划管理页面完整侧边栏样式】 ========== */
+        .sidebar-left {
+            width: 220px;
+            background-color: var(--bg-card);
+            border-right: 1px solid var(--border-color);
+            padding: 16px 0;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 20px 24px;
+            margin-bottom: 8px;
+        }
+
+        .sidebar-logo svg {
+            width: 36px;
+            height: 36px;
+        }
+
+        .sidebar-logo-text h4 {
+            font-size: 15px;
+        }
+
+        .sidebar-logo-text p {
+            font-size: 12px;
+            color: var(--color-text-secondary);
+        }
+
+        .sidebar-menu {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--color-text-secondary);
+            transition: all .2s;
+        }
+
+        .menu-item.active {
+            background-color: rgba(37, 112, 242, 0.12);
+            color: var(--color-primary);
+            border-left: 3px solid var(--color-primary);
+        }
+
+        .menu-item:hover:not(.active) {
+            background-color: var(--bg-hover);
+            color: var(--color-text);
+        }
+
+        .menu-sub-item {
+            padding-left: 52px;
+        }
+
+        .sidebar-fold {
+            padding: 14px 20px;
+            font-size: 13px;
+            color: var(--color-text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* ========== 主内容区域 ========== */
+        .main-wrap {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* 顶部导航栏 */
+        .header-top {
+            height: 60px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+        }
+
+        .page-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .header-user-area {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+        }
+
+        /* ========== 筛选区域 ========== */
+        .filter-container {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .filter-row {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-item label {
+            font-size: 13px;
+            color: var(--color-text-secondary);
+        }
+
+        .filter-item select,
+        .filter-item input {
+            height: 34px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--color-text);
+            padding: 0 10px;
+            border-radius: 4px;
+            min-width: 160px;
+        }
+
+        .filter-buttons {
+            margin-left: auto;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            height: 34px;
+            padding: 0 18px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .btn-default {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--color-text);
+        }
+
+        .btn-primary {
+            background: var(--color-primary);
+            border: none;
+            color: #fff;
+        }
+
+        /* ========== 主体左右三栏布局 ========== */
+        .content-row {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* 左侧作业计划列表【已更新字段】 */
+        .col-left-list {
+            width: 280px;
+            border-right: 1px solid var(--border-color);
+            padding: 16px;
+            overflow-y: auto;
+        }
+
+        .list-search-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .list-search-bar input {
+            flex: 1;
+            height: 32px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 0 8px;
+            color: #fff;
+            border-radius: 4px;
+        }
+
+        .job-list-title {
+            font-size: 13px;
+            color: var(--color-text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .job-item {
+            background: var(--bg-card);
+            border-radius: 6px;
+            padding: 10px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+
+        .job-item.active {
+            border-color: var(--color-primary);
+            background: rgba(37, 112, 242, 0.08);
+        }
+
+        .job-item h5 {
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .job-item p {
+            font-size: 12px;
+            color: var(--color-text-secondary);
+            line-height: 1.55;
+        }
+
+        .danger-tag {
+            color: var(--red-danger);
+        }
+
+        .safe-tag {
+            color: var(--green-safe);
+        }
+
+        .list-pagination {
+            display: flex;
+            gap: 4px;
+            margin-top: 16px;
+            justify-content: center;
+        }
+
+        .page-btn {
+            width: 26px;
+            height: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 3px;
+            border: 1px solid var(--border-color);
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .page-btn.active {
+            background: var(--color-primary);
+            border-color: var(--color-primary);
+        }
+
+        /* 中间视频主区域 */
+        .col-center-video {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .video-info-bar {
+            background: var(--bg-card);
+            border-radius: 6px;
+            padding: 10px 14px;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        .camera-switcher {
+            margin-bottom: 12px;
+        }
+
+        .camera-switcher-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 13px;
+            color: #9fb0cc;
+        }
+
+        .camera-switcher-list {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+        .camera-switch-item {
+            min-width: 0;
+            padding: 9px 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--bg-card);
+            color: #c7d5ee;
+            text-align: left;
+            cursor: pointer;
+            transition: border-color .18s ease, background .18s ease;
+        }
+
+        .camera-switch-item:hover {
+            border-color: #487dd8;
+        }
+
+        .camera-switch-item.active {
+            border-color: var(--color-primary);
+            background: rgba(37, 99, 235, .16);
+            box-shadow: inset 3px 0 0 var(--color-primary);
+        }
+
+        .camera-switch-name {
+            display: block;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .camera-switch-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+            margin-top: 5px;
+            color: #7f91b2;
+            font-size: 11px;
+        }
+
+        .camera-online {
+            color: #10b981;
+            white-space: nowrap;
+        }
+
+        .video-player-wrap {
+            background: #000;
+            border-radius: 6px;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 14px;
+        }
+
+        .video-player-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* ====== 时间轴区域 ====== */
+        .timeline-wrap {
+            background: var(--bg-card);
+            border-radius: 6px;
+            padding: 14px;
+            margin-bottom: 16px;
+        }
+
+        .timeline-legend {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 12px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+        }
+
+        .dot-gray {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--gray-record);
+        }
+
+        .dot-yellow {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--warn-yellow);
+        }
+
+        .dot-blue {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: blue;
+        }
+
+        .dot-green {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--green-safe);
+        }
+
+        .dot-red {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--red-danger);
+        }
+
+        .timeline-canvas-box {
+            width: 100%;
+            height: 70px;
+            background: #0f192b;
+            border-radius: 4px;
+            position: relative;
+            margin-bottom: 14px;
+            overflow: hidden;
+        }
+
+        .timeline-bar-blue {
+            position: absolute;
+            height: 32px;
+            background: #2357b8;
+            border-radius: 3px;
+            top: 8px;
+            left: 2%;
+            width: 34%;
+        }
+
+        .timeline-bar-orange {
+            position: absolute;
+            height: 32px;
+            background: #b4782c;
+            border-radius: 3px;
+            top: 42px;
+            left: 2%;
+            width: 68%;
+        }
+
+        .timeline-cursor {
+            position: absolute;
+            width: 3px;
+            height: 100%;
+            background: #fff;
+            left: 50%;
+            top: 0;
+        }
+
+        .timeline-mark-red {
+            position: absolute;
+            width: 2px;
+            height: 100%;
+            background: var(--red-danger);
+        }
+
+        .timeline-control-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .time-quick-btn {
+            padding: 6px 14px;
+            background: #19263f;
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .time-input {
+            width: 140px;
+            height: 34px;
+            background: #19263f;
+            border: 1px solid var(--border-color);
+            color: #fff;
+            padding: 0 8px;
+            border-radius: 4px;
+        }
+
+        /* =========【右侧栏目】========= */
+        .col-right-event {
+            width: 420px;
+            border-left: 1px solid var(--border-color);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .event-tab-header {
+            display: flex;
+            margin-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .event-tab-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            position: relative;
+            color: var(--color-text-secondary);
+            font-size: 14px;
+        }
+
+        .event-tab-item.active {
+            color: #ffffff;
+        }
+
+        .event-tab-item.active::after {
+            content: "";
+            position: absolute;
+            width: 100%;
+            height: 3px;
+            background-color: var(--color-primary);
+            bottom: -1px;
+            left: 0;
+        }
+
+        .event-scroll-wrap {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        /* ===== 违章隐患查处表单样式（来自截图）===== */
+        .form-wrap {
+            background: #ffffff;
+            color: #222;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .form-item {
+            margin-bottom: 16px;
+        }
+
+        .form-item label {
+            display: block;
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .form-radio-group {
+            display: flex;
+            gap: 24px;
+        }
+
+        .form-input,
+        .form-select {
+            width: 100%;
+            border: 1px solid #d8dbe3;
+            border-radius: 6px;
+            height: 44px;
+            padding: 0 12px;
+            font-size: 16px;
+        }
+
+        .tag-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #e8f0ff;
+            color: #2570f2;
+            padding: 6px 12px;
+            border-radius: 6px;
+            margin: 4px;
+        }
+
+        .tag-close {
+            cursor: pointer;
+        }
+
+        .num-input-wrap {
+            display: flex;
+            align-items: center;
+            border: 1px solid #d8dbe3;
+            border-radius: 6px;
+        }
+
+        .num-btn {
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        .num-input {
+            flex: 1;
+            text-align: center;
+            border: none;
+            height: 44px;
+            font-size: 18px;
+        }
+
+        .img-upload-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .annotation-photo { display:block; text-decoration:none; color:#fff; border:2px solid #f59e0b; }
+        .annotation-photo .annotation-badge { position:absolute; left:5px; top:5px; padding:3px 6px; border-radius:3px; background:#f59e0b; color:#fff; font-size:11px; line-height:1; }
+        .annotation-photo .annotation-enter { position:absolute; left:0; right:0; bottom:0; padding:5px; text-align:center; background:rgba(0,0,0,.65); font-size:12px; opacity:0; transition:opacity .15s; }
+        .annotation-photo:hover .annotation-enter { opacity:1; }
+        .annotation-workbench-entry { display:flex; align-items:center; justify-content:center; gap:6px; width:100%; border:1px dashed #2677ff; border-radius:5px; padding:8px; color:#2677ff; font-size:13px; text-decoration:none; }
+
+        .img-preview-item {
+            width: 120px;
+            height: 100px;
+            border-radius: 6px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .img-preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .img-close {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 22px;
+            height: 22px;
+            background: #00000077;
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .img-add {
+            width: 120px;
+            height: 100px;
+            border: 1px dashed #c9cdd6;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            color: #999;
+            cursor: pointer;
+        }
+
+        .form-btn-row {
+            display: flex;
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        .form-btn-cancel {
+            flex: 1;
+            height: 48px;
+            border: 1px solid #d8dbe3;
+            border-radius: 8px;
+            background: #fff;
+            font-size: 16px;
+        }
+
+        .form-btn-submit {
+            flex: 1;
+            height: 48px;
+            background: #2570f2;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        /* ===== 我标注的违章列表样式【已修改字段】 ===== */
+        .violation-item {
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border-color);
+            display: grid;
+            grid-template-columns: 92px 1fr;
+            gap: 12px;
+        }
+
+        .violation-thumb {
+            width: 92px;
+            height: 70px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .violation-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .violation-right-area {
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            font-size: 13px;
+            color: var(--color-text-secondary);
+        }
+
+        .btn-tag-mark {
+            position: absolute;
+            top: 0;
+            right: 0;
+            border: 1px solid var(--color-primary);
+            color: var(--color-primary);
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .violation-field-row {
+            margin-bottom: 4px;
+        }
+
+        .violation-field-label {
+            color: #7887a0;
+        }
+
+        .violation-field-value {
+            color: var(--color-text);
+        }
+
+        .event-pagination {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding-top: 16px;
+            margin-top: 8px;
+        }
+
+        .page-number {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .page-number.active {
+            background-color: var(--color-primary);
+        }
+
+        /* ===== 我标注的列表操作按钮 ===== */
+        .violation-action-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 8px;
+        }
+        .action-btn-detail, .action-btn-edit, .action-btn-delete {
+            font-size: 13px;
+            cursor: pointer;
+            padding: 2px 10px;
+            border-radius: 4px;
+        }
+        .action-btn-detail {
+            color: var(--color-primary);
+            border: 1px solid var(--color-primary);
+        }
+        .action-btn-edit {
+            color: #10b981;
+            border: 1px solid #10b981;
+        }
+        .action-btn-delete {
+            color: #ef4444;
+            border: 1px solid #ef4444;
+        }
+
+        /* ===== 详情侧边栏 ===== */
+        .detail-sidebar-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 9998;
+            display: none;
+        }
+        .detail-sidebar {
+            position: fixed;
+            top: 0; right: 0; bottom: 0;
+            width: 420px;
+            background: #fff;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            box-shadow: -4px 0 20px rgba(0,0,0,0.15);
+        }
+        .detail-sidebar.open { transform: translateX(0); }
+        .detail-sidebar-header {
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            border-bottom: 1px solid #e5e7eb;
+            flex-shrink: 0;
+        }
+        .detail-sidebar-header h3 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .detail-sidebar-close {
+            font-size: 22px;
+            cursor: pointer;
+            color: #9ca3af;
+        }
+        .detail-sidebar-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        .detail-field {
+            margin-bottom: 16px;
+        }
+        .detail-field-label {
+            font-size: 13px;
+            color: #7887a0;
+            margin-bottom: 4px;
+        }
+        .detail-field-value {
+            font-size: 15px;
+            color: #1f2937;
+        }
+        .detail-sidebar-footer {
+            padding: 16px 20px;
+            border-top: 1px solid #e5e7eb;
+            flex-shrink: 0;
+        }
+        .detail-sidebar-footer button {
+            width: 100%;
+            height: 44px;
+            border: 1px solid #d8dbe3;
+            border-radius: 8px;
+            background: #fff;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .detail-sidebar-footer button:hover { background: #f5f6f8; }
+
+        /* ===== 编辑侧边栏 ===== */
+        .edit-sidebar-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 9998;
+            display: none;
+        }
+        .edit-sidebar {
+            position: fixed;
+            top: 0; right: 0; bottom: 0;
+            width: 520px;
+            background: #fff;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            box-shadow: -4px 0 20px rgba(0,0,0,0.15);
+        }
+        .edit-sidebar.open { transform: translateX(0); }
+        .edit-sidebar-header {
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            border-bottom: 1px solid #e5e7eb;
+            flex-shrink: 0;
+        }
+        .edit-sidebar-header h3 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .edit-sidebar-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        .edit-sidebar-footer {
+            padding: 16px 20px;
+            border-top: 1px solid #e5e7eb;
+            flex-shrink: 0;
+            display: flex;
+            gap: 16px;
+        }
+        .edit-sidebar-footer button {
+            flex: 1;
+            height: 44px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .edit-sidebar-footer .btn-cancel {
+            border: 1px solid #d8dbe3;
+            background: #fff;
+        }
+        .edit-sidebar-footer .btn-submit {
+            background: var(--color-primary);
+            color: #fff;
+            border: none;
+        }
+
+        /* ===== 视频下载侧边栏 ===== */
+        .download-sidebar-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .48);
+            z-index: 10008;
+            display: none;
+        }
+        .download-sidebar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 460px;
+            max-width: 100%;
+            background: #fff;
+            color: #1f2937;
+            z-index: 10009;
+            display: flex;
+            flex-direction: column;
+            transform: translateX(100%);
+            transition: transform .3s ease;
+            box-shadow: -4px 0 24px rgba(0, 0, 0, .2);
+        }
+        .download-sidebar.open { transform: translateX(0); }
+        .download-sidebar-header {
+            height: 60px;
+            padding: 0 22px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+        .download-sidebar-header h3 { font-size: 18px; font-weight: 600; }
+        .download-sidebar-body { flex: 1; overflow-y: auto; padding: 22px; }
+        .download-camera-summary {
+            padding: 14px;
+            border-radius: 8px;
+            background: #f3f7ff;
+            border: 1px solid #dbe7ff;
+            margin-bottom: 22px;
+        }
+        .download-summary-title { color: #1d4ed8; font-weight: 600; font-size: 14px; }
+        .download-summary-meta { color: #64748b; font-size: 12px; line-height: 1.8; margin-top: 6px; }
+        .download-form-item { margin-bottom: 20px; }
+        .download-form-item label { display: block; font-size: 14px; margin-bottom: 8px; }
+        .download-form-item input,
+        .download-form-item select {
+            width: 100%;
+            height: 42px;
+            padding: 0 12px;
+            border: 1px solid #d8dbe3;
+            border-radius: 6px;
+            background: #fff;
+            color: #1f2937;
+            outline: none;
+        }
+        .download-form-item input:focus,
+        .download-form-item select:focus { border-color: var(--color-primary); }
+        .download-duration {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 14px;
+            background: #f8fafc;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #64748b;
+        }
+        .download-duration strong { color: #1f2937; font-size: 15px; }
+        .download-error { min-height: 20px; margin-top: 8px; color: #ef4444; font-size: 12px; }
+        .download-tip {
+            margin-top: 18px;
+            padding: 12px 14px;
+            border-radius: 6px;
+            background: #fffbeb;
+            color: #92400e;
+            font-size: 12px;
+            line-height: 1.7;
+        }
+        .download-sidebar-footer {
+            padding: 16px 22px;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+        .download-sidebar-footer button { flex: 1; height: 42px; border-radius: 6px; cursor: pointer; }
+        .download-cancel { background: #fff; border: 1px solid #d8dbe3; color: #374151; }
+        .download-confirm { background: var(--color-primary); border: none; color: #fff; }
+        .download-success {
+            display: none;
+            margin-bottom: 18px;
+            padding: 12px 14px;
+            border-radius: 6px;
+            background: #ecfdf5;
+            color: #047857;
+            font-size: 13px;
+        }
+
+        /* tab内容切换隐藏 */
+        .tab-panel {
+            display: none;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+    </style>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <!-- 左侧导航：由 navigation.js 统一渲染，与违章等级管理页面一致 -->
+    <aside></aside>
+
+    <!-- 主容器 -->
+    <div class="main-wrap">
+        <!-- 顶部header -->
+        <div class="header-top">
+             <!-- <i>←</i> -->
+            <div class="page-title"> ← 视频倒查管理</div>
+            <div class="header-user-area">
+                <button id="returnToSource" type="button" style="display:none;height:34px;padding:0 14px;border:1px solid #d8dbe3;border-radius:6px;background:#fff;color:#334155;cursor:pointer;">← 返回</button>
+                <span>🔔</span>
+                <span>❓</span>
+                <div class="user-info">
+                    <span>👤</span>
+                    <div>
+                        <div>张安全</div>
+                        <div style="font-size:11px;color:#94a3b8;">安全管理部</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 筛选区 -->
+        <div class="filter-container">
+            <div class="filter-row">
+                 <!-- <div class="filter-item">
+                    <label>所属单位：</label>
+                    <select>
+                        <option>全部</option>
+                    </select>
+                </div> -->
+                <div class="filter-item">
+                    <label>作业时间：</label>
+                    <input type="text" value="2024-05-18 00:00:00 - 2024-05-18 23:33:59">
+                </div>
+                <div class="filter-item">
+                    <label>作业类型：</label>
+                    <select>
+                        <option>全部</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>二级分类：</label>
+                    <select>
+                        <option>全部</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>是否危险作业：</label>
+                    <select>
+                        <option>全部</option>
+                    </select>
+                </div>
+               
+                <div class="filter-item">
+                    <label>作业区域：</label>
+                    <select>
+                        <option>全部</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>关键词：</label>
+                    <input type="text" placeholder="作业名称/作业位置/作业负责人/作业人员">
+                </div>
+                <div class="filter-buttons">
+                </div>
+            </div>
+        </div>
+
+        <!-- 三栏主体 -->
+        <div class="content-row">
+            <!-- 左侧作业计划列表【新增：作业单位、是否危险作业】 -->
+            <div class="col-left-list">
+                <div class="list-search-bar">
+                </div>
+                <div class="job-list-title" style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+                    <span>作业计划列表（28）</span>
+                    <button id="cancelJobFilters" type="button" style="padding:4px 9px;border:1px solid #2563eb;border-radius:5px;background:transparent;color:#60a5fa;font-size:12px;cursor:pointer;">取消过滤</button>
+                </div>
+                <div id="jobFilterBar" style="display:none;margin-bottom:12px;padding:10px;border:1px solid #2563eb;border-radius:6px;background:#eff6ff;">
+                    <div style="font-size:12px;color:#64748b;margin-bottom:8px;">当前仅展示：<span id="currentJobName" style="color:#0f172a;"></span></div>
+                    <button id="showAllJobs" type="button" style="width:100%;height:30px;border:0;border-radius:5px;background:#2563eb;color:#fff;cursor:pointer;">查看全部作业</button>
+                </div>
+                <div class="mb-3">
+                        <select class="w-full mt-1 bg-darkBg border border-darkBorder rounded px-3 py-2 text-sm text-textMain outline-none focus:border-primary" style="display: block;height:34px;width: 220px; margin-bottom: 12px;background: #1f2937;border: 1px solid #374151;color: #e6edf7;border-radius: 4px;padding: 0 10px;">
+                            <option>全部单位</option>
+                            <option>齐大山选矿厂</option>
+                            <option>弓长岭铁矿</option>
+                            <option>眼前山铁矿</option>
+                            <option>东鞍山分公司</option>
+                        </select>
+                    </div>
+                <div class="job-item active">
+                    <h5>井下运输巷掘进计划-0518</h5>
+                    <p>作业单位：采矿一厂<br />作业类型：掘进作业<br />二级分类：巷道掘进<br />作业位置：井下运输巷-123水平<br />作业时间：08:00 -
+                        18:00<br />作业负责人：张安全<br /><span class="danger-tag">是否危险作业：是</span></p>
+                </div>
+                <div class="job-item">
+                    <h5>皮带运输检修计划-0518</h5>
+                    <p>作业单位：运输车间<br />作业类型：检修作业<br />二级分类：皮带设备检修<br />作业位置：皮带运输巷-50水平<br />作业时间：07:00 -
+                        11:00<br />作业负责人：李建国<br /><span class="safe-tag">是否危险作业：否</span></p>
+                </div>
+                <div class="job-item">
+                    <h5>回风巷支护作业计划-0518</h5>
+                    <p>作业单位：采矿二厂<br />作业类型：支护作业<br />二级分类：巷道支护<br />作业位置：回风巷-78水平<br />作业时间：09:00 -
+                        17:00<br />作业负责人：王锋<br /><span class="danger-tag">是否危险作业：是</span></p>
+                </div>
+                <div class="job-item">
+                    <h5>主副提升机检修计划-0518</h5>
+                    <p>作业单位：机电维修工段<br />作业类型：检修作业<br />二级分类：提升设备检修<br />作业位置：提升机房<br />作业时间：00:00 -
+                        06:00<br />作业负责人：刘凯<br /><span class="safe-tag">是否危险作业：否</span></p>
+                </div>
+                <div class="job-item">
+                    <h5>采煤工作面作业计划-0518</h5>
+                    <p>作业单位：采矿一厂<br />作业类型：回采作业<br />二级分类：工作面采煤<br />作业位置：采煤工作面-86水平<br />作业时间：08:00 -
+                        16:00<br />作业负责人：陈望<br /><span class="danger-tag">是否危险作业：是</span></p>
+                </div>
+                <div class="job-item">
+                    <h5>地面设备巡检计划-0518</h5>
+                    <p>作业单位：设备管理部<br />作业类型：巡检作业<br />二级分类：地面设备巡查<br />作业位置：地面工业广场<br />作业时间：08:30 -
+                        12:00<br />作业负责人：张安全<br /><span class="safe-tag">是否危险作业：否</span></p>
+                </div>
+
+                <div class="list-pagination">
+                    <div class="page-btn">&lt;</div>
+                    <div class="page-btn active">1</div>
+                    <div class="page-btn">2</div>
+                    <div class="page-btn">3</div>
+                    <div class="page-btn">4</div>
+                    <div class="page-btn">5</div>
+                    <div class="page-btn">6</div>
+                    <div class="page-btn">&gt;</div>
+                </div>
+            </div>
+
+            <!-- 中间视频区域 -->
+            <div class="col-center-video">
+                <div class="camera-switcher">
+                    <div class="camera-switcher-title">
+                        <span>关联摄像头（3）</span>
+                        <span>请选择要查看的视频</span>
+                    </div>
+                    <div class="camera-switcher-list">
+                        <button type="button" class="camera-switch-item active" data-name="运输巷掘进机头" data-code="IPC-123458" data-image="https://picsum.photos/id/1033/1200/680">
+                            <span class="camera-switch-name">运输巷掘进机头001摄像头</span>
+                            <span class="camera-switch-meta"><span>IPC-123458</span><span class="camera-online">● 已回传</span></span>
+                        </button>
+                        <button type="button" class="camera-switch-item" data-name="运输巷中段摄像头" data-code="IPC-123459" data-image="https://picsum.photos/id/1011/1200/680">
+                            <span class="camera-switch-name">运输巷中段摄像头</span>
+                            <span class="camera-switch-meta"><span>IPC-123459</span><span class="camera-online" style="color:rgb(187, 79, 79);">● 未回传</span></span>
+                        </button>
+                        <button type="button" class="camera-switch-item" data-name="运输巷作业面摄像头" data-code="IPC-123460" data-image="https://picsum.photos/id/1031/1200/680">
+                            <span class="camera-switch-name">运输巷作业面摄像头</span>
+                            <span class="camera-switch-meta"><span>IPC-123460</span><span class="camera-online" style="color:rgb(187, 79, 79);  ">● 未回传</span></span>
+                        </button>
+                    </div>
+                </div>
+                <div id="current-camera-info" class="video-info-bar">
+                    摄像头：<span id="current-camera-name">运输巷掘进机头001摄像头</span>（<span id="current-camera-code">IPC-123458</span>）｜作业位置：井下运输巷-123水平｜作业时间：2024-05-18 08:00 - 18:00
+                </div>
+                <div class="video-player-wrap">
+                    <img id="current-camera-video" alt="运输巷掘进机头监控画面" src="https://picsum.photos/id/1033/1200/680">
+                </div>
+
+                <div class="timeline-wrap">
+                    <div class="timeline-legend">
+                        <!-- <div style="display:flex;align-items:center;gap:6px;">
+                            <select>
+                                <option>当前摄像头通道</option>
+                            </select>
+                        </div> -->
+                        <div class="legend-item">
+                            <span class="dot-blue"></span>
+                            <span>录像</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="dot-yellow"></span>
+                            <span>有人</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="dot-red"></span>
+                            <span>违章/隐患</span>
+                        </div>
+                    </div>
+                    <div class="timeline-canvas-box">
+                        <div class="timeline-bar-blue"></div>
+                        <div class="timeline-bar-orange"></div>
+                        <div class="timeline-cursor"></div>
+                        <div class="timeline-mark-red" style="left:24%;"></div>
+                        <div class="timeline-mark-red" style="left:40%;"></div>
+                        <div class="timeline-mark-red" style="left:66%;"></div>
+                        <div class="timeline-mark-red" style="left:78%;"></div>
+                    </div>
+                    <div class="timeline-control-row">
+                        <button class="btn btn-default">违章/隐患标记</button>
+                        <button class="btn btn-primary" onclick="captureCurrentFrame(this)"><i class="fa fa-camera" style="margin-right:6px;"></i>拍照截图</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧栏目【修改为两个Tab：违章/隐患查处、我标注的】 -->
+            <div class="col-right-event">
+                <div class="event-tab-header">
+                    <div class="event-tab-item active" data-tab="tab1">违章/隐患查处</div>
+                    <div class="event-tab-item" data-tab="tab2">我标注的</div>
+                </div>
+                <div class="event-scroll-wrap">
+                    <!-- Tab1：违章隐患查处表单（与AI预警实时和倒查标记页面一致） -->
+                    <div class="tab-panel active" id="tab1">
+                        <div class="form-wrap">
+                            <!-- 1、违章/隐患照片 -->
+                            <div class="form-item">
+                                <label><span style="color:red">*</span>违章/隐患照片</label>
+                                <div class="img-upload-wrap">
+                                    <a class="img-preview-item annotation-photo" href="人工标注工作台.html?return=视频倒查按作业计划.html"><img src="sample-no-helmet.jpg" alt="违章隐患照片 1" /><span class="annotation-badge backcheck-annotation-status">待标注</span><span class="annotation-enter">进入标注</span></a>
+                                    <a class="img-preview-item annotation-photo" href="人工标注工作台.html?image=2&return=视频倒查按作业计划.html"><img src="sample-normal-scene.jpg" alt="违章隐患照片 2" /><span class="annotation-badge backcheck-annotation-status">待标注</span><span class="annotation-enter">进入标注</span></a>
+                                    <a class="img-preview-item annotation-photo" href="人工标注工作台.html?image=3&return=视频倒查按作业计划.html"><img src="sample-safety-belt.jpg" alt="违章隐患照片 3" /><span class="annotation-badge backcheck-annotation-status">待标注</span><span class="annotation-enter">进入标注</span></a>
+                                    <a id="backcheckAnnotationEntry" class="annotation-workbench-entry" href="人工标注工作台.html?return=视频倒查按作业计划.html"><i class="fa fa-object-group"></i> 人工标注（3 张待处理）</a>
+                                </div>
+                            </div>
+
+                            <!-- 单据类型 -->
+                            <div class="form-item">
+                                <label>单据类型</label>
+                                <div class="form-radio-group">
+                                    <div><input type="radio" name="billType" id="radio-wz" value="wz" checked onchange="changeFormText()" /> <span>违章</span></div>
+                                    <div><input type="radio" name="billType" id="radio-yh" value="yh" onchange="changeFormText()" /> <span>隐患</span></div>
+                                </div>
+                            </div>
+
+                            <!-- 隐患描述（仅隐患显示） -->
+                            <div class="form-item" id="desc-wrap" style="display:none;">
+                                <label><span style="color:red">*</span>隐患描述</label>
+                                <textarea rows="2" placeholder="详细描述现场隐患情况" class="form-input" style="height:auto;padding:8px 12px;resize:none;"></textarea>
+                            </div>
+
+                            <!-- 类型 -->
+                            <div class="form-item">
+                                <label id="label-type"><span style="color:red">*</span>违章名称</label>
+                                <select id="select-type" class="form-select">
+                                    <optgroup id="opt-wz">
+                                        <option value="safety">安全防护缺失</option>
+                                        <option value="operation">违规操作设备</option>
+                                        <option value="fire">消防安全违规</option>
+                                        <option value="traffic">井下运输违规</option>
+                                        <option value="other">其他违章</option>
+                                    </optgroup>
+                                    <optgroup id="opt-yh" style="display:none;">
+                                        <option value="equip">设备设施隐患</option>
+                                        <option value="environment">作业环境隐患</option>
+                                        <option value="fire">消防通道隐患</option>
+                                        <option value="electrical">电气安全隐患</option>
+                                        <option value="other">其他隐患</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+
+                            <!-- 等级 -->
+                            <div class="form-item">
+                                <label id="label-level"><span style="color:red">*</span>违章等级</label>
+                                <input id="level-display" class="form-input" value="A类违章" readonly />
+                            </div>
+
+                            <!-- 违章记分 -->
+                            <div class="form-item" id="violation-score-wrap">
+                                <label>违章记分</label>
+                                <input class="form-input" value="12分" readonly style="font-weight:600;color:#ef4444;background:#fff7f7;" />
+                            </div>
+
+                            <!-- 单位 -->
+                            <div class="form-item">
+                                <label id="label-unit"><span style="color:red">*</span>违章单位</label>
+                                <select class="form-select">
+                                    <option>齐大山选矿厂</option>
+                                    <option>弓长岭铁矿</option>
+                                    <option>眼前山分公司</option>
+                                </select>
+                            </div>
+
+                            <!-- 条款/依据 -->
+                            <div class="form-item">
+                                <label id="label-rule">违章条款/依据</label>
+                                <textarea id="textarea-rule" rows="2" class="form-input" style="height:auto;padding:8px 12px;resize:none;">《矿山安全管理考核细则》第12条：井下作业人员未按规定佩戴安全防护用品，属于一般性违章，按对应条款进行考核处理。</textarea>
+                            </div>
+
+                            <!-- 人员 -->
+                            <div class="form-item">
+                                <label id="label-person"><span style="color:red">*</span>违章人员</label>
+                                <div id="selected-person-list">
+                                    <span class="tag-item">陶炳之(WX000864) <span class="tag-close">×</span></span>
+                                    <span class="tag-item">魏伟(WX001258) <span class="tag-close">×</span></span>
+                                    <button type="button" onclick="addViolationPerson(this)" style="height:30px;padding:0 10px;border:1px dashed #2563eb;border-radius:5px;background:#eff6ff;color:#2563eb;cursor:pointer;">＋ 添加人员</button>
+                                </div>
+                            </div>
+
+                            <!-- 发现/排查时间 -->
+                            <div class="form-item">
+                                <label id="label-time"><span style="color:red">*</span>发现时间</label>
+                                <input class="form-input" type="datetime-local" />
+                            </div>
+
+                            <!-- 地点 -->
+                            <div class="form-item">
+                                <label id="label-location"><span style="color:red">*</span>作业位置</label>
+                                <input class="form-input" value="中碎作业区" />
+                            </div>
+
+                            <!-- 整改期限（仅隐患显示） -->
+                            <div class="form-item" id="rectification-deadline-wrap" style="display:none;">
+                                <label><span style="color:red">*</span>整改期限</label>
+                                <input class="form-input" type="date" value="2026-08-12" />
+                            </div>
+
+                            <!-- 底部操作按钮 -->
+                            <div class="form-btn-row">
+                                <button class="form-btn-cancel">取消</button>
+                                <button class="form-btn-submit">确定提交</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab2：我标注的 -->
+                    <div class="tab-panel" id="tab2">
+                        <!-- 列表项1：违章-已复核 -->
+                        <div class="violation-item">
+                            <div class="violation-thumb">
+                                <img src="https://picsum.photos/id/1040/92/70" />
+                            </div>
+                            <div class="violation-right-area">
+                                <div class="violation-field-row">
+                                    <span class="violation-field-label">标注人姓名：</span>
+                                    <span class="violation-field-value">张安全员</span>
+                                </div>
+                                <div class="violation-field-row">
+                                    <span class="violation-field-label">标注人单位名称：</span>
+                                    <span class="violation-field-value">安全监察部</span>
+                                </div>
+                                <div class="violation-field-row">
+                                    <span class="violation-field-label">违章内容：</span>
+                                    <span class="violation-field-value">未佩戴安全帽</span>
+                                </div>
+                                <div class="violation-field-row">
+                                    <span class="violation-field-label">违章时间：</span>
+                                    <span class="violation-field-value">2026‑08‑05 14:32:16</span>
+                                </div>
+                                <div class="violation-field-row">
+                                    <span class="violation-field-label">单据类型：</span>
+                                    <span class="violation-field-value">违章</span>
+                                </div>
+                                <div class="violation-field-row">
+                                    <span class="violation-field-label">违章单位：</span>
+                                    <span class="violation-field-value">采矿一厂</span>
+                                </div>
+                                <div class="violation-field-row">
+                                    <span class="violation-field-label">处理状态：</span>
+                                    <span class="violation-field-value" style="color:#10b981;">已处理</span>
+                                </div>
+                                <div class="violation-action-row">
+                                    <span class="action-btn-detail" onclick="openDetail('wz', 1)">详情</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 列表项2：违章-待复核 -->
+                        <div class="violation-item">
+                            <div class="violation-thumb">
+                                <img src="https://picsum.photos/id/1041/92/70" />
+                            </div>
+                            <div class="violation-right-area">
+                                <div class="violation-field-row">
+                                    <span class="violation-field-label">标注人姓名：</span>
+                                    <span class="violation-field-value">李安全员</span>
+                                </div>
+                                <div class="violation-field-row">
+                                    <span class="violation-field-label">标注人单位名称：</span>
+                                    <span class="violation-field-value">安全监察部</span>
+                                </div>
+                                <div class="violation-field-row">
+                                    <span class="violation-field-label">违章内容：</span>
+                                    <span class="violation-field-value">未佩戴安全带</span>
+                                </div>
+                                <div class="violation-field-row">
+                                    <span class="violation-field-label">违章时间：</span>
+                                    <span class="violation-field-value">2026‑08‑05 14:28:42</span>
+                                </div>
+                                <div class="violation-field-row">
+                                    <span class="violation-field-label">单据类型：</span>
+                                    <span class="violation-field-value">违章</span>
+                                </div>
+                                <div class="violation-field-row">
+                                    <span class="violation-field-label">违章单位：</span>
+                                    <span class="violation-field-value">运输车间</span>
+                                </div>
+                                <div class="violation-field-row">
+                                    <span class="violation-field-label">处理状态：</span>
+                                    <span class="violation-field-value" style="color:#f59e0b;">待处理</span>
+                                </div>
+                                <div class="violation-action-row">
+                                    <span class="action-btn-detail" onclick="openDetail('wz', 2)">详情</span>
+                                    <span class="action-btn-delete" onclick="this.closest('.violation-item').remove()">删除</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 列表项3：隐患-待复核 -->
+                        <div class="violation-item">
+                            <div class="violation-thumb">
+                                <img src="https://picsum.photos/id/1042/92/70" />
+                            </div>
+                            <div class="violation-right-area">
+                                <div class="violation-field-row">
+                                    <span class="violation-field-label">标注人姓名：</span>
+                                    <span class="violation-field-value">王安全员</span>
+                                </div>
+                                <div class="violation-field-row">
+                                    <span class="violation-field-label">标注人单位名称：</span>
+                                    <span class="violation-field-value">安全监察部</span>
+                                </div>
+                                <div class="violation-field-row">
+                                    <span class="violation-field-label">隐患描述：</span>
+                                    <span class="violation-field-value">跨越皮带输送机</span>
+                                </div>
+                                <div class="violation-field-row">
+                                    <span class="violation-field-label">隐患排查时间：</span>
+                                    <span class="violation-field-value">2026‑08‑05 14:24:07</span>
+                                </div>
+                                <div class="violation-field-row">
+                                    <span class="violation-field-label">单据类型：</span>
+                                    <span class="violation-field-value">隐患</span>
+                                </div>
+                                <div class="violation-field-row">
+                                    <span class="violation-field-label">隐患单位：</span>
+                                    <span class="violation-field-value">采矿二厂</span>
+                                </div>
+                                <div class="violation-field-row">
+                                    <span class="violation-field-label">整改状态：</span>
+                                    <span class="violation-field-value" style="color:#f59e0b;">待核实</span>
+                                </div>
+                                <div class="violation-action-row">
+                                    <span class="action-btn-detail" onclick="openDetail('yh', 3)">详情</span>
+                                    <span class="action-btn-delete" onclick="this.closest('.violation-item').remove()">删除</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="event-pagination">
+                            <div class="page-number">&lt;</div>
+                            <div class="page-number active">1</div>
+                            <div class="page-number">2</div>
+                            <div class="page-number">3</div>
+                            <div class="page-number">4</div>
+                            <div class="page-number">...</div>
+                            <div class="page-number">&gt;</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 详情侧边栏弹窗 -->
+    <div class="detail-sidebar-overlay" id="detail-overlay" onclick="closeDetail()"></div>
+    <div class="detail-sidebar" id="detail-sidebar">
+        <div class="detail-sidebar-header">
+            <h3 id="detail-title">违章详情</h3>
+            <span class="detail-sidebar-close" onclick="closeDetail()">&times;</span>
+        </div>
+        <div class="detail-sidebar-body" id="detail-body">
+            <!-- JS动态填充 -->
+        </div>
+        <div class="detail-sidebar-footer">
+            <button onclick="closeDetail()">关闭</button>
+        </div>
+    </div>
+
+    <!-- 编辑侧边栏弹窗 -->
+    <div class="edit-sidebar-overlay" id="edit-overlay" onclick="closeEdit()"></div>
+    <div class="edit-sidebar" id="edit-sidebar">
+        <div class="edit-sidebar-header">
+            <h3 id="edit-title">编辑违章</h3>
+            <span class="detail-sidebar-close" onclick="closeEdit()">&times;</span>
+        </div>
+        <div class="edit-sidebar-body" id="edit-body">
+            <!-- JS动态填充 -->
+        </div>
+        <div class="edit-sidebar-footer">
+            <button class="btn-cancel" onclick="closeEdit()">取消</button>
+            <button class="btn-submit" onclick="closeEdit()">确定提交</button>
+        </div>
+    </div>
+
+    <!-- 视频下载侧边栏 -->
+    <div class="download-sidebar-overlay" id="download-overlay" onclick="closeDownloadDrawer()"></div>
+    <aside class="download-sidebar" id="download-sidebar" aria-label="下载视频">
+        <div class="download-sidebar-header">
+            <div>
+                <h3>下载视频</h3>
+                <div style="font-size:12px;color:#94a3b8;margin-top:3px;">选择需要导出的录像时间范围</div>
+            </div>
+            <span class="detail-sidebar-close" onclick="closeDownloadDrawer()">&times;</span>
+        </div>
+        <div class="download-sidebar-body">
+            <div class="download-success" id="download-success">下载任务已创建，请稍候在浏览器下载列表中查看。</div>
+            <div class="download-camera-summary">
+                <div class="download-summary-title" id="download-camera-name">运输巷掘进机头001摄像头</div>
+                <div class="download-summary-meta">
+                    设备编号：<span id="download-camera-code">IPC-123458</span><br>
+                    作业位置：井下运输巷-123水平<br>
+                    可下载录像：2024-05-18 08:00 至 18:00
+                </div>
+            </div>
+            <div class="download-form-item">
+                <label><span style="color:#ef4444;">*</span> 开始时间</label>
+                <input id="download-start-time" type="datetime-local" value="2024-05-18T08:00" min="2024-05-18T08:00" max="2024-05-18T18:00" onchange="updateDownloadDuration()">
+            </div>
+            <div class="download-form-item">
+                <label><span style="color:#ef4444;">*</span> 结束时间</label>
+                <input id="download-end-time" type="datetime-local" value="2024-05-18T10:00" min="2024-05-18T08:00" max="2024-05-18T18:00" onchange="updateDownloadDuration()">
+            </div>
+            <div class="download-form-item">
+                <label>文件格式</label>
+                <select id="download-format">
+                    <option value="mp4">MP4（推荐）</option>
+                    <option value="avi">AVI</option>
+                </select>
+            </div>
+            <div class="download-duration">
+                <!-- <span>预计视频时长</span> -->
+                <!-- <strong id="download-duration-text">2小时</strong> -->
+            </div>
+            <div class="download-error" id="download-error"></div>
+            <!-- <div class="download-tip">单次下载最长支持 6 小时。录像生成可能需要一定时间，请勿重复提交。</div> -->
+        </div>
+        <div class="download-sidebar-footer">
+            <button class="download-cancel" onclick="closeDownloadDrawer()">取消</button>
+            <button class="download-confirm" id="confirm-download-button" onclick="confirmVideoDownload()">确认下载</button>
+        </div>
+    </aside>
+
+    <!-- XXXX楼栋-楼层（或者室外位置信息）弹窗 -->
+    <div id="gis-overlay" onclick="closeGisMap()" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:10000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);"></div>
+    <div id="gis-modal" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.9);opacity:0;z-index:10001;width:720px;background:#fff;border-radius:12px;display:flex;flex-direction:column;overflow:hidden;transition:all 0.25s ease;pointer-events:none;">
+        <div style="height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;border-bottom:1px solid #e5e7eb;flex-shrink:0;">
+            <h3 style="font-size:16px;font-weight:600;color:#1f2937;">XXXX楼栋-楼层（或者室外位置信息）</h3>
+            <span onclick="closeGisMap()" style="font-size:20px;cursor:pointer;color:#9ca3af;">&times;</span>
+        </div>
+        <div style="padding:16px 20px;flex:1;display:flex;flex-direction:column;">
+            <div style="font-size:13px;color:#6b7280;margin-bottom:8px;">查看已标注点位信息。</div>
+            <div id="gis-map-container" style="position:relative;width:100%;height:360px;border-radius:8px;overflow:hidden;background:linear-gradient(135deg,#1a2a3a 0%,#2a3f5f 50%,#1a2a3a 100%);">
+                <!-- 2.5D GIS底图模拟 -->
+                <div style="position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(255,255,255,0.04) 40px),repeating-linear-gradient(90deg,transparent,transparent 39px,rgba(255,255,255,0.04) 40px);"></div>
+                <!-- 地形模拟 -->
+                <div style="position:absolute;left:10%;top:15%;width:30%;height:40%;background:radial-gradient(ellipse at center,rgba(34,197,94,0.12),transparent 70%);"></div>
+                <div style="position:absolute;right:5%;top:50%;width:35%;height:35%;background:radial-gradient(ellipse at center,rgba(59,130,246,0.1),transparent 70%);"></div>
+                <div style="position:absolute;left:45%;top:55%;width:20%;height:25%;background:radial-gradient(ellipse at center,rgba(239,68,68,0.08),transparent 70%);"></div>
+                <!-- 道路模拟 -->
+                <div style="position:absolute;left:0;top:45%;width:100%;height:2px;background:rgba(255,255,255,0.1);transform:rotate(-5deg);"></div>
+                <div style="position:absolute;left:30%;top:0;width:2px;height:100%;background:rgba(255,255,255,0.1);transform:rotate(8deg);"></div>
+                <!-- 建筑模拟 -->
+                <div style="position:absolute;left:15%;top:20%;width:40px;height:30px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:2px;transform:perspective(100px) rotateX(25deg);"></div>
+                <div style="position:absolute;left:60%;top:30%;width:50px;height:35px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:2px;transform:perspective(100px) rotateX(25deg);"></div>
+                <div style="position:absolute;left:25%;top:60%;width:45px;height:32px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:2px;transform:perspective(100px) rotateX(25deg);"></div>
+                <div style="position:absolute;left:70%;top:65%;width:38px;height:28px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:2px;transform:perspective(100px) rotateX(25deg);"></div>
+                <!-- 标签 -->
+                <div style="position:absolute;left:12px;top:12px;font-size:11px;color:rgba(255,255,255,0.4);">矿区GIS底图 · 2.5D</div>
+                <div style="position:absolute;right:12px;bottom:12px;font-size:11px;color:rgba(255,255,255,0.3);">比例尺 1:500</div>
+                <!-- 已标注点位 -->
+                <div style="position:absolute;left:42%;top:55%;transform:translate(-50%,-100%);z-index:10;">
+                    <div style="width:24px;height:24px;background:#ef4444;border:3px solid #fff;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 8px rgba(0,0,0,0.4);"></div>
+                    <div style="position:absolute;top:-22px;left:50%;transform:translateX(-50%);white-space:nowrap;background:rgba(0,0,0,0.7);color:#fff;font-size:11px;padding:2px 8px;border-radius:4px;">标注点位</div>
+                </div>
+            </div>
+            <div style="font-size:12px;color:#6b7280;margin-top:8px;">坐标：42.0%, 55.0% (已标注)</div>
+        </div>
+        <div style="padding:12px 20px;border-top:1px solid #e5e7eb;flex-shrink:0;display:flex;gap:12px;justify-content:flex-end;">
+            <button onclick="closeGisMap()" style="padding:8px 20px;border:1px solid #d8dbe3;border-radius:6px;background:#fff;font-size:14px;cursor:pointer;color:#6b7280;">关闭</button>
+        </div>
+    </div>
+
+    <script>
+        if (localStorage.getItem('annotationReviewCompletedBackcheck') === 'true') {
+            document.querySelectorAll('.backcheck-annotation-status').forEach(function (el) { el.textContent = '已标注'; el.style.background = '#10b981'; });
+            var backcheckEntry = document.getElementById('backcheckAnnotationEntry');
+            if (backcheckEntry) backcheckEntry.innerHTML = '<i class="fa fa-check-circle"></i> 人工标注已完成（3 张）';
+        }
+        //作业计划选中切换
+        const jobItems = document.querySelectorAll('.job-item');
+        jobItems.forEach(item => {
+            item.onclick = function () {
+                jobItems.forEach(j => j.classList.remove('active'));
+                this.classList.add('active');
+            }
+        })
+
+        function initializeJobFilter() {
+            const params = new URLSearchParams(window.location.search);
+            const jobName = params.get('job');
+            const fromPage = params.get('from');
+            const returnButton = document.getElementById('returnToSource');
+            const filterBar = document.getElementById('jobFilterBar');
+            const normalizeName = value => value.replace(/作业计划/g, '作业').replace(/计划/g, '').replace(/矿段/g, '段').replace(/[-—_]\d+$/g, '').replace(/\s+/g, '');
+
+            if (fromPage) {
+                returnButton.style.display = '';
+                returnButton.addEventListener('click', () => { window.location.href = fromPage; });
+            }
+            if (!jobName) return;
+
+            document.getElementById('currentJobName').textContent = jobName;
+            filterBar.style.display = '';
+            let matchedItem = null;
+            jobItems.forEach(item => {
+                const title = item.querySelector('h5');
+                title.dataset.originalTitle = title.textContent;
+                if (!matchedItem && normalizeName(title.textContent) === normalizeName(jobName)) matchedItem = item;
+            });
+            if (!matchedItem && jobItems.length) {
+                matchedItem = jobItems[0];
+                matchedItem.querySelector('h5').textContent = jobName;
+            }
+            jobItems.forEach(item => {
+                item.style.display = item === matchedItem ? '' : 'none';
+                item.classList.toggle('active', item === matchedItem);
+            });
+
+            document.getElementById('showAllJobs').addEventListener('click', cancelAllJobFilters);
+        }
+
+        initializeJobFilter();
+
+        function cancelAllJobFilters() {
+            document.querySelectorAll('.filter-container select, .col-left-list select').forEach(select => {
+                select.selectedIndex = 0;
+            });
+            document.querySelectorAll('.filter-container input').forEach(input => {
+                input.value = '';
+            });
+            jobItems.forEach(item => {
+                item.style.display = '';
+                const title = item.querySelector('h5');
+                if (title.dataset.originalTitle) title.textContent = title.dataset.originalTitle;
+            });
+            document.getElementById('jobFilterBar').style.display = 'none';
+        }
+
+        document.getElementById('cancelJobFilters').addEventListener('click', cancelAllJobFilters);
+
+        //右侧tab切换逻辑
+        const rightTabs = document.querySelectorAll('.event-tab-item');
+        const tabPanels = document.querySelectorAll('.tab-panel');
+        rightTabs.forEach(tab => {
+            tab.onclick = () => {
+                const targetId = tab.dataset.tab;
+                //切换tab激活状态
+                rightTabs.forEach(i => i.classList.remove('active'));
+                tab.classList.add('active');
+                //切换面板
+                tabPanels.forEach(p => p.classList.remove('active'));
+                document.getElementById(targetId).classList.add('active');
+            }
+        })
+
+        //单据类型切换：违章/隐患联动表单文字与选项
+        function changeFormText() {
+            var isYh = document.getElementById('radio-yh').checked;
+            var descWrap = document.getElementById('desc-wrap');
+            var optWz = document.getElementById('opt-wz');
+            var optYh = document.getElementById('opt-yh');
+            var levelDisplay = document.getElementById('level-display');
+            var scoreWrap = document.getElementById('violation-score-wrap');
+            var labelType = document.getElementById('label-type');
+            var labelLevel = document.getElementById('label-level');
+            var labelUnit = document.getElementById('label-unit');
+            var labelRule = document.getElementById('label-rule');
+            var labelPerson = document.getElementById('label-person');
+            var labelTime = document.getElementById('label-time');
+            var labelLocation = document.getElementById('label-location');
+            var textareaRule = document.getElementById('textarea-rule');
+
+            descWrap.style.display = isYh ? '' : 'none';
+            optWz.style.display = isYh ? 'none' : '';
+            optYh.style.display = isYh ? '' : 'none';
+            levelDisplay.value = isYh ? '一般隐患' : 'A类违章';
+            scoreWrap.style.display = isYh ? 'none' : '';
+
+            var prefix = isYh ? '隐患' : '违章';
+            labelType.innerHTML = '<span style="color:red">*</span>' + (isYh ? '隐患分类' : '违章名称');
+            labelLevel.innerHTML = '<span style="color:red">*</span>' + prefix + '等级';
+            labelUnit.innerHTML = '<span style="color:red">*</span>' + prefix + '单位';
+            labelRule.innerText = prefix + '条款/依据';
+            labelPerson.innerHTML = '<span style="color:red">*</span>' + (isYh ? '隐患整改人' : '违章人员');
+            labelTime.innerHTML = '<span style="color:red">*</span>' + (isYh ? '隐患排查时间' : '发现时间');
+            labelLocation.innerHTML = '<span style="color:red">*</span>' + (isYh ? '隐患位置' : '作业位置');
+            document.getElementById('rectification-deadline-wrap').style.display = isYh ? 'block' : 'none';
+
+            if (!isYh) {
+                textareaRule.value = '《矿山安全管理考核细则》第12条：井下作业人员未按规定佩戴安全防护用品，属于一般性违章，按对应条款进行考核处理。';
+            } else {
+                textareaRule.value = '《矿山安全隐患排查治理管理制度》第8条：作业现场存在设备设施或环境安全隐患，需限期整改并落实防范措施。';
+            }
+        }
+
+        function addViolationPerson(button) {
+            const list = document.getElementById('selected-person-list');
+            if (list.querySelector('[data-added-person]')) return;
+            const person = document.createElement('span');
+            person.className = 'tag-item';
+            person.dataset.addedPerson = 'true';
+            person.innerHTML = '王强(WX003126) <span class="tag-close" onclick="this.parentElement.remove()">×</span>';
+            list.insertBefore(person, button);
+        }
+
+        // ===== 数据源 =====
+        var violationData = {
+            1: { type: 'wz', photos: ['1011', '1012'], content: '未佩戴安全帽', time: '2026-08-05 14:32:16', unit: '采矿一厂', level: 'B类违章', person: '陶炳之(WX000864)、魏伟(WX001258)', location: '中碎作业区', rule: '《矿山安全管理考核细则》第12条：井下作业人员未按规定佩戴安全防护用品。', reviewStatus: '已复核', reviewResult: '确认违章' },
+            2: { type: 'wz', photos: ['1041'], content: '未佩戴安全带', time: '2026-08-05 14:28:42', unit: '运输车间', level: 'C类违章', person: '陶炳之(WX000864)', location: '井下运输大巷', rule: '《矿山安全管理考核细则》第15条：高处作业未系安全带。', reviewStatus: '待复核', reviewResult: '' },
+            3: { type: 'yh', photos: ['1042'], content: '跨越皮带输送机', time: '2026-08-05 14:24:07', unit: '采矿二厂', level: '一般隐患', person: '王安全员', location: '东帮658工作面', rule: '《矿山安全隐患排查治理管理制度》第8条：作业现场存在设备设施或环境安全隐患。', reviewStatus: '待核实', reviewResult: '' }
+        };
+
+        // ===== 详情侧边栏 =====
+        function openDetail(type, id) {
+            var d = violationData[id];
+            if (!d) return;
+            var isYh = type === 'yh';
+            var prefix = isYh ? '隐患' : '违章';
+            document.getElementById('detail-title').textContent = prefix + '详情';
+
+            var photoHtml = d.photos.map(function(p) {
+                return '<img src="https://picsum.photos/id/' + p + '/200/150" style="width:100px;height:75px;border-radius:6px;object-fit:cover;margin-right:8px;" />';
+            }).join('');
+
+            var html = '';
+            html += '<div class="detail-field"><div class="detail-field-label">' + prefix + '/隐患照片</div><div class="detail-field-value" style="display:flex;flex-wrap:wrap;">' + photoHtml + '</div></div>';
+            html += '<div class="detail-field"><div class="detail-field-label">单据类型</div><div class="detail-field-value">' + prefix + '</div></div>';
+            if (isYh) {
+                html += '<div class="detail-field"><div class="detail-field-label">隐患描述</div><div class="detail-field-value">' + d.content + '</div></div>';
+                html += '<div class="detail-field"><div class="detail-field-label">隐患分类</div><div class="detail-field-value">设备设施隐患</div></div>';
+            } else {
+                html += '<div class="detail-field"><div class="detail-field-label">违章内容</div><div class="detail-field-value">' + d.content + '</div></div>';
+                html += '<div class="detail-field"><div class="detail-field-label">违章名称</div><div class="detail-field-value">安全防护缺失</div></div>';
+            }
+            html += '<div class="detail-field"><div class="detail-field-label">' + prefix + '等级</div><div class="detail-field-value">' + d.level + '</div></div>';
+            html += '<div class="detail-field"><div class="detail-field-label">' + prefix + '单位</div><div class="detail-field-value">' + d.unit + '</div></div>';
+            html += '<div class="detail-field"><div class="detail-field-label">' + prefix + '条款/依据</div><div class="detail-field-value">' + d.rule + '</div></div>';
+            html += '<div class="detail-field"><div class="detail-field-label">' + (isYh ? '隐患整改人' : '违章人员') + '</div><div class="detail-field-value">' + d.person + '</div></div>';
+            html += '<div class="detail-field"><div class="detail-field-label">' + (isYh ? '隐患排查时间' : '发现时间') + '</div><div class="detail-field-value">' + d.time + '</div></div>';
+            html += '<div class="detail-field"><div class="detail-field-label">' + (isYh ? '隐患位置' : '作业位置') + '</div><div class="detail-field-value" style="display:flex;align-items:center;gap:8px;">' + d.location + '<button type="button" onclick="openGisMap()" style="border:1px solid #2563eb;border-radius:4px;padding:3px 9px;background:transparent;color:#2563eb;font-size:13px;cursor:pointer;white-space:nowrap;">查看位置</button></div></div>';
+            html += '<div class="detail-field"><div class="detail-field-label">状态</div><div class="detail-field-value" style="color:' + (d.reviewStatus === '已复核' ? '#10b981' : '#f59e0b') + ';">' + d.reviewStatus + '</div></div>';
+            if (d.reviewResult) {
+                html += '<div class="detail-field"><div class="detail-field-label">复核结果</div><div class="detail-field-value" style="color:' + (d.reviewResult === '确认违章' ? '#ef4444' : '#6b7280') + ';">' + d.reviewResult + '</div></div>';
+            }
+
+            document.getElementById('detail-body').innerHTML = html;
+            document.getElementById('detail-overlay').style.display = 'block';
+            document.getElementById('detail-sidebar').classList.add('open');
+        }
+        function closeDetail() {
+            document.getElementById('detail-overlay').style.display = 'none';
+            document.getElementById('detail-sidebar').classList.remove('open');
+        }
+
+        // ===== 编辑弹窗 =====
+        function openEdit(type, id) {
+            var d = violationData[id];
+            if (!d) return;
+            var isYh = type === 'yh';
+            var prefix = isYh ? '隐患' : '违章';
+            document.getElementById('edit-title').textContent = '编辑' + prefix;
+
+            var photoHtml = d.photos.map(function(p) {
+                return '<div style="position:relative;width:100px;height:75px;border-radius:6px;overflow:hidden;margin-right:8px;"><img src="https://picsum.photos/id/' + p + '/200/150" style="width:100%;height:100%;object-fit:cover;" /><span style="position:absolute;top:2px;right:2px;width:18px;height:18px;background:rgba(0,0,0,0.5);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;">&times;</span></div>';
+            }).join('');
+
+            var html = '<div class="form-wrap" style="padding:0;">';
+            // 照片
+            html += '<div class="form-item"><label><span style="color:red">*</span>' + prefix + '/隐患照片</label><div style="display:flex;gap:8px;align-items:center;">' + photoHtml + '<div style="width:100px;height:75px;border:1px dashed #c9cdd6;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:24px;color:#999;cursor:pointer;">+</div></div></div>';
+            // 单据类型
+            html += '<div class="form-item"><label>单据类型</label><div class="form-radio-group"><div><input type="radio" name="editBillType" checked /> <span>' + prefix + '</span></div></div></div>';
+            // 隐患描述（仅隐患）
+            if (isYh) {
+                html += '<div class="form-item"><label><span style="color:red">*</span>隐患描述</label><textarea rows="2" class="form-input" style="height:auto;padding:8px 12px;resize:none;">' + d.content + '</textarea></div>';
+            }
+            // 类型
+            html += '<div class="form-item"><label><span style="color:red">*</span>' + (isYh ? '隐患分类' : '违章名称') + '</label><select class="form-select">';
+            if (isYh) {
+                html += '<option>设备设施隐患</option><option>作业环境隐患</option><option>消防通道隐患</option><option>电气安全隐患</option><option>其他隐患</option>';
+            } else {
+                html += '<option selected>安全防护缺失</option><option>违规操作设备</option><option>消防安全违规</option><option>井下运输违规</option><option>其他违章</option>';
+            }
+            html += '</select></div>';
+            // 等级
+            html += '<div class="form-item"><label><span style="color:red">*</span>' + prefix + '等级</label><select class="form-select">';
+            if (isYh) {
+                html += '<option>重大隐患</option><option>较大隐患</option><option selected>一般隐患</option><option>轻微隐患</option>';
+            } else {
+                html += '<option>A类违章</option><option selected>B类违章</option><option>C类违章</option><option>D类违章</option><option>其他类违章</option>';
+            }
+            html += '</select></div>';
+            // 单位
+            html += '<div class="form-item"><label><span style="color:red">*</span>' + prefix + '单位</label><select class="form-select"><option>' + d.unit + '</option><option>齐大山选矿厂</option><option>弓长岭铁矿</option><option>眼前山分公司</option></select></div>';
+            // 条款依据
+            html += '<div class="form-item"><label>' + prefix + '条款/依据</label><textarea rows="2" class="form-input" style="height:auto;padding:8px 12px;resize:none;">' + d.rule + '</textarea></div>';
+            // 人员
+            html += '<div class="form-item"><label><span style="color:red">*</span>' + (isYh ? '隐患整改人' : '违章人员') + '</label><div><span class="tag-item">' + d.person + ' <span class="tag-close">×</span></span></div></div>';
+            // 时间
+            html += '<div class="form-item"><label><span style="color:red">*</span>' + (isYh ? '隐患排查时间' : '发现时间') + '</label><input class="form-input" type="datetime-local" /></div>';
+            // 地点
+            html += '<div class="form-item"><label><span style="color:red">*</span>' + (isYh ? '隐患位置' : '作业位置') + '</label><div style="display:flex;align-items:center;gap:8px;"><input class="form-input" value="' + d.location + '" /><button type="button" onclick="openGisMap()" style="flex:none;border:1px solid #2563eb;border-radius:4px;padding:7px 10px;background:transparent;color:#2563eb;font-size:13px;cursor:pointer;white-space:nowrap;">查看位置</button></div></div>';
+            html += '</div>';
+
+            document.getElementById('edit-body').innerHTML = html;
+            document.getElementById('edit-overlay').style.display = 'block';
+            document.getElementById('edit-sidebar').classList.add('open');
+        }
+        function closeEdit() {
+            document.getElementById('edit-overlay').style.display = 'none';
+            document.getElementById('edit-sidebar').classList.remove('open');
+        }
+
+        // ===== GIS地图查看 =====
+        function openGisMap() {
+            document.getElementById('gis-overlay').style.display = 'flex';
+            var modal = document.getElementById('gis-modal');
+            modal.style.opacity = '1';
+            modal.style.transform = 'translate(-50%,-50%) scale(1)';
+            modal.style.pointerEvents = 'auto';
+        }
+        function closeGisMap() {
+            document.getElementById('gis-overlay').style.display = 'none';
+            var modal = document.getElementById('gis-modal');
+            modal.style.opacity = '0';
+            modal.style.transform = 'translate(-50%,-50%) scale(0.9)';
+            modal.style.pointerEvents = 'none';
+        }
+
+        // ===== 视频下载侧边栏 =====
+        function openDownloadDrawer() {
+            document.getElementById('download-camera-name').textContent = document.getElementById('current-camera-name').textContent;
+            document.getElementById('download-camera-code').textContent = document.getElementById('current-camera-code').textContent;
+            document.getElementById('download-error').textContent = '';
+            document.getElementById('download-success').style.display = 'none';
+            document.getElementById('confirm-download-button').textContent = '确认下载';
+            document.getElementById('download-overlay').style.display = 'block';
+            document.getElementById('download-sidebar').classList.add('open');
+            updateDownloadDuration();
+        }
+
+        function closeDownloadDrawer() {
+            document.getElementById('download-overlay').style.display = 'none';
+            document.getElementById('download-sidebar').classList.remove('open');
+        }
+
+        function getDownloadRange() {
+            var start = new Date(document.getElementById('download-start-time').value);
+            var end = new Date(document.getElementById('download-end-time').value);
+            return { start: start, end: end, minutes: (end - start) / 60000 };
+        }
+
+        function updateDownloadDuration() {
+            var range = getDownloadRange();
+            var error = document.getElementById('download-error');
+            var duration = document.getElementById('download-duration-text');
+            error.textContent = '';
+            if (!Number.isFinite(range.minutes) || range.minutes <= 0) {
+                duration.textContent = '--';
+                error.textContent = '结束时间必须晚于开始时间。';
+                return false;
+            }
+            var hours = Math.floor(range.minutes / 60);
+            var minutes = Math.round(range.minutes % 60);
+            duration.textContent = (hours ? hours + '小时' : '') + (minutes ? minutes + '分钟' : '');
+            if (range.minutes > 360) {
+                error.textContent = '单次下载时间范围不能超过 6 小时。';
+                return false;
+            }
+            return true;
+        }
+
+        function confirmVideoDownload() {
+            if (!updateDownloadDuration()) return;
+            var button = document.getElementById('confirm-download-button');
+            button.textContent = '正在创建...';
+            button.disabled = true;
+            setTimeout(function () {
+                document.getElementById('download-success').style.display = 'block';
+                button.textContent = '已创建下载任务';
+                button.disabled = false;
+            }, 500);
+        }
+
+        // 同一作业关联多台摄像头时，切换当前查看的视频
+        function captureCurrentFrame(button) {
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fa fa-check" style="margin-right:6px;"></i>截图成功';
+            button.disabled = true;
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }, 1500);
+        }
+
+        document.querySelectorAll('.camera-switch-item').forEach(function (item) {
+            item.addEventListener('click', function () {
+                document.querySelectorAll('.camera-switch-item').forEach(function (camera) {
+                    camera.classList.remove('active');
+                });
+                item.classList.add('active');
+
+                var name = item.dataset.name;
+                var code = item.dataset.code;
+                var videoImage = document.getElementById('current-camera-video');
+                document.getElementById('current-camera-name').textContent = name;
+                document.getElementById('current-camera-code').textContent = code;
+                videoImage.src = item.dataset.image;
+                videoImage.alt = name + '监控画面';
+            });
+        });
+
+    </script>
+    <script src="navigation.js?v=20260819-2"></script>
+</body>
+
+</html>

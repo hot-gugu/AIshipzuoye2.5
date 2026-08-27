@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>矿山智能安全生产管理平台 - 作业班次管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        sidebarBg: '#162136',
+                        primaryBlue: '#1677ff',
+                        textGray: '#667085',
+                        borderLight: '#E5E7EB',
+                        successGreen: '#52C41A',
+                        warningOrange: '#FA8C16',
+                        dangerRed: '#F5222D',
+                        bgPage: '#F7FAFC',
+                        cardWhite: '#FFFFFF',
+                        darkGray: '#1f2937',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .sidebar-item-active {
+                @apply bg-primaryBlue/10 text-primaryBlue border-l-4 border-primaryBlue;
+            }
+            .status-enable {
+                @apply bg-[#f0fff4] text-[#52c41a] px-2 py-0.5 rounded text-xs font-medium;
+            }
+            .status-disable {
+                @apply bg-[#f5f5f5] text-[#8c8c8c] px-2 py-0.5 rounded text-xs font-medium;
+            }
+            .btn-primary {
+                @apply bg-primaryBlue text-white px-4 py-2 rounded-lg hover:bg-primaryBlue/90 transition-all shadow-sm;
+            }
+            .btn-default {
+                @apply border border-borderLight px-4 py-2 rounded-lg hover:bg-gray-50 transition-all;
+            }
+            .btn-danger {
+                @apply bg-dangerRed text-white px-4 py-2 rounded-lg hover:bg-dangerRed/90 transition-all;
+            }
+            .table-cell-padding {
+                @apply py-3 px-3 text-sm;
+            }
+            .mask-base {
+                @apply fixed inset-0 bg-black/50 z-40;
+            }
+            .mask-show {
+                @apply flex items-center justify-center;
+            }
+            .drawer-mask {
+                @apply fixed inset-0 z-40 bg-black/40 opacity-0 invisible transition-opacity duration-300;
+            }
+            .drawer-mask.drawer-open {
+                @apply opacity-100 visible;
+            }
+            .drawer-panel {
+                @apply absolute right-0 top-0 h-full w-[520px] max-w-[92vw] bg-cardWhite shadow-2xl flex flex-col overflow-hidden translate-x-full transition-transform duration-300;
+            }
+            .drawer-mask.drawer-open .drawer-panel {
+                @apply translate-x-0;
+            }
+            .del-modal {
+                @apply bg-cardWhite rounded-lg w-[400px] shadow-xl p-5;
+            }
+        }
+        body{overflow:hidden;}
+    </style>
+</head>
+<body class="bg-bgPage font-sans h-screen flex overflow-hidden">
+    <!-- 左侧侧边栏（由navigation.js统一渲染） -->
+    <aside></aside>
+
+    <div class="flex-1 flex flex-col overflow-hidden">
+    <main class="flex-1 flex flex-col overflow-hidden">
+        <header class="bg-white h-[60px] border-b border-borderLight flex items-center justify-between px-6 flex-shrink-0">
+            <div class="text-sm text-textGray">
+                <span>基础管理</span>
+                <span class="mx-2">/</span>
+                <span class="text-gray-800 font-medium">作业班次</span>
+            </div>
+            <div class="flex items-center gap-6">
+                <button class="relative text-textGray hover:text-primaryBlue">
+                    <i class="fa fa-bell-o text-lg"></i>
+                    <span class="absolute -top-1 -right-1 w-4 h-4 bg-dangerRed text-white text-[10px] rounded-full flex items-center justify-center">12</span>
+                </button>
+                <button class="text-textGray hover:text-primaryBlue">
+                    <i class="fa fa-question-circle-o text-lg"></i>
+                </button>
+                <div class="flex items-center gap-2 cursor-pointer">
+                    <div class="w-8 h-8 rounded-full bg-gray-200 overflow-hidden">
+                        <img src="https://picsum.photos/id/1005/32/32" alt="用户头像" class="w-full h-full object-cover">
+                    </div>
+                    <div class="text-sm">
+                        <div class="text-gray-800 font-medium">张伟</div>
+                        <div class="text-xs text-textGray">安全管理员</div>
+                    </div>
+                    <i class="fa fa-angle-down text-xs text-textGray"></i>
+                </div>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-6">
+            <div class="flex items-start justify-between mb-6">
+                <div>
+                    <h1 class="text-[22px] font-semibold text-gray-900 mb-1">作业班次管理</h1>
+                    <p class="text-textGray text-sm">对企业作业班次进行新增、编辑、启用/停用、删除等管理。</p>
+                </div>
+                <button class="btn-primary" onclick="openAddModal()">
+                    <i class="fa fa-plus"></i>
+                    <span>新建班次</span>
+                </button>
+            </div>
+
+            <div class="bg-cardWhite rounded-lg shadow-sm border border-borderLight overflow-hidden">
+                <div class="px-5 py-4 border-b border-borderLight">
+                    <h2 class="text-base font-medium text-gray-800">班次列表</h2>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left" id="tableData">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="table-cell-padding font-medium text-textGray w-[60px]">序号</th>
+                                <th class="table-cell-padding font-medium text-textGray">班次名称</th>
+                                <th class="table-cell-padding font-medium text-textGray">班次时间</th>
+                                <th class="table-cell-padding font-medium text-textGray">班次时长</th>
+                                <th class="table-cell-padding font-medium text-textGray w-[90px]">状态</th>
+                                <th class="table-cell-padding font-medium text-textGray">创建时间</th>
+                                <th class="table-cell-padding font-medium text-textGray w-[160px]">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-t border-borderLight hover:bg-gray-50 transition-colors" data-id="1" data-name="白班" data-time="08:00 ~ 16:00" data-duration="8小时" data-status="1">
+                                <td class="table-cell-padding">1</td>
+                                <td class="table-cell-padding">白班</td>
+                                <td class="table-cell-padding">08:00 ~ 16:00</td>
+                                <td class="table-cell-padding">8小时</td>
+                                <td class="table-cell-padding"><span class="status-enable">启用</span></td>
+                                <td class="table-cell-padding text-textGray">2025-05-20 10:30</td>
+                                <td class="table-cell-padding">
+                                    <button class="text-primaryBlue hover:underline mr-3 text-sm" onclick="openEditModal(this)">编辑</button>
+                                    <button class="text-warningOrange hover:underline mr-3 text-sm" onclick="changeStatus(this)">停用</button>
+                                    <button class="text-dangerRed hover:underline text-sm" onclick="openDelConfirm(this)">删除</button>
+                                </td>
+                            </tr>
+                            <tr class="border-t border-borderLight hover:bg-gray-50 transition-colors" data-id="2" data-name="夜班" data-time="20:00 ~ 04:00" data-duration="8小时" data-status="1">
+                                <td class="table-cell-padding">2</td>
+                                <td class="table-cell-padding">夜班</td>
+                                <td class="table-cell-padding">20:00 ~ 04:00</td>
+                                <td class="table-cell-padding">8小时</td>
+                                <td class="table-cell-padding"><span class="status-enable">启用</span></td>
+                                <td class="table-cell-padding text-textGray">2025-05-20 10:30</td>
+                                <td class="table-cell-padding">
+                                    <button class="text-primaryBlue hover:underline mr-3 text-sm" onclick="openEditModal(this)">编辑</button>
+                                    <button class="text-warningOrange hover:underline mr-3 text-sm" onclick="changeStatus(this)">停用</button>
+                                    <button class="text-dangerRed hover:underline text-sm" onclick="openDelConfirm(this)">删除</button>
+                                </td>
+                            </tr>
+                            <tr class="border-t border-borderLight hover:bg-gray-50 transition-colors" data-id="3" data-name="中班" data-time="16:00 ~ 00:00" data-duration="8小时" data-status="1">
+                                <td class="table-cell-padding">3</td>
+                                <td class="table-cell-padding">中班</td>
+                                <td class="table-cell-padding">16:00 ~ 00:00</td>
+                                <td class="table-cell-padding">8小时</td>
+                                <td class="table-cell-padding"><span class="status-enable">启用</span></td>
+                                <td class="table-cell-padding text-textGray">2025-05-20 10:30</td>
+                                <td class="table-cell-padding">
+                                    <button class="text-primaryBlue hover:underline mr-3 text-sm" onclick="openEditModal(this)">编辑</button>
+                                    <button class="text-warningOrange hover:underline mr-3 text-sm" onclick="changeStatus(this)">停用</button>
+                                    <button class="text-dangerRed hover:underline text-sm" onclick="openDelConfirm(this)">删除</button>
+                                </td>
+                            </tr>
+                            <tr class="border-t border-borderLight hover:bg-gray-50 transition-colors" data-id="4" data-name="早班" data-time="06:00 ~ 14:00" data-duration="8小时" data-status="1">
+                                <td class="table-cell-padding">4</td>
+                                <td class="table-cell-padding">早班</td>
+                                <td class="table-cell-padding">06:00 ~ 14:00</td>
+                                <td class="table-cell-padding">8小时</td>
+                                <td class="table-cell-padding"><span class="status-enable">启用</span></td>
+                                <td class="table-cell-padding text-textGray">2025-05-20 10:30</td>
+                                <td class="table-cell-padding">
+                                    <button class="text-primaryBlue hover:underline mr-3 text-sm" onclick="openEditModal(this)">编辑</button>
+                                    <button class="text-warningOrange hover:underline mr-3 text-sm" onclick="changeStatus(this)">停用</button>
+                                    <button class="text-dangerRed hover:underline text-sm" onclick="openDelConfirm(this)">删除</button>
+                                </td>
+                            </tr>
+                            <tr class="border-t border-borderLight hover:bg-gray-50 transition-colors" data-id="5" data-name="晚班" data-time="14:00 ~ 22:00" data-duration="8小时" data-status="1">
+                                <td class="table-cell-padding">5</td>
+                                <td class="table-cell-padding">晚班</td>
+                                <td class="table-cell-padding">14:00 ~ 22:00</td>
+                                <td class="table-cell-padding">8小时</td>
+                                <td class="table-cell-padding"><span class="status-enable">启用</span></td>
+                                <td class="table-cell-padding text-textGray">2025-05-20 10:30</td>
+                                <td class="table-cell-padding">
+                                    <button class="text-primaryBlue hover:underline mr-3 text-sm" onclick="openEditModal(this)">编辑</button>
+                                    <button class="text-warningOrange hover:underline mr-3 text-sm" onclick="changeStatus(this)">停用</button>
+                                    <button class="text-dangerRed hover:underline text-sm" onclick="openDelConfirm(this)">删除</button>
+                                </td>
+                            </tr>
+                            <tr class="border-t border-borderLight hover:bg-gray-50 transition-colors" data-id="6" data-name="维修班" data-time="22:00 ~ 06:00" data-duration="8小时" data-status="0">
+                                <td class="table-cell-padding">6</td>
+                                <td class="table-cell-padding">维修班</td>
+                                <td class="table-cell-padding">22:00 ~ 06:00</td>
+                                <td class="table-cell-padding">8小时</td>
+                                <td class="table-cell-padding"><span class="status-disable">停用</span></td>
+                                <td class="table-cell-padding text-textGray">2025-05-20 10:30</td>
+                                <td class="table-cell-padding">
+                                    <button class="text-primaryBlue hover:underline mr-3 text-sm" onclick="openEditModal(this)">编辑</button>
+                                    <button class="text-successGreen hover:underline mr-3 text-sm" onclick="changeStatus(this)">启用</button>
+                                    <button class="text-dangerRed hover:underline text-sm" onclick="openDelConfirm(this)">删除</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="px-5 py-4 border-t border-borderLight flex items-center justify-end gap-4">
+                    <span class="text-sm text-textGray">共 6 条</span>
+                    <div class="flex items-center gap-2">
+                        <select class="border border-borderLight rounded px-2 py-1 text-sm text-gray-700">
+                            <option>10条/页</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center">
+                        <button class="w-7 h-7 flex items-center justify-center border border-borderLight rounded-l text-textGray hover:bg-gray-50">
+                            <i class="fa fa-angle-left text-xs"></i>
+                        </button>
+                        <button class="w-7 h-7 flex items-center justify-center bg-primaryBlue text-white border border-primaryBlue">1</button>
+                        <button class="w-7 h-7 flex items-center justify-center border border-borderLight rounded-r text-textGray hover:bg-gray-50">
+                            <i class="fa fa-angle-right text-xs"></i>
+                        </button>
+                    </div>
+                    <div class="flex items-center text-sm text-textGray gap-2">
+                        <span>前往</span>
+                        <input type="text" value="1" class="w-10 border border-borderLight rounded px-1 py-1 text-center">
+                        <span>页</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    </div>
+
+    <!-- 新增/编辑班次右侧抽屉 -->
+    <div id="modalMask" class="drawer-mask" aria-hidden="true" onclick="handleDrawerMaskClick(event)">
+        <div class="drawer-panel" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+            <div class="h-[64px] px-6 border-b border-borderLight flex items-center justify-between flex-shrink-0">
+                <h3 class="text-base font-medium" id="modalTitle">新建班次</h3>
+                <button class="w-8 h-8 rounded flex items-center justify-center text-textGray hover:text-darkGray hover:bg-gray-100" onclick="closeModal()" aria-label="关闭">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
+            <div class="p-6 space-y-5 flex-1 overflow-y-auto">
+                <input type="hidden" id="editId">
+                <div>
+                    <label class="block text-sm text-gray-800 mb-1.5">班次名称 <span class="text-dangerRed">*</span></label>
+                    <input id="shiftName" class="w-full border border-borderLight rounded px-3 py-2 text-sm outline-none focus:border-primaryBlue" placeholder="请输入班次名称">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm text-gray-800 mb-1.5">开始时间 <span class="text-dangerRed">*</span></label>
+                        <input id="startTime" type="time" class="w-full border border-borderLight rounded px-3 py-2 text-sm outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-800 mb-1.5">结束时间 <span class="text-dangerRed">*</span></label>
+                        <input id="endTime" type="time" class="w-full border border-borderLight rounded px-3 py-2 text-sm outline-none">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-800 mb-1.5">班次时长（自动计算）</label>
+                    <input id="shiftDuration" readonly class="w-full bg-gray-50 border border-borderLight rounded px-3 py-2 text-sm text-textGray">
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-800 mb-1.5">状态</label>
+                    <div class="flex gap-4">
+                        <label class="flex items-center gap-1.5 text-sm cursor-pointer">
+                            <input name="shiftStatus" value="1" type="radio" checked class="accent-primaryBlue">
+                            <span>启用</span>
+                        </label>
+                        <label class="flex items-center gap-1.5 text-sm cursor-pointer">
+                            <input name="shiftStatus" value="0" type="radio" class="accent-primaryBlue">
+                            <span>停用</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="px-6 py-4 border-t border-borderLight bg-gray-50 flex justify-end gap-3 flex-shrink-0">
+                <button class="btn-default" onclick="closeModal()">取消</button>
+                <button class="btn-primary" onclick="saveShift()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 删除确认弹窗：初始只有mask-base + hidden，无flex -->
+    <div id="delMask" class="mask-base hidden">
+        <div class="del-modal">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 rounded-full bg-dangerRed/10 flex items-center justify-center">
+                    <i class="fa fa-exclamation-triangle text-dangerRed text-lg"></i>
+                </div>
+                <div>
+                    <h4 class="font-medium text-gray-90">确认删除</h4>
+                    <p class="text-sm text-textGray mt-1">确定要删除【<span id="delName"></span>】班次吗？删除后无法恢复。</p>
+                </div>
+            </div>
+            <div class="flex justify-end gap-3">
+                <button class="btn-default" onclick="closeDelMask()">取消</button>
+                <button class="btn-danger" onclick="confirmDel()">确认删除</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentDelTr = null;
+        // 打开新增弹窗
+        function openAddModal(){
+            const mask = document.getElementById('modalMask');
+            mask.classList.add('drawer-open');
+            mask.setAttribute('aria-hidden', 'false');
+            document.body.style.overflow = 'hidden';
+            document.getElementById('modalTitle').innerText = "新建班次";
+            document.getElementById('editId').value = "";
+            document.getElementById('shiftName').value = "";
+            document.getElementById('startTime').value = "";
+            document.getElementById('endTime').value = "";
+            document.getElementById('shiftDuration').value = "";
+            document.querySelector('input[name="shiftStatus"][value="1"]').checked = true;
+            setTimeout(() => document.getElementById('shiftName').focus(), 300);
+        }
+        // 打开编辑弹窗
+        function openEditModal(btn){
+            const mask = document.getElementById('modalMask');
+            mask.classList.add('drawer-open');
+            mask.setAttribute('aria-hidden', 'false');
+            document.body.style.overflow = 'hidden';
+            const tr = btn.closest('tr');
+            const id = tr.dataset.id;
+            const name = tr.dataset.name;
+            const timeStr = tr.dataset.time;
+            const start = timeStr.split(' ~ ')[0];
+            const end = timeStr.split(' ~ ')[1];
+            const duration = tr.dataset.duration;
+            const status = tr.dataset.status;
+            document.getElementById('modalTitle').innerText = "编辑班次";
+            document.getElementById('editId').value = id;
+            document.getElementById('shiftName').value = name;
+            document.getElementById('startTime').value = start;
+            document.getElementById('endTime').value = end;
+            document.getElementById('shiftDuration').value = duration;
+            document.querySelector(`input[name="shiftStatus"][value="${status}"]`).checked = true;
+            setTimeout(() => document.getElementById('shiftName').focus(), 300);
+        }
+        // 关闭弹窗
+        function closeModal(){
+            const mask = document.getElementById('modalMask');
+            mask.classList.remove('drawer-open');
+            mask.setAttribute('aria-hidden', 'true');
+            document.body.style.overflow = '';
+        }
+        function handleDrawerMaskClick(event){
+            if(event.target === event.currentTarget) closeModal();
+        }
+        // 保存班次
+        function saveShift(){
+            const name = document.getElementById('shiftName').value.trim();
+            const sTime = document.getElementById('startTime').value;
+            const eTime = document.getElementById('endTime').value;
+            if(!name || !sTime || !eTime){
+                alert("请填写必填项");
+                return;
+            }
+            alert("保存成功（前端模拟）");
+            closeModal();
+            location.reload();
+        }
+        // 启用/停用切换
+        function changeStatus(btn){
+            const tr = btn.closest('tr');
+            const name = tr.dataset.name;
+            const status = tr.dataset.status == "1" ? "停用" : "启用";
+            if(!confirm(`确认${status}【${name}】班次？`)) return;
+            alert(`已${status}`);
+            location.reload();
+        }
+        // 打开删除弹窗
+        function openDelConfirm(btn){
+            const mask = document.getElementById('delMask');
+            mask.classList.remove('hidden');
+            mask.classList.add('mask-show');
+            currentDelTr = btn.closest('tr');
+            const name = currentDelTr.dataset.name;
+            document.getElementById('delName').innerText = name;
+        }
+        // 关闭删除弹窗
+        function closeDelMask(){
+            const mask = document.getElementById('delMask');
+            mask.classList.add('hidden');
+            mask.classList.remove('mask-show');
+            currentDelTr = null;
+        }
+        // 确认删除
+        function confirmDel(){
+            alert("删除成功");
+            closeDelMask();
+            currentDelTr.remove();
+        }
+        document.addEventListener('keydown', function(event){
+            if(event.key === 'Escape' && document.getElementById('modalMask').classList.contains('drawer-open')) closeModal();
+        });
+    </script>
+    <script src="navigation.js?v=20260819-2"></script>
+</body>
+</html>

@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>“三违”无视频不作业智慧管控平台 - 违章查处台账</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        sidebarDark: '#0F2038',
+                        pageBg: '#F7F8FA',
+                        cardBg: '#ffffff',
+                        borderLine: '#E5E6EB',
+                        textMain: '#1D2129',
+                        textSecondary: '#6E7681',
+                        textLight: '#86909C',
+                        statusProcess: '#FF7D00',
+                        statusFinish: '#00B42A',
+                        levelA: '#F53F3F',
+                        levelB: '#FF7D00',
+                        levelC: '#FFC53D',
+                        levelD: '#00B42A',
+                        levelOther: '#9E88FF',
+                    },
+                    fontFamily: {
+                        system: ['PingFang SC', 'Microsoft YaHei', 'system-ui', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .scrollbar-hide::-webkit-scrollbar { display: none; }
+            .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+            .menu-active { @apply bg-primary/20 text-white border-l-[3px] border-primary; }
+            .tree-item-hover { @apply hover:bg-gray-100 rounded cursor-pointer; }
+            .tree-active { @apply text-primary font-medium; }
+        }
+        body { overflow: hidden; }
+        .drawer-mask { transition: opacity .2s ease; }
+        .drawer-panel { transition: transform .25s ease; }
+        .drawer-closed { pointer-events: none; }
+        .drawer-closed .drawer-mask { opacity: 0; pointer-events: none; }
+        .drawer-closed .drawer-panel { transform: translateX(100%); }
+    </style>
+</head>
+<body class="font-system bg-pageBg text-textMain h-screen flex">
+    <!-- 左侧主导航菜单 -->
+    <aside class="w-[210px] bg-sidebarDark flex flex-col flex-shrink-0 text-slate-300">
+        <!-- Logo标题 -->
+        <div class="h-[64px] flex items-center px-4 border-b border-slate-700/50 gap-2">
+            <div class="w-8 h-8 rounded bg-white flex items-center justify-center">
+                <i class="fa fa-cube text-primary text-lg"></i>
+            </div>
+            <div class="leading-tight">
+                <div class="text-white text-sm font-medium">视频AI识别自进化能力平台</div>
+                <div class="text-[10px] text-slate-400">隐患违章管控系统</div>
+            </div>
+        </div>
+        <!-- 侧边菜单 -->
+        <nav class="flex-1 py-3 overflow-y-auto scrollbar-hide text-sm">
+            <div class="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-700/30 cursor-pointer">
+                <i class="fa fa-home w-5 text-center"></i>
+                <span>首页</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-700/30 cursor-pointer">
+                <i class="fa fa-video-camera w-5 text-center"></i>
+                <span>实时监控</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-700/30 cursor-pointer">
+                <i class="fa fa-history w-5 text-center"></i>
+                <span>视频管理</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-700/30 cursor-pointer">
+                <i class="fa fa-bolt w-5 text-center"></i>
+                <span>AI隐患管理</span>
+            </div>
+            <div class="menu-active flex items-center gap-3 px-4 py-2.5 cursor-pointer">
+                <i class="fa fa-exclamation-triangle w-5 text-center"></i>
+                <span>隐患违章管理</span>
+            </div>
+            <div class="pl-8 flex flex-col gap-1 py-1">
+                <div class="flex items-center gap-3 px-4 py-2 hover:bg-slate-700/30 cursor-pointer">
+                    <span>隐患查处台账</span>
+                </div>
+                <div class="menu-active flex items-center gap-3 px-4 py-2 cursor-pointer">
+                    <span>违章查处台账</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-700/30 cursor-pointer">
+                <i class="fa fa-list-alt w-5 text-center"></i>
+                <span>考核管理</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-700/30 cursor-pointer">
+                <i class="fa fa-sitemap w-5 text-center"></i>
+                <span>组织架构</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-700/30 cursor-pointer">
+                <i class="fa fa-camera w-5 text-center"></i>
+                <span>设备管理</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-700/30 cursor-pointer">
+                <i class="fa fa-cog w-5 text-center"></i>
+                <span>系统设置</span>
+            </div>
+        </nav>
+        <div class="h-10 border-t border-slate-700/50 flex items-center justify-center text-xs text-slate-400 cursor-pointer hover:text-white">
+            <i class="fa fa-angle-double-left mr-1"></i>收起菜单
+        </div>
+    </aside>
+
+    <!-- 主体区域：【组织架构侧边栏 + 页面内容】 -->
+    <div class="flex flex-1 overflow-hidden">
+        <!-- 左侧组织架构栏 -->
+        <div class="w-[260px] bg-white border-r border-borderLine overflow-y-auto p-6 flex-shrink-0">
+            <h3 class="font-semibold text-slate-800 mb-5 text-base">组织架构</h3>
+            <div class="pl-1">
+                <div class="font-medium text-primary mb-4 flex items-center gap-2">
+                    <i class="fa fa-building"></i>鞍钢矿业公司
+                </div>
+                <div class="pl-6 flex flex-col gap-4">
+                    <div class="text-slate-600 cursor-pointer hover:text-primary flex items-center gap-2 text-sm">
+                        <i class="fa fa-mine text-xs"></i>齐大山铁矿
+                    </div>
+                    <div class="text-slate-600 cursor-pointer hover:text-primary flex items-center gap-2 text-sm">
+                        <i class="fa fa-mine text-xs"></i>弓长岭铁矿
+                    </div>
+                    <div class="text-slate-600 cursor-pointer hover:text-primary flex items-center gap-2 text-sm">
+                        <i class="fa fa-mine text-xs"></i>眼前山铁矿
+                    </div>
+                    <div class="text-slate-600 cursor-pointer hover:text-primary flex items-center gap-2 text-sm">
+                        <i class="fa fa-mine text-xs"></i>东鞍山分公司
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧主内容区域 -->
+        <main class="flex-1 flex flex-col overflow-hidden">
+            <!-- 顶部栏 -->
+            <header class="h-[60px] bg-white border-b border-borderLine flex items-center justify-between px-6 flex-shrink-0">
+                <div class="flex items-center gap-2">
+                    <i class="fa fa-bars cursor-pointer"></i>
+                    <span class="text-base font-medium">隐患违章管理 / 违章查处台账</span>
+                </div>
+                <div class="flex items-center gap-6">
+                    <div class="relative cursor-pointer">
+                        <i class="fa fa-bell-o text-textSecondary text-lg"></i>
+                    </div>
+                    <div class="flex items-center gap-2 cursor-pointer">
+                        <div class="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center">
+                            <i class="fa fa-user text-textSecondary"></i>
+                        </div>
+                        <span class="text-sm">张安全 <span class="text-textLight text-xs">安全环保部·安全科</span></span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="flex-1 overflow-y-auto p-6 scrollbar-hide">
+                
+                <!-- 筛选区域 -->
+                <div class="bg-white rounded-lg p-5 mb-5 shadow-sm">
+                    <div class="grid grid-cols-5 gap-4 mb-4">
+                        <div>
+                            <label class="text-xs text-textSecondary block mb-1">发生时间：</label>
+                            <div class="flex items-center gap-1">
+                                <input type="text" value="2024-05-01" class="border border-borderLine rounded px-2 py-1.5 text-sm w-full">
+                                <span>至</span>
+                                <input type="text" value="2024-05-18" class="border border-borderLine rounded px-2 py-1.5 text-sm w-full">
+                                <i class="fa fa-calendar-o text-textSecondary"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-xs text-textSecondary block mb-1">预警来源：</label>
+                            <select class="w-full border border-borderLine rounded px-2 py-1.5 text-sm">
+                                <option>全部</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-xs text-textSecondary block mb-1">违章名称：</label>
+                            <select class="w-full border border-borderLine rounded px-2 py-1.5 text-sm">
+                                <option>全部</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-xs text-textSecondary block mb-1">违章等级：</label>
+                            <select class="w-full border border-borderLine rounded px-2 py-1.5 text-sm">
+                                <option>全部</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-xs text-textSecondary block mb-1">违章单位：</label>
+                            <input type="text" placeholder="请输入违章单位" class="w-full border border-borderLine rounded px-2 py-1.5 text-sm">
+                        </div>
+                        <div>
+                            <label class="text-xs text-textSecondary block mb-1">所属单位：</label>
+                            <select class="w-full border border-borderLine rounded px-2 py-1.5 text-sm">
+                                <option>全部</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-xs text-textSecondary block mb-1">涉及人员：</label>
+                            <input type="text" placeholder="请输入姓名/工号" class="w-full border border-borderLine rounded px-2 py-1.5 text-sm">
+                        </div>
+                        <div>
+                            <label class="text-xs text-textSecondary block mb-1">处理状态：</label>
+                            <select class="w-full border border-borderLine rounded px-2 py-1.5 text-sm">
+                                <option>全部</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-xs text-textSecondary block mb-1">处理人：</label>
+                            <input type="text" placeholder="请输入处理人" class="w-full border border-borderLine rounded px-2 py-1.5 text-sm">
+                        </div>
+                        <div>
+                            <label class="text-xs text-textSecondary block mb-1">考核人：</label>
+                            <input type="text" placeholder="请输入考核人" class="w-full border border-borderLine rounded px-2 py-1.5 text-sm">
+                        </div>
+                    </div>
+                    <div class="flex justify-end gap-3">
+                        <div class="border border-borderLine rounded px-3 py-1.5 text-sm flex items-center gap-1 cursor-pointer">
+                            展开 <i class="fa fa-angle-down"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 统计卡片行 -->
+                <div class="grid grid-cols-6 gap-4 mb-5">
+                    <div class="bg-white rounded-lg p-4 shadow-sm flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center">
+                            <i class="fa fa-list text-primary text-lg"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs text-textSecondary">全部</div>
+                            <div class="text-xl font-semibold">256 件</div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg p-4 shadow-sm flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-lg bg-red-50 flex items-center justify-center">
+                            <i class="fa fa-circle text-levelA text-lg"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs text-textSecondary">A类违章</div>
+                            <div class="text-xl font-semibold">12 件</div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg p-4 shadow-sm flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-lg bg-orange-50 flex items-center justify-center">
+                            <i class="fa fa-circle text-levelB text-lg"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs text-textSecondary">B类违章</div>
+                            <div class="text-xl font-semibold">38 件</div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg p-4 shadow-sm flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-lg bg-yellow-50 flex items-center justify-center">
+                            <i class="fa fa-circle text-levelC text-lg"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs text-textSecondary">C类违章</div>
+                            <div class="text-xl font-semibold">86 件</div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg p-4 shadow-sm flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-lg bg-green-50 flex items-center justify-center">
+                            <i class="fa fa-circle text-levelD text-lg"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs text-textSecondary">D类违章</div>
+                            <div class="text-xl font-semibold">96 件</div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg p-4 shadow-sm flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-lg bg-purple-50 flex items-center justify-center">
+                            <i class="fa fa-circle text-levelOther text-lg"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs text-textSecondary">其他类违章</div>
+                            <div class="text-xl font-semibold">24 件</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 表格区域 -->
+                <div class="bg-white rounded-lg shadow-sm">
+                    <div class="flex justify-between items-center p-4 border-b border-borderLine">
+                        <span class="text-sm">违章查处台账列表（共 256 条）</span>
+                        <div class="flex gap-3">
+                            <button class="border border-borderLine rounded px-3 py-1.5 text-sm flex items-center gap-1">
+                                <i class="fa fa-download"></i>导出
+                            </button>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-2 py-3 text-left font-normal text-textSecondary"><input type="checkbox"></th>
+                                    <th class="px-2 py-3 text-left font-normal text-textSecondary">序号</th>
+                                    <th class="px-2 py-3 text-left font-normal text-textSecondary">发生时间</th>
+                                    <th class="px-2 py-3 text-left font-normal text-textSecondary">预警来源</th>
+                                    <th class="px-2 py-3 text-left font-normal text-textSecondary">违章名称</th>
+                                    <th class="px-2 py-3 text-left font-normal text-textSecondary">违章等级</th>
+                                    <th class="px-2 py-3 text-left font-normal text-textSecondary">违章单位</th>
+                                    <th class="px-2 py-3 text-left font-normal text-textSecondary">所属单位</th>
+                                    <th class="px-2 py-3 text-left font-normal text-textSecondary">违章人员</th>
+                                    <th class="px-2 py-3 text-left font-normal text-textSecondary">违章照片</th>
+                                    <th class="px-2 py-3 text-left font-normal text-textSecondary">考核人</th>
+                                    <th class="px-2 py-3 text-left font-normal text-textSecondary">考核时间</th>
+                                    <th class="px-2 py-3 text-left font-normal text-textSecondary">考核金额(元)</th>
+                                    <th class="px-2 py-3 text-left font-normal text-textSecondary">记分</th>
+                                    <th class="px-2 py-3 text-left font-normal text-textSecondary">处理状态</th>
+                                    <th class="px-2 py-3 text-left font-normal text-textSecondary">处理人</th>
+                                    <th class="px-2 py-3 text-left font-normal text-textSecondary">处理时间</th>
+                                    <th class="px-2 py-3 text-left font-normal text-textSecondary">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b border-borderLine hover:bg-gray-50">
+                                    <td class="px-2 py-2.5"><input type="checkbox"></td>
+                                    <td class="px-2 py-2.5">1</td>
+                                    <td class="px-2 py-2.5">2024-05-18 10:24:36</td>
+                                    <td class="px-2 py-2.5"><span class="bg-blue-50 text-blue-600 px-1 rounded text-xs">AI预警-视频识别</span></td>
+                                    <td class="px-2 py-2.5">违章作业</td>
+                                    <td class="px-2 py-2.5"><span class="text-levelA font-medium">A类</span></td>
+                                    <td class="px-2 py-2.5">采矿一分区东峪658皮带巷</td>
+                                    <td class="px-2 py-2.5">采矿事业部采矿一分区</td>
+                                    <td class="px-2 py-2.5">张安全、李建国、王伟</td>
+                                    <td class="px-2 py-2.5"><div class="w-8 h-8 bg-slate-300 rounded"></div></td>
+                                    <td class="px-2 py-2.5">李强</td>
+                                    <td class="px-2 py-2.5">2024-05-18 14:00</td>
+                                    <td class="px-2 py-2.5">1000</td>
+                                    <td class="px-2 py-2.5">6</td>
+                                    <td class="px-2 py-2.5"><span class="bg-green-50 text-green-600 px-1.5 py-0.5 rounded text-xs">已处理</span></td>
+                                    <td class="px-2 py-2.5">张安全</td>
+                                    <td class="px-2 py-2.5">2024-05-18 14:05</td>
+                                    <td class="px-2 py-2.5">
+                                        <a class="text-primary cursor-pointer">详情</a>
+                                    </td>
+                                </tr>
+                                <tr class="border-b border-borderLine hover:bg-gray-50">
+                                    <td class="px-2 py-2.5"><input type="checkbox"></td>
+                                    <td class="px-2 py-2.5">2</td>
+                                    <td class="px-2 py-2.5">2024-05-18 10:21:15</td>
+                                    <td class="px-2 py-2.5"><span class="bg-green-50 text-green-600 px-1 rounded text-xs">实时巡查上报</span></td>
+                                    <td class="px-2 py-2.5">设备设施隐患</td>
+                                    <td class="px-2 py-2.5"><span class="text-levelB font-medium">B类</span></td>
+                                    <td class="px-2 py-2.5">机电动力部配电室</td>
+                                    <td class="px-2 py-2.5">采矿事业部采矿二分区</td>
+                                    <td class="px-2 py-2.5">王伟</td>
+                                    <td class="px-2 py-2.5"><div class="w-8 h-8 bg-slate-300 rounded"></div></td>
+                                    <td class="px-2 py-2.5">李强</td>
+                                    <td class="px-2 py-2.5">2024-05-18 13:00</td>
+                                    <td class="px-2 py-2.5">500</td>
+                                    <td class="px-2 py-2.5">3</td>
+                                    <td class="px-2 py-2.5"><span class="bg-green-50 text-green-600 px-1.5 py-0.5 rounded text-xs">已处理</span></td>
+                                    <td class="px-2 py-2.5">赵强</td>
+                                    <td class="px-2 py-2.5">2024-05-18 13:10</td>
+                                    <td class="px-2 py-2.5">
+                                        <!-- <a class="text-primary cursor-pointer">处理</a>
+                                        <span class="mx-1">|</span> -->
+                                        <a class="text-primary cursor-pointer">详情</a>
+                                    </td>
+                                </tr>
+                                <tr class="border-b border-borderLine hover:bg-gray-50">
+                                    <td class="px-2 py-2.5"><input type="checkbox"></td>
+                                    <td class="px-2 py-2.5">3</td>
+                                    <td class="px-2 py-2.5">2024-05-18 10:18:34</td>
+                                    <td class="px-2 py-2.5"><span class="bg-pink-50 text-pink-600 px-1 rounded text-xs">视频倒查上报</span></td>
+                                    <td class="px-2 py-2.5">未佩戴防护用品</td>
+                                    <td class="px-2 py-2.5"><span class="text-levelB font-medium">B类</span></td>
+                                    <td class="px-2 py-2.5">采矿二分区19#回采工作面</td>
+                                    <td class="px-2 py-2.5">采矿事业部采矿二分区</td>
+                                    <td class="px-2 py-2.5">刘刚等2人</td>
+                                    <td class="px-2 py-2.5"><div class="w-8 h-8 bg-slate-300 rounded"></div></td>
+                                    <td class="px-2 py-2.5">赵强</td>
+                                    <td class="px-2 py-2.5">2024-05-18 15:00</td>
+                                    <td class="px-2 py-2.5">800</td>
+                                    <td class="px-2 py-2.5">3</td>
+                                    <td class="px-2 py-2.5"><span class="bg-green-50 text-green-600 px-1.5 py-0.5 rounded text-xs">已处理</span></td>
+                                    <td class="px-2 py-2.5">赵强</td>
+                                    <td class="px-2 py-2.5">2024-05-18 15:10</td>
+                                    <td class="px-2 py-2.5">
+                                        <!-- <a class="text-primary cursor-pointer">处理</a>
+                                        <span class="mx-1">|</span> -->
+                                        <a class="text-primary cursor-pointer">详情</a>
+                                    </td>
+                                </tr>
+                                <tr class="border-b border-borderLine hover:bg-gray-50">
+                                    <td class="px-2 py-2.5"><input type="checkbox"></td>
+                                    <td class="px-2 py-2.5">5</td>
+                                    <td class="px-2 py-2.5">2024-05-18 10:12:08</td>
+                                    <td class="px-2 py-2.5"><span class="bg-blue-50 text-blue-600 px-1 rounded text-xs">AI预警-视频识别</span></td>
+                                    <td class="px-2 py-2.5">安全警示标志缺失</td>
+                                    <td class="px-2 py-2.5"><span class="text-levelC font-medium">C类</span></td>
+                                    <td class="px-2 py-2.5">外协工程部施工区域</td>
+                                    <td class="px-2 py-2.5">外协工程管理部</td>
+                                    <td class="px-2 py-2.5">陈磊</td>
+                                    <td class="px-2 py-2.5"><div class="w-8 h-8 bg-slate-300 rounded"></div></td>
+                                    <td class="px-2 py-2.5">陈磊</td>
+                                    <td class="px-2 py-2.5">2024-05-18 09:30</td>
+                                    <td class="px-2 py-2.5">300</td>
+                                    <td class="px-2 py-2.5">3</td>
+                                    <td class="px-2 py-2.5"><span class="bg-orange-50 text-orange-600 px-1.5 py-0.5 rounded text-xs">待处理</span></td>
+                                    <td class="px-2 py-2.5">-</td>
+                                    <td class="px-2 py-2.5">-</td>
+                                    <td class="px-2 py-2.5">
+                                        <a class="text-primary cursor-pointer">处理</a>
+                                        <span class="mx-1">|</span>
+                                        <a class="text-primary cursor-pointer">详情</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- 分页 -->
+                    <div class="flex justify-between items-center p-4 border-t border-borderLine text-sm">
+                        <span>共 256 条</span>
+                        <div class="flex items-center gap-2">
+                            <span>10条/页</span>
+                            <button class="border border-borderLine rounded w-7 h-7 flex items-center justify-center"><i class="fa fa-angle-left"></i></button>
+                            <button class="bg-primary text-white rounded w-7 h-7 flex items-center justify-center">1</button>
+                            <button class="border border-borderLine rounded w-7 h-7 flex items-center justify-center">2</button>
+                            <button class="border border-borderLine rounded w-7 h-7 flex items-center justify-center">3</button>
+                            <button class="border border-borderLine rounded w-7 h-7 flex items-center justify-center">4</button>
+                            <span>...</span>
+                            <button class="border border-borderLine rounded w-7 h-7 flex items-center justify-center">26</button>
+                            <button class="border border-borderLine rounded w-7 h-7 flex items-center justify-center"><i class="fa fa-angle-right"></i></button>
+                            <span>跳至</span>
+                            <input type="text" value="1" class="w-8 border border-borderLine rounded text-center py-1">
+                            <span>页</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- 右侧抽屉：详情 / 处理 -->
+    <div id="drawerRoot" class="drawer-closed fixed inset-0 z-50" aria-hidden="true">
+        <div class="drawer-mask absolute inset-0 bg-black/30" data-close-drawer></div>
+        <aside class="drawer-panel absolute right-0 top-0 h-full w-[560px] max-w-[92vw] bg-white shadow-2xl flex flex-col">
+            <div class="h-16 px-6 border-b border-borderLine flex items-center justify-between flex-shrink-0">
+                <div>
+                    <h2 id="drawerTitle" class="text-lg font-semibold">违章详情</h2>
+                    <p id="drawerSubtitle" class="text-xs text-textLight mt-0.5">查看违章记录完整信息</p>
+                </div>
+                <button type="button" class="w-8 h-8 rounded hover:bg-gray-100 text-textSecondary" data-close-drawer aria-label="关闭">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
+
+            <!-- 待处理记录详情：按 AI 违章预警字段展示 -->
+            <div id="pendingDetailDrawer" class="hidden flex-1 overflow-y-auto p-6">
+                <section class="mb-7">
+                    <h3 class="font-medium mb-5 border-l-4 border-primary pl-3">预警信息</h3>
+                    <div class="grid grid-cols-[150px_1fr] gap-y-4 text-sm">
+                        <div class="text-textSecondary">预警编号</div><div id="aiWarningNo"></div>
+                        <div class="text-textSecondary">预警时间</div><div id="aiWarningTime"></div>
+                        <div class="text-textSecondary">摄像头</div><div id="aiCamera"></div>
+                        <div class="text-textSecondary">违章人员</div><div id="aiPeople"></div>
+                        <div class="text-textSecondary">识别结果</div><div id="aiResult"></div>
+                        <div class="text-textSecondary">置信度</div><div>92.6%</div>
+                        <div class="text-textSecondary">违章等级</div>
+                        <div><span class="inline-block w-3 h-3 rounded-full bg-orange-500 mr-2"></span><span id="aiLevel"></span>类违章</div>
+                        <div class="text-textSecondary">复核状态</div><div class="text-green-500">已复核</div>
+                    </div>
+                </section>
+                <section class="mb-7">
+                    <h3 class="font-medium mb-5 border-l-4 border-primary pl-3">预警截图</h3>
+                    <div class="h-36 bg-slate-100 rounded-lg border border-borderLine flex flex-col items-center justify-center text-textLight">
+                        <i class="fa fa-image text-3xl mb-2"></i><span class="text-sm">AI预警截图</span>
+                    </div>
+                </section>
+                <section class="mb-7">
+                    <h3 class="font-medium mb-5 border-l-4 border-primary pl-3">预警视频</h3>
+                    <div class="h-48 bg-slate-100 rounded-lg border border-borderLine flex flex-col items-center justify-center text-textLight">
+                        <span class="w-12 h-12 rounded-full bg-white shadow flex items-center justify-center mb-2"><i class="fa fa-play text-primary ml-1"></i></span>
+                        <span class="text-sm">点击播放预警视频</span>
+                    </div>
+                </section>
+                <section class="mb-7">
+                    <h3 class="font-medium mb-5 border-l-4 border-primary pl-3">作业信息</h3>
+                    <div class="grid grid-cols-[150px_1fr] gap-y-4 text-sm">
+                        <div class="text-textSecondary">作业类型</div><div>生产作业</div>
+                        <div class="text-textSecondary">二级分类</div><div>现场安全管理</div>
+                        <div class="text-textSecondary">作业内容</div><div id="aiWorkContent"></div>
+                        <div class="text-textSecondary">作业区域/位置</div><div id="aiWorkArea"></div>
+                        <div class="text-textSecondary">作业日期</div><div id="aiWorkDate"></div>
+                        <div class="text-textSecondary">作业单位</div><div id="aiWorkUnit"></div>
+                        <div class="text-textSecondary">是否危险作业</div><div>是</div>
+                        <div class="text-textSecondary">所属单位</div><div id="aiOrg"></div>
+                    </div>
+                </section>
+                <section class="mb-7">
+                    <h3 class="font-medium mb-5 border-l-4 border-primary pl-3">考核处理信息</h3>
+                    <div id="aiAssessmentCard" class="bg-orange-50 border border-orange-100 rounded-lg p-4 grid grid-cols-2 gap-4 text-sm">
+                        <div><div class="text-textLight text-xs mb-1">考核结论</div><div id="aiAssessmentConclusion" class="text-orange-600">待填写</div></div>
+                        <div><div class="text-textLight text-xs mb-1">处理状态</div><div id="aiProcessStatus" class="text-orange-600">待处理</div></div>
+                        <div><div class="text-textLight text-xs mb-1">考核金额</div><div id="aiAssessmentAmount">--</div></div>
+                        <div><div class="text-textLight text-xs mb-1">记分</div><div id="aiAssessmentScore">--</div></div>
+                        <div class="col-span-2"><div class="text-textLight text-xs mb-1">考核说明</div><div id="aiEducation">待处理时填写</div></div>
+                        <div class="col-span-2"><div class="text-textLight text-xs mb-1">处理人/时间</div><div id="aiHandlerInfo">--</div></div>
+                        <div id="aiEvidenceBlock" class="hidden col-span-2">
+                            <div class="text-textLight text-xs mb-2">整改凭证</div>
+                            <div class="flex items-center gap-3">
+                                <div class="w-24 h-20 bg-white border border-green-200 rounded-lg flex flex-col items-center justify-center text-green-600">
+                                    <i class="fa fa-image text-xl mb-1"></i><span class="text-xs">整改照片</span>
+                                </div>
+                                <div class="text-xs text-textSecondary leading-5">整改现场凭证<br><span class="text-green-600">已上传 1 张</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <section>
+                    <h3 class="font-medium mb-5 border-l-4 border-primary pl-3">复核结果</h3>
+                    <div class="bg-green-50 border border-green-200 rounded-lg p-5">
+                        <div class="text-green-600 font-medium mb-4"><i class="fa fa-check-circle mr-2"></i>已复核</div>
+                        <div class="bg-red-50/60 border border-red-200 rounded-lg p-4 text-sm">
+                            <div class="text-red-500 font-medium border-b border-red-100 pb-3 mb-4">
+                                <span class="inline-flex w-6 h-6 bg-red-500 text-white rounded items-center justify-center mr-2">1</span>复核结果：确认违章
+                            </div>
+                            <div class="grid grid-cols-[115px_1fr] gap-y-3">
+                                <div class="text-textSecondary">复核结果</div><div class="text-red-500">确认违章</div>
+                                <div class="text-textSecondary">复核人</div><div id="reviewerName"></div>
+                                <div class="text-textSecondary">复核时间</div><div id="reviewTime"></div>
+                                <div class="text-textSecondary">违章人员</div><div id="reviewPeople"></div>
+                                <div class="text-textSecondary">违章等级</div><div><span id="reviewLevel"></span>类违章</div>
+                                <div class="text-textSecondary">违章名称</div><div id="reviewName"></div>
+                                <div class="text-textSecondary">违章条款/依据</div><div>《安全生产管理办法》第三章第十五条：作业人员进入作业现场必须按规定佩戴安全防护用品并遵守现场安全要求。</div>
+                                <div class="text-textSecondary">备注说明</div><div>--</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <div id="detailDrawer" class="flex-1 overflow-y-auto p-6">
+                <div class="flex items-center justify-between bg-blue-50 rounded-lg p-4 mb-6">
+                    <div>
+                        <div class="text-xs text-textSecondary">记录编号</div>
+                        <div id="detailNo" class="font-medium mt-1">WZ-20240518-001</div>
+                    </div>
+                    <span id="detailStatus" class="bg-green-100 text-green-700 px-2.5 py-1 rounded-full text-xs">已处理</span>
+                </div>
+                <section class="mb-6">
+                    <h3 class="font-medium mb-3 border-l-4 border-primary pl-2">基本信息</h3>
+                    <div class="grid grid-cols-2 gap-x-6 gap-y-4 text-sm">
+                        <div><div class="text-textLight text-xs mb-1">发生时间</div><div id="detailTime"></div></div>
+                        <div><div class="text-textLight text-xs mb-1">预警来源</div><div id="detailSource"></div></div>
+                        <div><div class="text-textLight text-xs mb-1">违章类型</div><div id="detailType"></div></div>
+                        <div><div class="text-textLight text-xs mb-1">违章等级</div><div id="detailLevel"></div></div>
+                        <div class="col-span-2"><div class="text-textLight text-xs mb-1">违章单位</div><div id="detailUnit"></div></div>
+                        <div class="col-span-2"><div class="text-textLight text-xs mb-1">所属单位</div><div id="detailOrg"></div></div>
+                        <div><div class="text-textLight text-xs mb-1">违章人员</div><div id="detailPeople"></div></div>
+                        <div><div class="text-textLight text-xs mb-1">考核金额</div><div><span id="detailAmount"></span> 元</div></div>
+                    </div>
+                </section>
+                <section class="mb-6">
+                    <h3 class="font-medium mb-3 border-l-4 border-primary pl-2">现场照片</h3>
+                    <div class="h-44 bg-slate-100 rounded-lg border border-borderLine flex flex-col items-center justify-center text-textLight">
+                        <i class="fa fa-image text-3xl mb-2"></i><span class="text-sm">违章现场照片</span>
+                    </div>
+                </section>
+                <section>
+                    <h3 class="font-medium mb-3 border-l-4 border-primary pl-2">考核处理信息</h3>
+                    <div class="bg-gray-50 rounded-lg p-4 grid grid-cols-2 gap-4 text-sm">
+                        <div><div class="text-textLight text-xs mb-1">考核结论</div><div id="detailConclusion" class="font-medium"></div></div>
+                        <div><div class="text-textLight text-xs mb-1">处理状态</div><div id="detailProcessStatus" class="text-green-600"></div></div>
+                        <div><div class="text-textLight text-xs mb-1">考核金额</div><div><span id="detailProcessAmount"></span><span id="detailAmountUnit"> 元</span></div></div>
+                        <div><div class="text-textLight text-xs mb-1">记分</div><div id="detailScore"></div></div>
+                        <div class="col-span-2"><div class="text-textLight text-xs mb-1">考核说明</div><div id="detailEducation"></div></div>
+                        <div><div class="text-textLight text-xs mb-1">考核人</div><div id="detailAssessor"></div></div>
+                        <div><div class="text-textLight text-xs mb-1">考核时间</div><div id="detailAssessTime"></div></div>
+                        <div><div class="text-textLight text-xs mb-1">处理人</div><div id="detailHandler"></div></div>
+                        <div><div class="text-textLight text-xs mb-1">处理时间</div><div id="detailHandleTime"></div></div>
+                    </div>
+                </section>
+            </div>
+
+            <form id="processDrawer" class="hidden flex-1 overflow-y-auto p-6">
+                <div class="bg-orange-50 border border-orange-100 rounded-lg p-4 mb-6 text-sm">
+                    正在处理记录：<span id="processSummary" class="font-medium"></span>
+                </div>
+                <div class="space-y-5">
+                    <div>
+                        <label class="text-sm font-medium block mb-2">考核结论 <span class="text-red-500">*</span></label>
+                        <div class="grid grid-cols-2 gap-3 text-sm">
+                            <label class="border border-primary bg-blue-50 rounded-lg p-3 flex items-center gap-2 cursor-pointer assessment-option">
+                                <input type="radio" name="assessmentResult" value="考核金额" checked class="accent-blue-600"> 
+                                <span><strong class="block font-medium">考核金额</strong><small class="text-textLight">罚款并进行记分处理</small></span>
+                            </label>
+                            <label class="border border-borderLine rounded-lg p-3 flex items-center gap-2 cursor-pointer assessment-option">
+                                <input type="radio" name="assessmentResult" value="教育改正" class="accent-blue-600">
+                                <span><strong class="block font-medium">教育改正</strong><small class="text-textLight">仅教育整改，不罚款记分</small></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div id="penaltyFields" class="grid grid-cols-2 gap-4 bg-gray-50 rounded-lg p-4">
+                        <div>
+                            <label class="text-sm font-medium block mb-2">考核金额（元）<span class="text-red-500">*</span></label>
+                            <input id="assessmentAmount" type="number" min="0" step="1" required placeholder="请输入考核金额" class="w-full border border-borderLine rounded px-3 py-2 text-sm focus:outline-none focus:border-primary">
+                        </div>
+                        <div>
+                            <label class="text-sm font-medium block mb-2">记分 <span class="text-red-500">*</span></label>
+                            <input id="assessmentScore" type="number" min="0" step="1" required placeholder="请输入记分" class="w-full border border-borderLine rounded px-3 py-2 text-sm focus:outline-none focus:border-primary">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-sm font-medium block mb-2">处理人 <span class="text-red-500">*</span></label>
+                        <input id="processPerson" required value="张安全" class="w-full border border-borderLine rounded px-3 py-2 text-sm focus:outline-none focus:border-primary">
+                    </div>
+                    <div>
+                        <label class="text-sm font-medium block mb-2">考核说明 <span class="text-red-500">*</span></label>
+                        <textarea id="processNote" required rows="5" placeholder="请输入考核依据、教育改正或处理说明" class="w-full border border-borderLine rounded px-3 py-2 text-sm resize-none focus:outline-none focus:border-primary"></textarea>
+                        <div class="text-right text-xs text-textLight mt-1"><span id="noteCount">0</span>/500</div>
+                    </div>
+                    <div>
+                        <label class="text-sm font-medium block mb-2">整改凭证</label>
+                        <button type="button" class="w-full h-28 border border-dashed border-borderLine rounded-lg text-textLight hover:border-primary hover:text-primary">
+                            <i class="fa fa-cloud-upload text-xl block mb-2"></i><span class="text-sm">点击上传图片</span>
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <div id="drawerFooter" class="h-[68px] px-6 border-t border-borderLine flex items-center justify-end gap-3 flex-shrink-0">
+                <button type="button" class="border border-borderLine rounded px-5 py-2 text-sm hover:bg-gray-50" data-close-drawer>关闭</button>
+                <button id="submitProcess" type="button" class="hidden bg-primary text-white rounded px-5 py-2 text-sm hover:bg-blue-700">提交处理</button>
+            </div>
+        </aside>
+    </div>
+    <!-- GIS 标注查看弹窗 -->
+    <div id="gisModal" class="hidden fixed inset-0 z-[60] bg-black/45 flex items-center justify-center p-5"><div class="w-[720px] max-w-[95vw] bg-white rounded-xl shadow-2xl overflow-hidden"><div class="h-14 px-5 border-b flex items-center justify-between"><h3 class="font-semibold text-lg">XXXX楼栋-楼层（或者室外位置信息）</h3><button type="button" data-gis-close><i class="fa fa-times text-textLight"></i></button></div><div class="p-5"><p class="text-sm text-textSecondary mb-3">当前记录的作业区域标注位置。</p><div class="relative h-[360px] overflow-hidden rounded-lg bg-[#203b5a]" style="background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:32px 32px"><span class="absolute left-3 top-3 text-xs text-slate-400">矿区GIS底图 · 2.5D</span><div class="absolute left-0 top-[52%] w-full h-[2px] bg-slate-400/25 -rotate-[5deg]"></div><div class="absolute left-[30%] top-0 w-[2px] h-full bg-slate-400/20 rotate-[8deg]"></div><div id="gisMarker" class="absolute -translate-x-1/2 -translate-y-full text-red-500 text-3xl drop-shadow"><i class="fa fa-map-marker"></i></div><span class="absolute right-3 bottom-3 text-xs text-slate-400">比例尺 1:500</span></div><p class="mt-3 text-sm text-textSecondary">坐标：<span id="gisCoordinate"></span></p></div><div class="h-16 px-5 border-t flex justify-end items-center"><button type="button" data-gis-close class="border border-borderLine rounded px-5 py-2">关闭</button></div></div></div>
+    <script src="navigation.js?v=20260819-2"></script>
+    <script>
+        (() => {
+            const root = document.getElementById('drawerRoot');
+            const detail = document.getElementById('detailDrawer');
+            const pendingDetail = document.getElementById('pendingDetailDrawer');
+            const process = document.getElementById('processDrawer');
+            const submit = document.getElementById('submitProcess');
+            const penaltyFields = document.getElementById('penaltyFields');
+            const assessmentAmount = document.getElementById('assessmentAmount');
+            const assessmentScore = document.getElementById('assessmentScore');
+            let activeRow = null;
+
+            const text = (row, index) => row.cells[index]?.innerText.trim() || '-';
+            const setText = (id, value) => { document.getElementById(id).textContent = value; };
+            const openDrawer = () => {
+                root.classList.remove('drawer-closed');
+                root.setAttribute('aria-hidden', 'false');
+            };
+            const closeDrawer = () => {
+                root.classList.add('drawer-closed');
+                root.setAttribute('aria-hidden', 'true');
+            };
+            const updateAssessmentFields = () => {
+                const isPenalty = document.querySelector('input[name="assessmentResult"]:checked').value === '考核金额';
+                penaltyFields.classList.toggle('hidden', !isPenalty);
+                assessmentAmount.required = isPenalty;
+                assessmentScore.required = isPenalty;
+                document.querySelectorAll('.assessment-option').forEach(label => {
+                    const selected = label.querySelector('input').checked;
+                    label.classList.toggle('border-primary', selected);
+                    label.classList.toggle('bg-blue-50', selected);
+                    label.classList.toggle('border-borderLine', !selected);
+                });
+                if (!isPenalty) {
+                    assessmentAmount.value = '';
+                    assessmentScore.value = '';
+                }
+            };
+
+            function showDetail(row) {
+                activeRow = row;
+                const isPending = text(row, 14) === '待处理';
+                const hasMonetaryAssessment = text(row, 12) !== '-' && text(row, 12) !== '0';
+                const number = text(row, 1).padStart(3, '0');
+                const date = text(row, 2).slice(0, 10);
+                document.getElementById('drawerTitle').textContent = text(row, 3).includes('AI') ? 'AI违章预警详情' : '违章预警详情';
+                document.getElementById('drawerSubtitle').textContent = '查看识别、作业、复核及考核处理信息';
+                detail.classList.add('hidden');
+                pendingDetail.classList.remove('hidden');
+                process.classList.add('hidden');
+                submit.classList.add('hidden');
+                setText('aiWarningNo', `YJ${text(row, 2).replace(/[- :]/g, '')}${number}`);
+                setText('aiWarningTime', text(row, 2));
+                setText('aiCamera', `${text(row, 6)}固定摄像头（固定）`);
+                setText('aiPeople', text(row, 8));
+                setText('aiResult', text(row, 4));
+                setText('aiLevel', text(row, 5).replace('类', ''));
+                setText('aiWorkContent', `${text(row, 6)}现场作业`);
+                const markerX = ((28 + Number(text(row, 1)) * 9.37) % 82).toFixed(2);
+                const markerY = ((35 + Number(text(row, 1)) * 7.11) % 78).toFixed(2);
+                document.getElementById('aiWorkArea').innerHTML = `${text(row, 6)}<button type="button" data-view-gis data-gis-x="${markerX}" data-gis-y="${markerY}" class="ml-3 border border-primary rounded px-2 py-1 text-primary hover:bg-blue-50">查看位置</button>`;
+                setText('aiWorkDate', date);
+                setText('aiWorkUnit', text(row, 7));
+                setText('aiOrg', text(row, 7));
+                setText('reviewPeople', text(row, 8));
+                setText('reviewerName', text(row, 10));
+                setText('reviewTime', text(row, 11));
+                setText('reviewLevel', text(row, 5).replace('类', ''));
+                setText('reviewName', text(row, 4));
+
+                const assessmentCard = document.getElementById('aiAssessmentCard');
+                assessmentCard.classList.toggle('bg-orange-50', isPending);
+                assessmentCard.classList.toggle('border-orange-100', isPending);
+                assessmentCard.classList.toggle('bg-green-50', !isPending);
+                assessmentCard.classList.toggle('border-green-200', !isPending);
+                setText('aiAssessmentConclusion', isPending ? '待填写' : (hasMonetaryAssessment ? '考核金额' : '教育改正'));
+                setText('aiProcessStatus', text(row, 14));
+                setText('aiAssessmentAmount', isPending ? '--' : (hasMonetaryAssessment ? `${text(row, 12)} 元` : '--'));
+                setText('aiAssessmentScore', isPending ? '--' : (hasMonetaryAssessment ? `${text(row, 13)} 分` : '--'));
+                setText('aiEducation', isPending ? '待处理时填写' : (hasMonetaryAssessment ? '已完成安全教育，并按规定进行罚款记分' : '已完成教育改正，不进行罚款及记分处理'));
+                setText('aiHandlerInfo', isPending ? '--' : `${text(row, 15)} / ${text(row, 16)}`);
+                document.getElementById('aiEvidenceBlock').classList.toggle('hidden', isPending);
+                document.getElementById('aiAssessmentConclusion').className = isPending ? 'text-orange-600' : 'text-green-600 font-medium';
+                document.getElementById('aiProcessStatus').className = isPending ? 'text-orange-600' : 'text-green-600 font-medium';
+                openDrawer();
+            }
+
+            function showProcess(row) {
+                activeRow = row;
+                document.getElementById('drawerTitle').textContent = '违章处理';
+                document.getElementById('drawerSubtitle').textContent = '填写考核结论及处理信息';
+                setText('processSummary', `${text(row, 4)} · ${text(row, 6)}`);
+                detail.classList.add('hidden');
+                pendingDetail.classList.add('hidden');
+                process.classList.remove('hidden');
+                submit.classList.remove('hidden');
+                updateAssessmentFields();
+                openDrawer();
+            }
+
+            document.querySelector('tbody').addEventListener('click', event => {
+                const action = event.target.closest('a');
+                if (!action) return;
+                const row = action.closest('tr');
+                if (action.textContent.trim() === '详情') showDetail(row);
+                if (action.textContent.trim() === '处理') showProcess(row);
+            });
+            document.querySelectorAll('[data-close-drawer]').forEach(el => el.addEventListener('click', closeDrawer));
+            const gisModal = document.getElementById('gisModal');
+            document.getElementById('aiWorkArea').addEventListener('click', event => {
+                const link = event.target.closest('[data-view-gis]');
+                if (!link) return;
+                document.getElementById('gisMarker').style.left = `${link.dataset.gisX}%`;
+                document.getElementById('gisMarker').style.top = `${link.dataset.gisY}%`;
+                document.getElementById('gisCoordinate').textContent = `X ${link.dataset.gisX}, Y ${link.dataset.gisY}`;
+                gisModal.classList.remove('hidden');
+            });
+            document.querySelectorAll('[data-gis-close]').forEach(el => el.addEventListener('click', () => gisModal.classList.add('hidden')));
+            document.querySelectorAll('input[name="assessmentResult"]').forEach(input => input.addEventListener('change', updateAssessmentFields));
+            document.addEventListener('keydown', event => { if (event.key === 'Escape') closeDrawer(); });
+            document.getElementById('processNote').addEventListener('input', event => {
+                if (event.target.value.length > 500) event.target.value = event.target.value.slice(0, 500);
+                document.getElementById('noteCount').textContent = event.target.value.length;
+            });
+            submit.addEventListener('click', () => {
+                if (!process.reportValidity()) return;
+                const person = document.getElementById('processPerson').value.trim();
+                const conclusion = document.querySelector('input[name="assessmentResult"]:checked').value;
+                const now = new Date();
+                const stamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+                activeRow.cells[12].textContent = conclusion === '考核金额' ? assessmentAmount.value : '-';
+                activeRow.cells[13].textContent = conclusion === '考核金额' ? assessmentScore.value : '-';
+                activeRow.cells[14].innerHTML = '<span class="bg-green-50 text-green-600 px-1.5 py-0.5 rounded text-xs">已处理</span>';
+                activeRow.cells[15].textContent = person;
+                activeRow.cells[16].textContent = stamp;
+                activeRow.cells[17].innerHTML = '<a class="text-primary cursor-pointer">详情</a>';
+                closeDrawer();
+                document.getElementById('processNote').value = '';
+                document.getElementById('noteCount').textContent = '0';
+            });
+        })();
+    </script>
+<script src="org-panel-toggle.js?v=20260822-2"></script>
+</body>
+</html>

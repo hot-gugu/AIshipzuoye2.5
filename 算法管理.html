@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI智能分析 / 算法管理</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#2563EB',
+            primaryLight: '#EFF6FF',
+            sidebarBg: '#0F172A',
+            sidebarHover: '#1E293B',
+            pageBg: '#F8FAFC',
+            positiveTag: '#10B981',
+            dangerTag: '#EF4444',
+            warningTag: '#F59E0B',
+            borderLine: '#E2E8F0',
+            textMain: '#1E293B',
+            textSub: '#64748B',
+            textLight: '#94A3B8',
+            violationBg: '#FEF2F2',
+            violationText: '#EF4444',
+            hazardBg: '#ECFDF5',
+            hazardText: '#10B981',
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto { content-visibility: auto; }
+      .scrollbar-thin::-webkit-scrollbar { width:4px;height:4px; }
+      .scrollbar-thin::-webkit-scrollbar-thumb { background:#CBD5E1; border-radius:4px; }
+      .scrollbar-thin::-webkit-scrollbar-track { background:transparent; }
+      .tree-item:hover { background-color: #F1F5F9; }
+      .tree-item.active { color: #2563EB; background-color: #EFF6FF; }
+    }
+  </style>
+</head>
+<body class="bg-pageBg font-sans h-screen overflow-hidden text-textMain">
+<div class="flex h-full w-full">
+  <!-- 左侧侧边栏 -->
+  <aside></aside>
+
+  <!-- 主内容区域 -->
+  <div class="flex-1 flex flex-col overflow-hidden">
+    <!-- 顶部导航栏 -->
+    <header class="h-14 bg-white border-b border-borderLine flex items-center justify-between px-5 shrink-0">
+      <div class="flex items-center gap-4">
+        <button class="text-textSub hover:text-textMain"><i class="fa fa-bars"></i></button>
+        <div class="text-sm">
+          <span class="text-textSub">AI智能分析</span>
+          <span class="mx-2 text-textLight">/</span>
+          <span class="font-medium text-textMain">算法管理</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-5">
+        <button class="relative text-textSub hover:text-textMain">
+          <i class="fa fa-bell-o text-lg"></i>
+          <span class="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center">11</span>
+        </button>
+        <button class="text-textSub hover:text-textMain">
+          <i class="fa fa-question-circle-o text-lg"></i>
+        </button>
+        <div class="flex items-center gap-2 cursor-pointer">
+          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-sm font-medium">张</div>
+          <div class="text-sm leading-tight">
+            <div class="font-medium text-textMain">张安全</div>
+            <div class="text-[11px] text-textSub">安全环保部·管理员</div>
+          </div>
+          <i class="fa fa-angle-down text-textLight text-xs"></i>
+        </div>
+      </div>
+    </header>
+
+    <!-- 主内容滚动区 -->
+    <main class="flex-1 overflow-y-auto scrollbar-thin p-4">
+      <!-- 筛选栏 -->
+      <div class="bg-white rounded-lg border border-borderLine p-4 mb-4 flex items-center gap-4 flex-wrap">
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-textSub">算法类型：</span>
+          <div class="relative">
+            <select class="w-44 border border-borderLine rounded-md px-3 py-1.5 text-xs bg-white appearance-none focus:outline-none focus:border-primary">
+              <option>请选择算法类型</option>
+            </select>
+            <i class="fa fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-textLight text-[10px] pointer-events-none"></i>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-textSub">算法处置方式：</span>
+          <div class="relative">
+            <select class="w-44 border border-borderLine rounded-md px-3 py-1.5 text-xs bg-white appearance-none focus:outline-none focus:border-primary">
+              <option>请选择处置方式</option>
+            </select>
+            <i class="fa fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-textLight text-[10px] pointer-events-none"></i>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-textSub">分析模型：</span>
+          <div class="relative">
+            <select class="w-44 border border-borderLine rounded-md px-3 py-1.5 text-xs bg-white appearance-none focus:outline-none focus:border-primary">
+              <option>请选择分析模型</option>
+            </select>
+            <i class="fa fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-textLight text-[10px] pointer-events-none"></i>
+          </div>
+        </div>
+        <div class="relative flex-1 max-w-xs ml-2">
+          <i class="fa fa-search absolute left-3 top-1/2 -translate-y-1/2 text-textLight text-xs pointer-events-none"></i>
+          <input class="w-full border border-borderLine rounded-md pl-8 pr-3 py-1.5 text-xs focus:outline-none focus:border-primary" placeholder="请输入算法名称或编码"/>
+        </div>
+      </div>
+
+      <!-- 算法列表 -->
+      <div class="bg-white rounded-lg border border-borderLine p-4">
+        <div class="text-sm font-medium text-textMain mb-4">算法列表</div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="text-textSub bg-slate-50/50">
+                <th class="text-center px-4 py-3 font-medium w-16">序号</th>
+                <th class="text-left px-4 py-3 font-medium">算法名称</th>
+                <th class="text-left px-4 py-3 font-medium">算法编码</th>
+                <th class="text-left px-4 py-3 font-medium">算法类型</th>
+                <th class="text-left px-4 py-3 font-medium">分析模型</th>
+                <th class="text-center px-4 py-3 font-medium">算法处置方式</th>
+                <th class="text-center px-4 py-3 font-medium w-48">操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="border-t border-borderLine hover:bg-slate-50/50">
+                <td class="px-4 py-3.5 text-center text-textSub">1</td>
+                <td class="px-4 py-3.5 text-textMain font-medium">安全帽识别</td>
+                <td class="px-4 py-3.5 text-textSub font-mono text-xs">ALG-PS-0001</td>
+                <td class="px-4 py-3.5 text-textSub">行为识别</td>
+                <td class="px-4 py-3.5 text-textSub">安全生产视觉分析模型V2.1</td>
+                <td class="px-4 py-3.5 text-center">
+                  <span class="bg-violationBg text-violationText text-xs px-2.5 py-1 rounded-md font-medium">违章</span>
+                </td>
+                <td class="px-4 py-3.5 text-center">
+                  <a href="#" class="text-primary hover:underline text-xs mr-3">详情</a>
+                  <a href="#" class="text-primary hover:underline text-xs mr-3">编辑</a>
+                  <a href="#" class="text-primary hover:underline text-xs inline-flex items-center gap-1">
+                    更多<i class="fa fa-angle-down text-[10px]"></i>
+                  </a>
+                </td>
+              </tr>
+              <tr class="border-t border-borderLine hover:bg-slate-50/50">
+                <td class="px-4 py-3.5 text-center text-textSub">2</td>
+                <td class="px-4 py-3.5 text-textMain font-medium">未佩戴安全帽识别</td>
+                <td class="px-4 py-3.5 text-textSub font-mono text-xs">ALG-PS-0002</td>
+                <td class="px-4 py-3.5 text-textSub">行为识别</td>
+                <td class="px-4 py-3.5 text-textSub">安全生产视觉分析模型V2.1</td>
+                <td class="px-4 py-3.5 text-center">
+                  <span class="bg-violationBg text-violationText text-xs px-2.5 py-1 rounded-md font-medium">违章</span>
+                </td>
+                <td class="px-4 py-3.5 text-center">
+                  <a href="#" class="text-primary hover:underline text-xs mr-3">详情</a>
+                  <a href="#" class="text-primary hover:underline text-xs mr-3">编辑</a>
+                  <a href="#" class="text-primary hover:underline text-xs inline-flex items-center gap-1">
+                    更多<i class="fa fa-angle-down text-[10px]"></i>
+                  </a>
+                </td>
+              </tr>
+              <tr class="border-t border-borderLine hover:bg-slate-50/50">
+                <td class="px-4 py-3.5 text-center text-textSub">3</td>
+                <td class="px-4 py-3.5 text-textMain font-medium">反光衣识别</td>
+                <td class="px-4 py-3.5 text-textSub font-mono text-xs">ALG-PS-0003</td>
+                <td class="px-4 py-3.5 text-textSub">行为识别</td>
+                <td class="px-4 py-3.5 text-textSub">安全生产视觉分析模型V2.0</td>
+                <td class="px-4 py-3.5 text-center">
+                  <span class="bg-violationBg text-violationText text-xs px-2.5 py-1 rounded-md font-medium">违章</span>
+                </td>
+                <td class="px-4 py-3.5 text-center">
+                  <a href="#" class="text-primary hover:underline text-xs mr-3">详情</a>
+                  <a href="#" class="text-primary hover:underline text-xs mr-3">编辑</a>
+                  <a href="#" class="text-primary hover:underline text-xs inline-flex items-center gap-1">
+                    更多<i class="fa fa-angle-down text-[10px]"></i>
+                  </a>
+                </td>
+              </tr>
+              <tr class="border-t border-borderLine hover:bg-slate-50/50">
+                <td class="px-4 py-3.5 text-center text-textSub">4</td>
+                <td class="px-4 py-3.5 text-textMain font-medium">抽烟识别</td>
+                <td class="px-4 py-3.5 text-textSub font-mono text-xs">ALG-PS-0004</td>
+                <td class="px-4 py-3.5 text-textSub">行为识别</td>
+                <td class="px-4 py-3.5 text-textSub">安全生产视觉分析模型V2.0</td>
+                <td class="px-4 py-3.5 text-center">
+                  <span class="bg-violationBg text-violationText text-xs px-2.5 py-1 rounded-md font-medium">违章</span>
+                </td>
+                <td class="px-4 py-3.5 text-center">
+                  <a href="#" class="text-primary hover:underline text-xs mr-3">详情</a>
+                  <a href="#" class="text-primary hover:underline text-xs mr-3">编辑</a>
+                  <a href="#" class="text-primary hover:underline text-xs inline-flex items-center gap-1">
+                    更多<i class="fa fa-angle-down text-[10px]"></i>
+                  </a>
+                </td>
+              </tr>
+              <tr class="border-t border-borderLine hover:bg-slate-50/50">
+                <td class="px-4 py-3.5 text-center text-textSub">5</td>
+                <td class="px-4 py-3.5 text-textMain font-medium">离岗识别</td>
+                <td class="px-4 py-3.5 text-textSub font-mono text-xs">ALG-PS-0005</td>
+                <td class="px-4 py-3.5 text-textSub">行为识别</td>
+                <td class="px-4 py-3.5 text-textSub">安全生产视觉分析模型V2.0</td>
+                <td class="px-4 py-3.5 text-center">
+                  <span class="bg-violationBg text-violationText text-xs px-2.5 py-1 rounded-md font-medium">违章</span>
+                </td>
+                <td class="px-4 py-3.5 text-center">
+                  <a href="#" class="text-primary hover:underline text-xs mr-3">详情</a>
+                  <a href="#" class="text-primary hover:underline text-xs mr-3">编辑</a>
+                  <a href="#" class="text-primary hover:underline text-xs inline-flex items-center gap-1">
+                    更多<i class="fa fa-angle-down text-[10px]"></i>
+                  </a>
+                </td>
+              </tr>
+              <tr class="border-t border-borderLine hover:bg-slate-50/50">
+                <td class="px-4 py-3.5 text-center text-textSub">6</td>
+                <td class="px-4 py-3.5 text-textMain font-medium">区域入侵识别</td>
+                <td class="px-4 py-3.5 text-textSub font-mono text-xs">ALG-PS-0006</td>
+                <td class="px-4 py-3.5 text-textSub">行为识别</td>
+                <td class="px-4 py-3.5 text-textSub">安全生产视觉分析模型V2.1</td>
+                <td class="px-4 py-3.5 text-center">
+                  <span class="bg-violationBg text-violationText text-xs px-2.5 py-1 rounded-md font-medium">违章</span>
+                </td>
+                <td class="px-4 py-3.5 text-center">
+                  <a href="#" class="text-primary hover:underline text-xs mr-3">详情</a>
+                  <a href="#" class="text-primary hover:underline text-xs mr-3">编辑</a>
+                  <a href="#" class="text-primary hover:underline text-xs inline-flex items-center gap-1">
+                    更多<i class="fa fa-angle-down text-[10px]"></i>
+                  </a>
+                </td>
+              </tr>
+              <tr class="border-t border-borderLine hover:bg-slate-50/50">
+                <td class="px-4 py-3.5 text-center text-textSub">7</td>
+                <td class="px-4 py-3.5 text-textMain font-medium">明火识别</td>
+                <td class="px-4 py-3.5 text-textSub font-mono text-xs">ALG-EN-0001</td>
+                <td class="px-4 py-3.5 text-textSub">环境与设备</td>
+                <td class="px-4 py-3.5 text-textSub">火焰烟火检测模型V1.8</td>
+                <td class="px-4 py-3.5 text-center">
+                  <span class="bg-hazardBg text-hazardText text-xs px-2.5 py-1 rounded-md font-medium">隐患</span>
+                </td>
+                <td class="px-4 py-3.5 text-center">
+                  <a href="#" class="text-primary hover:underline text-xs mr-3">详情</a>
+                  <a href="#" class="text-primary hover:underline text-xs mr-3">编辑</a>
+                  <a href="#" class="text-primary hover:underline text-xs inline-flex items-center gap-1">
+                    更多<i class="fa fa-angle-down text-[10px]"></i>
+                  </a>
+                </td>
+              </tr>
+              <tr class="border-t border-borderLine hover:bg-slate-50/50">
+                <td class="px-4 py-3.5 text-center text-textSub">8</td>
+                <td class="px-4 py-3.5 text-textMain font-medium">烟雾识别</td>
+                <td class="px-4 py-3.5 text-textSub font-mono text-xs">ALG-EN-0002</td>
+                <td class="px-4 py-3.5 text-textSub">环境与设备</td>
+                <td class="px-4 py-3.5 text-textSub">火焰烟火检测模型V1.8</td>
+                <td class="px-4 py-3.5 text-center">
+                  <span class="bg-hazardBg text-hazardText text-xs px-2.5 py-1 rounded-md font-medium">隐患</span>
+                </td>
+                <td class="px-4 py-3.5 text-center">
+                  <a href="#" class="text-primary hover:underline text-xs mr-3">详情</a>
+                  <a href="#" class="text-primary hover:underline text-xs mr-3">编辑</a>
+                  <a href="#" class="text-primary hover:underline text-xs inline-flex items-center gap-1">
+                    更多<i class="fa fa-angle-down text-[10px]"></i>
+                  </a>
+                </td>
+              </tr>
+              <tr class="border-t border-borderLine hover:bg-slate-50/50">
+                <td class="px-4 py-3.5 text-center text-textSub">9</td>
+                <td class="px-4 py-3.5 text-textMain font-medium">动火作业识别</td>
+                <td class="px-4 py-3.5 text-textSub font-mono text-xs">ALG-EN-0003</td>
+                <td class="px-4 py-3.5 text-textSub">环境与设备</td>
+                <td class="px-4 py-3.5 text-textSub">动火作业分析模型V1.6</td>
+                <td class="px-4 py-3.5 text-center">
+                  <span class="bg-hazardBg text-hazardText text-xs px-2.5 py-1 rounded-md font-medium">隐患</span>
+                </td>
+                <td class="px-4 py-3.5 text-center">
+                  <a href="#" class="text-primary hover:underline text-xs mr-3">详情</a>
+                  <a href="#" class="text-primary hover:underline text-xs mr-3">编辑</a>
+                  <a href="#" class="text-primary hover:underline text-xs inline-flex items-center gap-1">
+                    更多<i class="fa fa-angle-down text-[10px]"></i>
+                  </a>
+                </td>
+              </tr>
+              <tr class="border-t border-borderLine hover:bg-slate-50/50">
+                <td class="px-4 py-3.5 text-center text-textSub">10</td>
+                <td class="px-4 py-3.5 text-textMain font-medium">设备异常识别</td>
+                <td class="px-4 py-3.5 text-textSub font-mono text-xs">ALG-EN-0004</td>
+                <td class="px-4 py-3.5 text-textSub">环境与设备</td>
+                <td class="px-4 py-3.5 text-textSub">设备状态分析模型V1.9</td>
+                <td class="px-4 py-3.5 text-center">
+                  <span class="bg-hazardBg text-hazardText text-xs px-2.5 py-1 rounded-md font-medium">隐患</span>
+                </td>
+                <td class="px-4 py-3.5 text-center">
+                  <a href="#" class="text-primary hover:underline text-xs mr-3">详情</a>
+                  <a href="#" class="text-primary hover:underline text-xs mr-3">编辑</a>
+                  <a href="#" class="text-primary hover:underline text-xs inline-flex items-center gap-1">
+                    更多<i class="fa fa-angle-down text-[10px]"></i>
+                  </a>
+                </td>
+              </tr>
+              <tr class="border-t border-borderLine hover:bg-slate-50/50">
+                <td class="px-4 py-3.5 text-center text-textSub">11</td>
+                <td class="px-4 py-3.5 text-textMain font-medium">皮带跑偏识别</td>
+                <td class="px-4 py-3.5 text-textSub font-mono text-xs">ALG-EQ-0001</td>
+                <td class="px-4 py-3.5 text-textSub">安全管理</td>
+                <td class="px-4 py-3.5 text-textSub">设备状态分析模型V1.9</td>
+                <td class="px-4 py-3.5 text-center">
+                  <span class="bg-hazardBg text-hazardText text-xs px-2.5 py-1 rounded-md font-medium">隐患</span>
+                </td>
+                <td class="px-4 py-3.5 text-center">
+                  <a href="#" class="text-primary hover:underline text-xs mr-3">详情</a>
+                  <a href="#" class="text-primary hover:underline text-xs mr-3">编辑</a>
+                  <a href="#" class="text-primary hover:underline text-xs inline-flex items-center gap-1">
+                    更多<i class="fa fa-angle-down text-[10px]"></i>
+                  </a>
+                </td>
+              </tr>
+              <tr class="border-t border-borderLine hover:bg-slate-50/50">
+                <td class="px-4 py-3.5 text-center text-textSub">12</td>
+                <td class="px-4 py-3.5 text-textMain font-medium">人员聚集识别</td>
+                <td class="px-4 py-3.5 text-textSub font-mono text-xs">ALG-EQ-0002</td>
+                <td class="px-4 py-3.5 text-textSub">安全管理</td>
+                <td class="px-4 py-3.5 text-textSub">人群行为分析模型V1.7</td>
+                <td class="px-4 py-3.5 text-center">
+                  <span class="bg-hazardBg text-hazardText text-xs px-2.5 py-1 rounded-md font-medium">隐患</span>
+                </td>
+                <td class="px-4 py-3.5 text-center">
+                  <a href="#" class="text-primary hover:underline text-xs mr-3">详情</a>
+                  <a href="#" class="text-primary hover:underline text-xs mr-3">编辑</a>
+                  <a href="#" class="text-primary hover:underline text-xs inline-flex items-center gap-1">
+                    更多<i class="fa fa-angle-down text-[10px]"></i>
+                  </a>
+                </td>
+              </tr>
+              <tr class="border-t border-borderLine hover:bg-slate-50/50">
+                <td class="px-4 py-3.5 text-center text-textSub">13</td>
+                <td class="px-4 py-3.5 text-textMain font-medium">车辆违停识别</td>
+                <td class="px-4 py-3.5 text-textSub font-mono text-xs">ALG-EQ-0003</td>
+                <td class="px-4 py-3.5 text-textSub">安全管理</td>
+                <td class="px-4 py-3.5 text-textSub">车辆行为分析模型V1.6</td>
+                <td class="px-4 py-3.5 text-center">
+                  <span class="bg-hazardBg text-hazardText text-xs px-2.5 py-1 rounded-md font-medium">隐患</span>
+                </td>
+                <td class="px-4 py-3.5 text-center">
+                  <a href="#" class="text-primary hover:underline text-xs mr-3">详情</a>
+                  <a href="#" class="text-primary hover:underline text-xs mr-3">编辑</a>
+                  <a href="#" class="text-primary hover:underline text-xs inline-flex items-center gap-1">
+                    更多<i class="fa fa-angle-down text-[10px]"></i>
+                  </a>
+                </td>
+              </tr>
+              <tr class="border-t border-borderLine hover:bg-slate-50/50">
+                <td class="px-4 py-3.5 text-center text-textSub">14</td>
+                <td class="px-4 py-3.5 text-textMain font-medium">越界闯入识别</td>
+                <td class="px-4 py-3.5 text-textSub font-mono text-xs">ALG-OT-0001</td>
+                <td class="px-4 py-3.5 text-textSub">其他</td>
+                <td class="px-4 py-3.5 text-textSub">边界入侵分析模型V1.5</td>
+                <td class="px-4 py-3.5 text-center">
+                  <span class="bg-violationBg text-violationText text-xs px-2.5 py-1 rounded-md font-medium">违章</span>
+                </td>
+                <td class="px-4 py-3.5 text-center">
+                  <a href="#" class="text-primary hover:underline text-xs mr-3">详情</a>
+                  <a href="#" class="text-primary hover:underline text-xs mr-3">编辑</a>
+                  <a href="#" class="text-primary hover:underline text-xs inline-flex items-center gap-1">
+                    更多<i class="fa fa-angle-down text-[10px]"></i>
+                  </a>
+                </td>
+              </tr>
+              <tr class="border-t border-borderLine hover:bg-slate-50/50">
+                <td class="px-4 py-3.5 text-center text-textSub">15</td>
+                <td class="px-4 py-3.5 text-textMain font-medium">攀爬翻越识别</td>
+                <td class="px-4 py-3.5 text-textSub font-mono text-xs">ALG-OT-0002</td>
+                <td class="px-4 py-3.5 text-textSub">其他</td>
+                <td class="px-4 py-3.5 text-textSub">人体姿态分析模型V1.6</td>
+                <td class="px-4 py-3.5 text-center">
+                  <span class="bg-violationBg text-violationText text-xs px-2.5 py-1 rounded-md font-medium">违章</span>
+                </td>
+                <td class="px-4 py-3.5 text-center">
+                  <a href="#" class="text-primary hover:underline text-xs mr-3">详情</a>
+                  <a href="#" class="text-primary hover:underline text-xs mr-3">编辑</a>
+                  <a href="#" class="text-primary hover:underline text-xs inline-flex items-center gap-1">
+                    更多<i class="fa fa-angle-down text-[10px]"></i>
+                  </a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 分页 -->
+        <div class="flex justify-center items-center gap-2 text-sm mt-6">
+          <span class="text-textSub">共 128 条</span>
+          <button class="w-8 h-8 border border-primary bg-primary text-white rounded-md flex items-center justify-center font-medium">1</button>
+          <button class="w-8 h-8 border border-borderLine rounded-md flex items-center justify-center text-textSub hover:border-primary hover:text-primary">2</button>
+          <button class="w-8 h-8 border border-borderLine rounded-md flex items-center justify-center text-textSub hover:border-primary hover:text-primary">3</button>
+          <button class="w-8 h-8 border border-borderLine rounded-md flex items-center justify-center text-textSub hover:border-primary hover:text-primary">4</button>
+          <button class="w-8 h-8 border border-borderLine rounded-md flex items-center justify-center text-textSub hover:border-primary hover:text-primary">5</button>
+          <span class="text-textLight">...</span>
+          <button class="w-8 h-8 border border-borderLine rounded-md flex items-center justify-center text-textSub hover:border-primary hover:text-primary">11</button>
+          <div class="relative ml-2">
+            <select class="border border-borderLine rounded-md px-2 py-1 text-sm bg-white appearance-none pr-7 focus:outline-none">
+              <option>20 条/页</option>
+            </select>
+            <i class="fa fa-chevron-down absolute right-2 top-1/2 -translate-y-1/2 text-textLight text-[10px] pointer-events-none"></i>
+          </div>
+          <span class="text-textSub ml-2">跳至</span>
+          <input class="w-12 border border-borderLine rounded-md py-1 text-center text-sm focus:outline-none focus:border-primary" value="1"/>
+          <span class="text-textSub">页</span>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+<div id="algorithmDrawer" class="hidden fixed inset-0 z-50"><div class="absolute inset-0 bg-black/30" data-alg-close></div><aside class="absolute right-0 top-0 h-full w-[560px] max-w-[94vw] bg-white shadow-2xl flex flex-col"><header class="h-16 px-6 border-b border-borderLine flex items-center justify-between"><div><h2 id="algDrawerTitle" class="text-lg font-semibold"></h2><p id="algDrawerSub" class="text-xs text-textLight mt-1"></p></div><button data-alg-close><i class="fa fa-times"></i></button></header><div id="algDrawerBody" class="flex-1 overflow-y-auto p-6"></div><footer class="h-16 px-6 border-t flex justify-end items-center gap-3"><button data-alg-close class="border border-borderLine rounded px-5 py-2 text-sm">关闭</button><button id="saveAlgorithm" class="hidden bg-primary text-white rounded px-5 py-2 text-sm">保存</button></footer></aside></div>
+<script src="navigation.js?v=20260819-2"></script>
+<script>
+(()=>{
+ const drawer=document.getElementById('algorithmDrawer'),body=document.getElementById('algDrawerBody'),save=document.getElementById('saveAlgorithm');
+ const rows=[...document.querySelectorAll('tbody tr')];
+ rows.forEach(row=>{
+  const modelCell=row.cells[4];
+  if(modelCell) modelCell.textContent=modelCell.textContent.replace(/V\d+(?:\.\d+)+$/i,'');
+ });
+ rows.forEach(row=>{const name=row.cells[1]?.innerText.trim();if(name==='明火识别'||name==='烟雾识别')row.cells[5].innerHTML='<span class="bg-red-50 text-red-500 text-xs px-2.5 py-1 rounded-md font-medium">火警</span>';const cell=row.cells[6];if(cell)cell.innerHTML='<a href="#" class="text-primary hover:underline text-xs">编辑</a>';});
+ const input=(value,readonly=false)=>`<input ${readonly?'readonly':''} value="${value}" class="w-full border border-borderLine rounded px-3 py-2 text-sm ${readonly?'bg-gray-50':''}">`;
+ const field=(label,control)=>`<div><label class="block text-sm font-medium mb-2">${label}</label>${control}</div>`;
+ const open=(row,edit)=>{const data=[1,2,3,4,5].map(i=>row.cells[i].innerText.trim());document.getElementById('algDrawerTitle').textContent=edit?'编辑算法':'算法详情';document.getElementById('algDrawerSub').textContent=edit?'修改算法配置与处置方式':'查看算法完整配置信息';save.classList.toggle('hidden',!edit);body.innerHTML=`<form id="algForm" class="space-y-5">${field('算法名称',input(data[0],!edit))}${field('算法编码',input(data[1],!edit))}${field('算法类型',edit?'<select class="w-full border rounded px-3 py-2"><option>'+data[2]+'</option><option>行为识别</option><option>环境与设备</option><option>安全管理</option></select>':input(data[2],true))}${field('分析模型',edit?'<select class="w-full border rounded px-3 py-2"><option>'+data[3]+'</option><option>安全生产视觉分析模型V2.1</option><option>火焰烟火检测模型V1.8</option></select>':input(data[3],true))}${field('算法处置方式',edit?'<select class="w-full border rounded px-3 py-2"><option>'+data[4]+'</option><option>违章</option><option>隐患</option><option>火警</option></select>':input(data[4],true))}${field('算法说明',`<textarea ${edit?'':'readonly'} rows="5" class="w-full border rounded px-3 py-2 text-sm ${edit?'':'bg-gray-50'}">用于对作业现场视频进行智能识别，并根据识别结果触发对应处置流程。</textarea>`)}</form>`;drawer.classList.remove('hidden');};
+ document.querySelector('tbody').addEventListener('click',e=>{const a=e.target.closest('a');if(!a)return;e.preventDefault();const row=a.closest('tr');if(a.textContent.trim()==='编辑')open(row,true);});
+ document.querySelectorAll('[data-alg-close]').forEach(x=>x.onclick=()=>drawer.classList.add('hidden'));save.onclick=()=>drawer.classList.add('hidden');
+})();
+</script>
+</body>
+</html>

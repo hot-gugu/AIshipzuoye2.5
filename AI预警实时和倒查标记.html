@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>“三维”无视频不作业智慧管控平台 - 实时监控视频抓拍</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2677FF',
+                        sidebarBg: '#121A2C',
+                        cardBg: '#ffffff',
+                        borderGray: '#E5E7EB',
+                        textMain: '#1F2937',
+                        textGray: '#6B7280',
+                        dangerRed: '#EF4444',
+                        successGreen: '#10B981',
+                        warningYellow: '#F59E0B',
+                        lightBg: '#F9FAFB'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .btn-type-normal { @apply border border-borderGray rounded px-4 py-3 text-sm hover:border-primary hover:text-primary; }
+            .btn-type-active { @apply border border-primary bg-white text-primary rounded px-4 py-3 text-sm; }
+            .form-scrollbar::-webkit-scrollbar {
+                width: 4px;
+            }
+            .form-scrollbar::-webkit-scrollbar-thumb {
+                background: #ccc;
+                border-radius: 2px;
+            }
+            .form-scrollbar::-webkit-scrollbar-track {
+                background: transparent;
+            }
+            .tab-active {
+                @apply border-b-2 border-primary text-primary;
+            }
+        }
+        body{overflow:hidden;}
+        .mark-panel-dark { background:#08111f !important; }
+        .mark-panel-dark .mark-tabs { border-color:#24334d !important; }
+        .mark-panel-dark .mark-scroll { padding:0 18px 18px; }
+        .mark-panel-dark #tab1,
+        .mark-panel-dark #tab2 { color:#9aaaca; }
+        .mark-panel-dark #tab2.tab-active { color:#fff; }
+        .mark-list-item { display:grid;grid-template-columns:92px minmax(0,1fr);gap:14px;padding:20px 0;border-bottom:1px solid #263652; }
+        .mark-list-item img { width:92px;height:78px;border-radius:5px;object-fit:cover; }
+        .mark-list-info { min-width:0;font-size:13px;line-height:1.65;color:#fff; }
+        .mark-list-info .label { color:#7892bd; }
+        .mark-actions { display:flex;gap:12px;margin-top:8px; }
+        .mark-action { padding:2px 12px;border:1px solid #2677ff;border-radius:4px;color:#48a0ff;cursor:pointer; }
+        .mark-action.danger { border-color:#ef4444;color:#ef4444; }
+        .mark-pagination { display:flex;align-items:center;justify-content:center;gap:10px;padding:28px 0 8px;color:#fff; }
+        .mark-page { width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:5px;cursor:pointer; }
+        .mark-page.active { background:#2677ff; }
+        .person-chip { display:inline-flex;align-items:center;gap:6px;background:#eaf2ff;color:#2677ff;padding:7px 10px;border-radius:6px;font-size:13px; }
+        .person-add { border:1px dashed #2677ff;color:#2677ff;padding:6px 10px;border-radius:6px;font-size:13px;cursor:pointer;background:#fff; }
+    </style>
+</head>
+<body class="font-inter bg-lightBg text-textMain h-screen flex">
+    <aside></aside>
+    <div class="flex-1 flex flex-col overflow-hidden">
+    <!-- 主内容区域 -->
+    <main class="flex-1 flex flex-col overflow-hidden">
+        <!-- 顶部导航栏 -->
+        <header class="h-[60px] bg-white border-b border-borderGray flex items-center justify-between px-6 flex-shrink-0">
+            <div class="flex items-center gap-2">
+                <i class="fa fa-arrow-left cursor-pointer text-textGray"></i>
+                <h1 class="text-lg font-medium">实时监控 - 视频抓拍</h1>
+            </div>
+            <div class="flex items-center gap-6">
+                <i class="fa fa-bell-o text-textGray relative cursor-pointer">
+                    <span class="absolute -top-1 -right-1 w-2 h-2 bg-dangerRed rounded-full"></span>
+                </i>
+                <div class="flex items-center gap-2 cursor-pointer">
+                    <span class="text-sm">张安全</span>
+                    <span class="text-xs text-textGray">监控中心-安全科</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- 页面主体布局：中间直播窗口，右侧表单 -->
+        <div class="flex-1 flex gap-4 p-4 overflow-hidden">
+            <!-- 中间实时直播窗口区域 -->
+            <div class="flex-1 bg-cardBg rounded-lg p-5 flex flex-col overflow-hidden">
+                <!-- 视频顶部标题信息栏 -->
+                <div class="mb-3 flex flex-wrap gap-x-5 gap-y-2 text-sm items-center">
+                    <span class="font-medium text-textMain">井下运输大巷-123水平 (IPC-123456)</span>
+                    <span class="text-textGray">作业位置：中碎作业区</span>
+                    <span class="text-textGray">作业人员：陶炳之、魏伟</span>
+                    <span class="text-textGray">作业时间：08:00-16:00（白班）</span>
+                    <span class="px-2 py-0.5 bg-warningYellow/10 text-warningYellow rounded text-xs border border-warningYellow/30">高危作业</span>
+                    <span class="text-textGray ml-auto">固定摄像头</span>
+                </div>
+                <!-- 直播播放器容器 -->
+                <div class="bg-slate-900 rounded flex-1 min-h-[360px] relative flex flex-col justify-between overflow-hidden group">
+                    <div class="flex-1 flex items-center justify-center">
+                        <i class="fa fa-video-camera text-white text-5xl opacity-70"></i>
+                    </div>
+                    <div class="p-4 bg-gradient-to-t from-black/80 to-transparent">
+                        <div class="flex items-center gap-3 text-white text-sm mb-3">
+                            <span>1.0x</span>
+                            <div class="flex-1 h-[4px] bg-slate-600 rounded relative cursor-pointer">
+                                <div class="absolute left-0 w-[40%] h-full bg-primary rounded"></div>
+                            </div>
+                            <span>实时直播 | 2026-07-29 13:30:22</span>
+                        </div>
+                        <div class="flex items-center justify-between text-white">
+                            <div class="flex items-center gap-5">
+                                <button class="flex items-center gap-1 hover:text-primary text-sm">
+                                    <i class="fa fa-play"></i> 暂停
+                                </button>
+                                <button class="flex items-center gap-1 hover:text-primary text-sm">
+                                    <i class="fa fa-volume-up"></i> 音量
+                                </button>
+                                <button class="flex items-center gap-1.5 px-3 py-1.5 rounded border border-primary bg-primary text-white hover:bg-blue-600 text-sm transition-colors" onclick="switchTab(1)">
+                                    <i class="fa fa-hand-paper-o"></i> 标注违章/隐患
+                                </button>
+                                <button class="flex items-center gap-1.5 px-3 py-1.5 rounded border border-primary text-primary bg-white hover:bg-blue-50 text-sm transition-colors" onclick="captureSnapshot(this)">
+                                    <i class="fa fa-camera"></i> 拍照截图
+                                </button>
+                            </div>
+                            <div class="flex items-center gap-5">
+                                <button class="flex items-center gap-1 hover:text-primary text-sm">
+                                    <i class="fa fa-expand"></i> 全屏放大
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧表单区域 -->
+            <div id="right-panel" class="w-[360px] bg-cardBg rounded-lg flex flex-col flex-shrink-0">
+                <!-- 顶部Tab切换 -->
+                <div class="mark-tabs flex border-b border-borderGray">
+                    <div id="tab1" onclick="switchTab(1)" class="flex-1 text-center py-3 text-sm cursor-pointer tab-active">违章/隐患查处</div>
+                    <div id="tab2" onclick="switchTab(2)" class="flex-1 text-center py-3 text-sm text-textGray">我标注的</div>
+                </div>
+                <!-- 表单滚动容器 -->
+                <div class="mark-scroll p-5 flex-1 overflow-y-auto form-scrollbar">
+                    <!-- Tab1 违章/隐患查处表单 -->
+                    <div id="form-tab1" class="space-y-3">
+                        <!-- 1、违章/隐患照片 -->
+                        <div>
+                            <label class="block text-sm font-medium mb-1.5"><span class='text-dangerRed'>*</span>违章/隐患照片</label>
+                            <div class="grid grid-cols-3 gap-2">
+                                <a href="人工标注工作台.html?return=AI预警实时和倒查标记.html" class="relative h-[80px] rounded overflow-hidden border-2 border-warningYellow group"><img src="sample-no-helmet.jpg" class="w-full h-full object-cover" alt="违章隐患照片 1"><span class="realtime-annotation-status absolute left-1 top-1 rounded bg-warningYellow px-1.5 py-0.5 text-[10px] text-white">待标注</span><span class="absolute inset-x-0 bottom-0 bg-black/65 p-1 text-center text-[10px] text-white opacity-0 group-hover:opacity-100">进入标注</span></a>
+                                <a href="人工标注工作台.html?image=2&return=AI预警实时和倒查标记.html" class="relative h-[80px] rounded overflow-hidden border border-borderGray group"><img src="sample-normal-scene.jpg" class="w-full h-full object-cover" alt="违章隐患照片 2"><span class="realtime-annotation-status absolute left-1 top-1 rounded bg-warningYellow px-1.5 py-0.5 text-[10px] text-white">待标注</span><span class="absolute inset-x-0 bottom-0 bg-black/65 p-1 text-center text-[10px] text-white opacity-0 group-hover:opacity-100">进入标注</span></a>
+                                <a href="人工标注工作台.html?image=3&return=AI预警实时和倒查标记.html" class="relative h-[80px] rounded overflow-hidden border border-borderGray group"><img src="sample-safety-belt.jpg" class="w-full h-full object-cover" alt="违章隐患照片 3"><span class="realtime-annotation-status absolute left-1 top-1 rounded bg-warningYellow px-1.5 py-0.5 text-[10px] text-white">待标注</span><span class="absolute inset-x-0 bottom-0 bg-black/65 p-1 text-center text-[10px] text-white opacity-0 group-hover:opacity-100">进入标注</span></a>
+                            </div>
+                            <a id="realtimeAnnotationEntry" href="人工标注工作台.html?return=AI预警实时和倒查标记.html" class="mt-2 flex items-center justify-center gap-1 rounded border border-dashed border-primary py-1.5 text-xs text-primary hover:bg-blue-50"><i class="fa fa-object-group"></i> 人工标注（3 张待处理）</a>
+                        </div>
+
+                        <!-- 单据类型 -->
+                        <div>
+                            <label class="block text-sm font-medium mb-1.5">单据类型</label>
+                            <div class="flex gap-4">
+                                <label class="flex items-center gap-1.5 cursor-pointer text-sm">
+                                    <input type="radio" name="billType" id="radio-wz" value="wz" checked onchange="changeFormText()">
+                                    <span>违章</span>
+                                </label>
+                                <label class="flex items-center gap-1.5 cursor-pointer text-sm">
+                                    <input type="radio" name="billType" id="radio-yh" value="yh" onchange="changeFormText()">
+                                    <span>隐患</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- 隐患描述（仅隐患显示） -->
+                        <div id="desc-wrap" class="hidden">
+                            <label class="block text-sm font-medium mb-1.5"><span class='text-dangerRed'>*</span>隐患描述</label>
+                            <textarea rows="2" placeholder="详细描述现场隐患情况" class="w-full border border-borderGray rounded px-3 py-1.5 text-sm outline-none resize-none"></textarea>
+                        </div>
+
+                        <!-- 类型 -->
+                        <div>
+                            <label id="label-type" class="block text-sm font-medium mb-1.5"><span class='text-dangerRed'>*</span>违章名称</label>
+                            <select id="select-type" class="w-full border border-borderGray rounded px-3 py-1.5 text-sm bg-white outline-none">
+                                <optgroup id="opt-wz">
+                                    <option value="safety">安全防护缺失</option>
+                                    <option value="operation">违规操作设备</option>
+                                    <option value="fire">消防安全违规</option>
+                                    <option value="traffic">井下运输违规</option>
+                                    <option value="other">其他违章</option>
+                                </optgroup>
+                                <optgroup id="opt-yh" class="hidden">
+                                    <option value="equip">设备设施隐患</option>
+                                    <option value="environment">作业环境隐患</option>
+                                    <option value="fire">消防通道隐患</option>
+                                    <option value="electrical">电气安全隐患</option>
+                                    <option value="other">其他隐患</option>
+                                </optgroup>
+                            </select>
+                        </div>
+
+                        <!-- 等级 -->
+                        <div>
+                            <label id="label-level" class="block text-sm font-medium mb-1.5"><span class='text-dangerRed'>*</span>违章等级</label>
+                            <select id="select-level" class="appearance-none w-full border border-borderGray rounded px-3 py-2 text-sm bg-white outline-none pointer-events-none">
+                                <optgroup id="level-wz">
+                                    <option>A类违章</option>
+                                    <option>B类违章</option>
+                                    <option>C类违章</option>
+                                    <option>D类违章</option>
+                                    <option>其他类违章</option>
+                                </optgroup>
+                                <optgroup id="level-yh" class="hidden">
+                                    <option>重大隐患</option>
+                                    <option>较大隐患</option>
+                                    <option>一般隐患</option>
+                                    <option>轻微隐患</option>
+                                </optgroup>
+                            </select>
+                        </div>
+
+                        <!-- 违章记分 -->
+                        <div id="score-wrap">
+                            <label id="label-score" class="block text-sm font-medium mb-1.5">违章记分</label>
+                            <div id="violation-score" class="w-full border border-red-200 bg-red-50 rounded px-3 py-2 text-dangerRed font-semibold">12分</div>
+                        </div>
+
+                        <!-- 单位 -->
+                        <div>
+                            <label id="label-unit" class="block text-sm font-medium mb-1.5"><span class='text-dangerRed'>*</span>违章单位</label>
+                            <select class="w-full border border-borderGray rounded px-3 py-1.5 text-sm bg-white outline-none">
+                                <option>齐大山选矿厂</option>
+                                <option>弓长岭铁矿</option>
+                                <option>眼前山分公司</option>
+                            </select>
+                        </div>
+
+                        <!-- 条款/依据 -->
+                        <div>
+                            <label id="label-rule" class="block text-sm font-medium mb-1.5">违章条款/依据</label>
+                            <textarea id="textarea-rule" rows="2" class="w-full border border-borderGray rounded px-3 py-1.5 text-sm outline-none resize-none">《矿山安全管理考核细则》第12条：井下作业人员未按规定佩戴安全防护用品，属于一般性违章，按对应条款进行考核处理。</textarea>
+                        </div>
+
+                        <!-- 人员 -->
+                        <div>
+                            <label id="label-person" class="block text-sm font-medium mb-1.5"><span class='text-dangerRed'>*</span>违章人员</label>
+                            <div id="person-list" class="flex flex-wrap items-center gap-2 min-h-[36px]">
+                                <span class="person-chip">
+                                    陶炳之(WX000864)
+                                    <i class="fa fa-times cursor-pointer text-xs" onclick="removePerson(this)"></i>
+                                </span>
+                                <span class="person-chip">
+                                    魏伟(WX001258)
+                                    <i class="fa fa-times cursor-pointer text-xs" onclick="removePerson(this)"></i>
+                                </span>
+                                <button type="button" id="add-person-button" class="person-add" onclick="addPerson()"><i class="fa fa-plus mr-1"></i>添加人员</button>
+                            </div>
+                        </div>
+
+                        <!-- 发现/排查时间 -->
+                        <div>
+                            <label id="label-time" class="block text-sm font-medium mb-1.5"><span class='text-dangerRed'>*</span>发现时间</label>
+                            <input type="datetime-local" class="w-full border border-borderGray rounded px-2 py-1.5 text-sm outline-none">
+                        </div>
+
+                        <!-- 地点 -->
+                        <div>
+                            <label id="label-location" class="block text-sm font-medium mb-1.5"><span class='text-dangerRed'>*</span>作业位置 </label>
+                            <div class="relative">
+                                <input id="input-location" type="text" value="中碎作业区" class="w-full border border-borderGray rounded px-3 py-1.5 text-sm outline-none focus:border-primary">
+                                <!-- <span id="btn-gismark" onclick="openGisMap('input-location', 'btn-gismark')" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);color:#2570f2;font-size:13px;cursor:pointer;white-space:nowrap;user-select:none;">标注点位&gt;</span> -->
+                            </div>
+                        </div>
+
+                        <!-- 整改期限（仅隐患显示） -->
+                        <div id="rectification-deadline-wrap" class="hidden">
+                            <label class="block text-sm font-medium mb-1.5"><span class='text-dangerRed'>*</span>整改期限</label>
+                            <input type="date" value="2026-08-12" class="w-full border border-borderGray rounded px-3 py-1.5 text-sm outline-none focus:border-primary">
+                        </div>
+
+                        <!-- 底部操作按钮 -->
+                        <div class="flex gap-3 pt-3 mt-2">
+                            <button class="flex-1 py-2 border border-borderGray rounded text-textGray hover:bg-lightBg text-sm">取消</button>
+                            <button class="flex-1 py-2 bg-primary text-white rounded hover:bg-primary/90 text-sm">确定提交</button>
+                        </div>
+                    </div>
+
+                    <!-- Tab2 我标注的 -->
+                    <div id="form-tab2" class="hidden">
+                        <article class="mark-list-item">
+                            <img src="https://picsum.photos/id/1040/184/156" alt="违章现场">
+                            <div class="mark-list-info">
+                                <div><span class="label">标注人姓名：</span>张安全员</div>
+                                <div><span class="label">标注人单位名称：</span>安全监察部</div>
+                                <div><span class="label">违章内容：</span>未佩戴安全帽</div>
+                                <div><span class="label">违章时间：</span>2026-08-05 14:32:16</div>
+                                <div><span class="label">单据类型：</span>违章</div>
+                                <div><span class="label">违章单位：</span>采矿一厂</div>
+                                <div><span class="label">处理状态：</span><span class="text-successGreen">已处理</span></div>
+                                <div class="mark-actions"><button class="mark-action" onclick="openDetail('wz', 1)">详情</button></div>
+                            </div>
+                        </article>
+                        <article class="mark-list-item">
+                            <img src="https://picsum.photos/id/1041/184/156" alt="违章现场">
+                            <div class="mark-list-info">
+                                <div><span class="label">标注人姓名：</span>李安全员</div>
+                                <div><span class="label">标注人单位名称：</span>安全监察部</div>
+                                <div><span class="label">违章内容：</span>未佩戴安全带</div>
+                                <div><span class="label">违章时间：</span>2026-08-05 14:28:42</div>
+                                <div><span class="label">单据类型：</span>违章</div>
+                                <div><span class="label">违章单位：</span>运输车间</div>
+                                <div><span class="label">处理状态：</span><span class="text-warningYellow">待处理</span></div>
+                                <div class="mark-actions">
+                                    <button class="mark-action" onclick="openDetail('wz', 2)">详情</button>
+                                    <button class="mark-action danger" onclick="deleteMark(this)">删除</button>
+                                </div>
+                            </div>
+                        </article>
+                        <article class="mark-list-item">
+                            <img src="https://picsum.photos/id/1042/184/156" alt="隐患现场">
+                            <div class="mark-list-info">
+                                <div><span class="label">标注人姓名：</span>王安全员</div>
+                                <div><span class="label">标注人单位名称：</span>安全监察部</div>
+                                <div><span class="label">隐患描述：</span>跨越皮带输送机</div>
+                                <div><span class="label">隐患排查时间：</span>2026-08-05 14:24:07</div>
+                                <div><span class="label">单据类型：</span>隐患</div>
+                                <div><span class="label">隐患单位：</span>采矿二厂</div>
+                                <div><span class="label">整改状态：</span><span class="text-warningYellow">待核实</span></div>
+                                <div class="mark-actions">
+                                    <button class="mark-action" onclick="openDetail('yh', 3)">详情</button>
+                                    <button class="mark-action danger" onclick="deleteMark(this)">删除</button>
+                                </div>
+                            </div>
+                        </article>
+                        <nav class="mark-pagination" aria-label="标注记录分页">
+                            <button class="mark-page">&lt;</button><button class="mark-page active">1</button><button class="mark-page">2</button><button class="mark-page">3</button><button class="mark-page">4</button><span class="mark-page">...</span><button class="mark-page">&gt;</button>
+                        </nav>
+                    </div>
+
+                    <!-- 旧版列表保留为逻辑参考，不再展示 -->
+                    <div id="legacy-form-tab2" class="hidden" aria-hidden="true">
+                        <!-- 列表项1：违章-已复核 -->
+                        <div class="violation-item" style="padding:12px 0;border-bottom:1px solid #e5e7eb;display:grid;grid-template-columns:92px 1fr;gap:12px;">
+                            <div style="width:92px;height:70px;border-radius:4px;overflow:hidden;">
+                                <img src="https://picsum.photos/id/1040/92/70" style="width:100%;height:100%;object-fit:cover;" />
+                            </div>
+                            <div style="display:flex;flex-direction:column;position:relative;font-size:13px;color:#6b7280;">
+                                <div style="position:absolute;top:0;right:0;border:1px solid #2570f2;color:#2570f2;font-size:12px;padding:2px 8px;border-radius:4px;cursor:pointer;">我标记</div>
+                                <div style="margin-bottom:4px;">
+                                    <span style="color:#7887a0;">标注人姓名：</span><span style="color:#1f2937;">张安全员</span>
+                                </div>
+                                <div style="margin-bottom:4px;">
+                                    <span style="color:#7887a0;">标注人单位名称：</span><span style="color:#1f2937;">安全监察部</span>
+                                </div>
+                                <div style="margin-bottom:4px;">
+                                    <span style="color:#7887a0;">违章内容：</span><span style="color:#1f2937;">未佩戴安全帽</span>
+                                </div>
+                                <div style="margin-bottom:4px;">
+                                    <span style="color:#7887a0;">违章时间：</span><span style="color:#1f2937;">2026‑08‑05 14:32:16</span>
+                                </div>
+                                <div style="margin-bottom:4px;">
+                                    <span style="color:#7887a0;">单据类型：</span><span style="color:#1f2937;">违章</span>
+                                </div>
+                                <div style="margin-bottom:4px;">
+                                    <span style="color:#7887a0;">违章单位：</span><span style="color:#1f2937;">采矿一厂</span>
+                                </div>
+                                <div style="margin-bottom:4px;">
+                                    <span style="color:#7887a0;">复核状态：</span><span style="color:#10b981;">已复核</span>
+                                    <span style="margin:0 6px;color:#7887a0;">|</span>
+                                    <span style="color:#7887a0;">复核结果：</span><span style="color:#ef4444;">确认违章</span>
+                                </div>
+                                <div style="display:flex;gap:12px;margin-top:4px;">
+                                    <span style="font-size:13px;cursor:pointer;padding:2px 10px;border-radius:4px;color:#2570f2;border:1px solid #2570f2;" onclick="openDetail('wz', 1)">详情</span>
+                                    <!-- <span style="font-size:13px;cursor:pointer;padding:2px 10px;border-radius:4px;color:#10b981;border:1px solid #10b981;" onclick="openEdit('wz', 1)">编辑</span>
+                                    <span style="font-size:13px;cursor:pointer;padding:2px 10px;border-radius:4px;color:#ef4444;border:1px solid #ef4444;" onclick="this.closest('.violation-item').remove()">删除</span> -->
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 列表项2：违章-待复核 -->
+                        <div class="violation-item" style="padding:12px 0;border-bottom:1px solid #e5e7eb;display:grid;grid-template-columns:92px 1fr;gap:12px;">
+                            <div style="width:92px;height:70px;border-radius:4px;overflow:hidden;">
+                                <img src="https://picsum.photos/id/1041/92/70" style="width:100%;height:100%;object-fit:cover;" />
+                            </div>
+                            <div style="display:flex;flex-direction:column;position:relative;font-size:13px;color:#6b7280;">
+                                <div style="position:absolute;top:0;right:0;border:1px solid #2570f2;color:#2570f2;font-size:12px;padding:2px 8px;border-radius:4px;cursor:pointer;">我标记</div>
+                                <div style="margin-bottom:4px;">
+                                    <span style="color:#7887a0;">标注人姓名：</span><span style="color:#1f2937;">李安全员</span>
+                                </div>
+                                <div style="margin-bottom:4px;">
+                                    <span style="color:#7887a0;">标注人单位名称：</span><span style="color:#1f2937;">安全监察部</span>
+                                </div>
+                                <div style="margin-bottom:4px;">
+                                    <span style="color:#7887a0;">违章内容：</span><span style="color:#1f2937;">未佩戴安全带</span>
+                                </div>
+                                <div style="margin-bottom:4px;">
+                                    <span style="color:#7887a0;">违章时间：</span><span style="color:#1f2937;">2026‑08‑05 14:28:42</span>
+                                </div>
+                                <div style="margin-bottom:4px;">
+                                    <span style="color:#7887a0;">单据类型：</span><span style="color:#1f2937;">违章</span>
+                                </div>
+                                <div style="margin-bottom:4px;">
+                                    <span style="color:#7887a0;">违章单位：</span><span style="color:#1f2937;">运输车间</span>
+                                </div>
+                                <div style="margin-bottom:4px;">
+                                    <span style="color:#7887a0;">复核状态：</span><span style="color:#f59e0b;">待复核</span>
+                                </div>
+                                <div style="display:flex;gap:12px;margin-top:4px;">
+                                    <span style="font-size:13px;cursor:pointer;padding:2px 10px;border-radius:4px;color:#2570f2;border:1px solid #2570f2;" onclick="openDetail('wz', 2)">详情</span>
+                                    <span style="font-size:13px;cursor:pointer;padding:2px 10px;border-radius:4px;color:#10b981;border:1px solid #10b981;" onclick="openEdit('wz', 2)">编辑</span>
+                                    <span style="font-size:13px;cursor:pointer;padding:2px 10px;border-radius:4px;color:#ef4444;border:1px solid #ef4444;" onclick="this.closest('.violation-item').remove()">删除</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 列表项3：隐患-待复核 -->
+                        <div class="violation-item" style="padding:12px 0;border-bottom:1px solid #e5e7eb;display:grid;grid-template-columns:92px 1fr;gap:12px;">
+                            <div style="width:92px;height:70px;border-radius:4px;overflow:hidden;">
+                                <img src="https://picsum.photos/id/1042/92/70" style="width:100%;height:100%;object-fit:cover;" />
+                            </div>
+                            <div style="display:flex;flex-direction:column;position:relative;font-size:13px;color:#6b7280;">
+                                <div style="margin-bottom:4px;">
+                                    <span style="color:#7887a0;">标注人姓名：</span><span style="color:#1f2937;">王安全员</span>
+                                </div>
+                                <div style="margin-bottom:4px;">
+                                    <span style="color:#7887a0;">标注人单位名称：</span><span style="color:#1f2937;">安全监察部</span>
+                                </div>
+                                <div style="margin-bottom:4px;">
+                                    <span style="color:#7887a0;">隐患描述：</span><span style="color:#1f2937;">跨越皮带输送机</span>
+                                </div>
+                                <div style="margin-bottom:4px;">
+                                    <span style="color:#7887a0;">隐患排查时间：</span><span style="color:#1f2937;">2026‑08‑05 14:24:07</span>
+                                </div>
+                                <div style="margin-bottom:4px;">
+                                    <span style="color:#7887a0;">单据类型：</span><span style="color:#1f2937;">隐患</span>
+                                </div>
+                                <div style="margin-bottom:4px;">
+                                    <span style="color:#7887a0;">隐患单位：</span><span style="color:#1f2937;">采矿二厂</span>
+                                </div>
+                                <div style="margin-bottom:4px;">
+                                    <span style="color:#7887a0;">状态：</span><span style="color:#f59e0b;">待核实</span>
+                                </div>
+                                <div style="display:flex;gap:12px;margin-top:4px;">
+                                    <span style="font-size:13px;cursor:pointer;padding:2px 10px;border-radius:4px;color:#2570f2;border:1px solid #2570f2;" onclick="openDetail('yh', 3)">详情</span>
+                                    <span style="font-size:13px;cursor:pointer;padding:2px 10px;border-radius:4px;color:#10b981;border:1px solid #10b981;" onclick="openEdit('yh', 3)">编辑</span>
+                                    <span style="font-size:13px;cursor:pointer;padding:2px 10px;border-radius:4px;color:#ef4444;border:1px solid #ef4444;" onclick="this.closest('.violation-item').remove()">删除</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 分页 -->
+                        <div style="display:flex;align-items:center;justify-content:center;gap:10px;padding-top:16px;margin-top:8px;">
+                            <div style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;border-radius:4px;">&lt;</div>
+                            <div style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;border-radius:4px;background:#2570f2;color:#fff;">1</div>
+                            <div style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;border-radius:4px;">2</div>
+                            <div style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;border-radius:4px;">3</div>
+                            <div style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;border-radius:4px;">4</div>
+                            <div style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;border-radius:4px;">...</div>
+                            <div style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;border-radius:4px;">&gt;</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 详情侧边栏弹窗 -->
+    <div id="detail-overlay" onclick="closeDetail()" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);z-index:9998;display:none;"></div>
+    <div id="detail-sidebar" style="position:fixed;top:0;right:0;bottom:0;width:420px;background:#fff;z-index:9999;display:flex;flex-direction:column;transform:translateX(100%);transition:transform 0.3s ease;box-shadow:-4px 0 20px rgba(0,0,0,0.15);">
+        <div style="height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;border-bottom:1px solid #e5e7eb;flex-shrink:0;">
+            <h3 id="detail-title" style="font-size:18px;font-weight:600;">违章详情</h3>
+            <span onclick="closeDetail()" style="font-size:22px;cursor:pointer;color:#9ca3af;">&times;</span>
+        </div>
+        <div id="detail-body" style="flex:1;overflow-y:auto;padding:20px;"></div>
+        <div style="padding:16px 20px;border-top:1px solid #e5e7eb;flex-shrink:0;">
+            <button onclick="closeDetail()" style="width:100%;height:44px;border:1px solid #d8dbe3;border-radius:8px;background:#fff;font-size:16px;cursor:pointer;">关闭</button>
+        </div>
+    </div>
+
+    <!-- 编辑侧边栏弹窗 -->
+    <div id="edit-overlay" onclick="closeEdit()" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);z-index:9998;display:none;"></div>
+    <div id="edit-sidebar" style="position:fixed;top:0;right:0;bottom:0;width:520px;background:#fff;z-index:9999;display:flex;flex-direction:column;transform:translateX(100%);transition:transform 0.3s ease;box-shadow:-4px 0 20px rgba(0,0,0,0.15);">
+        <div style="height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;border-bottom:1px solid #e5e7eb;flex-shrink:0;">
+            <h3 id="edit-title" style="font-size:18px;font-weight:600;">编辑违章</h3>
+            <span onclick="closeEdit()" style="font-size:22px;cursor:pointer;color:#9ca3af;">&times;</span>
+        </div>
+        <div id="edit-body" style="flex:1;overflow-y:auto;padding:20px;"></div>
+        <div style="padding:16px 20px;border-top:1px solid #e5e7eb;flex-shrink:0;display:flex;gap:16px;">
+            <button onclick="closeEdit()" style="flex:1;height:44px;border-radius:8px;font-size:16px;cursor:pointer;border:1px solid #d8dbe3;background:#fff;">取消</button>
+            <button onclick="closeEdit()" style="flex:1;height:44px;border-radius:8px;font-size:16px;cursor:pointer;background:#2570f2;color:#fff;border:none;">确定提交</button>
+        </div>
+    </div>
+
+    <!-- XXXX楼栋-楼层（或者室外位置信息）弹窗 -->
+    <div id="gis-overlay" onclick="closeGisMap()" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:10000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);"></div>
+    <div id="gis-modal" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.9);opacity:0;z-index:10001;width:720px;background:#fff;border-radius:12px;display:flex;flex-direction:column;overflow:hidden;transition:all 0.25s ease;pointer-events:none;">
+        <div style="height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;border-bottom:1px solid #e5e7eb;flex-shrink:0;">
+            <h3 style="font-size:16px;font-weight:600;color:#1f2937;">XXXX楼栋-楼层（或者室外位置信息）</h3>
+            <span onclick="closeGisMap()" style="font-size:20px;cursor:pointer;color:#9ca3af;">&times;</span>
+        </div>
+        <div style="padding:16px 20px;flex:1;display:flex;flex-direction:column;">
+            <div style="font-size:13px;color:#6b7280;margin-bottom:8px;">点击地图选择标注点位，选定后点击"保存标注"。</div>
+            <div id="gis-map-container" onclick="placeGisMark(event)" style="position:relative;width:100%;height:360px;border-radius:8px;overflow:hidden;cursor:crosshair;background:linear-gradient(135deg,#1a2a3a 0%,#2a3f5f 50%,#1a2a3a 100%);">
+                <!-- 2.5D GIS底图模拟 -->
+                <div style="position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(255,255,255,0.04) 40px),repeating-linear-gradient(90deg,transparent,transparent 39px,rgba(255,255,255,0.04) 40px);"></div>
+                <!-- 地形模拟 -->
+                <div style="position:absolute;left:10%;top:15%;width:30%;height:40%;background:radial-gradient(ellipse at center,rgba(34,197,94,0.12),transparent 70%);"></div>
+                <div style="position:absolute;right:5%;top:50%;width:35%;height:35%;background:radial-gradient(ellipse at center,rgba(59,130,246,0.1),transparent 70%);"></div>
+                <div style="position:absolute;left:45%;top:55%;width:20%;height:25%;background:radial-gradient(ellipse at center,rgba(239,68,68,0.08),transparent 70%);"></div>
+                <!-- 道路模拟 -->
+                <div style="position:absolute;left:0;top:45%;width:100%;height:2px;background:rgba(255,255,255,0.1);transform:rotate(-5deg);"></div>
+                <div style="position:absolute;left:30%;top:0;width:2px;height:100%;background:rgba(255,255,255,0.1);transform:rotate(8deg);"></div>
+                <!-- 建筑模拟 -->
+                <div style="position:absolute;left:15%;top:20%;width:40px;height:30px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:2px;transform:perspective(100px) rotateX(25deg);"></div>
+                <div style="position:absolute;left:60%;top:30%;width:50px;height:35px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:2px;transform:perspective(100px) rotateX(25deg);"></div>
+                <div style="position:absolute;left:25%;top:60%;width:45px;height:32px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:2px;transform:perspective(100px) rotateX(25deg);"></div>
+                <div style="position:absolute;left:70%;top:65%;width:38px;height:28px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:2px;transform:perspective(100px) rotateX(25deg);"></div>
+                <!-- 标签 -->
+                <div style="position:absolute;left:12px;top:12px;font-size:11px;color:rgba(255,255,255,0.4);">矿区GIS底图 · 2.5D</div>
+                <div style="position:absolute;right:12px;bottom:12px;font-size:11px;color:rgba(255,255,255,0.3);">比例尺 1:500</div>
+                <!-- 标注点容器 -->
+                <div id="gis-mark-point" style="display:none;position:absolute;transform:translate(-50%,-100%);z-index:10;">
+                    <div style="width:24px;height:24px;background:#ef4444;border:3px solid #fff;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 8px rgba(0,0,0,0.4);"></div>
+                    <div style="position:absolute;top:-22px;left:50%;transform:translateX(-50%);white-space:nowrap;background:rgba(0,0,0,0.7);color:#fff;font-size:11px;padding:2px 8px;border-radius:4px;">标注点位</div>
+                </div>
+            </div>
+            <div id="gis-coord" style="font-size:12px;color:#6b7280;margin-top:8px;">坐标：未标注</div>
+        </div>
+        <div style="padding:12px 20px;border-top:1px solid #e5e7eb;flex-shrink:0;display:flex;gap:12px;justify-content:flex-end;">
+            <button onclick="closeGisMap()" style="padding:8px 20px;border:1px solid #d8dbe3;border-radius:6px;background:#fff;font-size:14px;cursor:pointer;color:#6b7280;">取消</button>
+            <button onclick="saveGisMark()" style="padding:8px 20px;border:none;border-radius:6px;background:#2570f2;color:#fff;font-size:14px;cursor:pointer;">保存标注</button>
+        </div>
+    </div>
+
+    <script>
+        if (localStorage.getItem('annotationReviewCompletedRealtime') === 'true') {
+            document.querySelectorAll('.realtime-annotation-status').forEach(function (el) {
+                el.textContent = '已标注'; el.classList.remove('bg-warningYellow'); el.classList.add('bg-successGreen');
+            });
+            var realtimeEntry = document.getElementById('realtimeAnnotationEntry');
+            if (realtimeEntry) realtimeEntry.innerHTML = '<i class="fa fa-check-circle"></i> 人工标注已完成（3 张）';
+        }
+        function captureSnapshot(button) {
+            const original = button.innerHTML;
+            button.disabled = true;
+            button.innerHTML = '<i class="fa fa-check"></i> 截图成功';
+            button.classList.add('border-successGreen', 'text-successGreen');
+            setTimeout(function() {
+                button.innerHTML = original;
+                button.disabled = false;
+                button.classList.remove('border-successGreen', 'text-successGreen');
+            }, 1600);
+        }
+
+        // Tab切换
+        function switchTab(num) {
+            const tab1 = document.getElementById('tab1');
+            const tab2 = document.getElementById('tab2');
+            const form1 = document.getElementById('form-tab1');
+            const form2 = document.getElementById('form-tab2');
+            const panel = document.getElementById('right-panel');
+            if(num === 1) {
+                panel.classList.remove('mark-panel-dark');
+                tab1.classList.add('tab-active');
+                tab1.classList.remove('text-textGray');
+                tab2.classList.remove('tab-active');
+                tab2.classList.add('text-textGray');
+                form1.classList.remove('hidden');
+                form2.classList.add('hidden');
+            } else {
+                panel.classList.add('mark-panel-dark');
+                tab2.classList.add('tab-active');
+                tab2.classList.remove('text-textGray');
+                tab1.classList.remove('tab-active');
+                tab1.classList.add('text-textGray');
+                form2.classList.remove('hidden');
+                form1.classList.add('hidden');
+            }
+        }
+
+        function removePerson(icon) {
+            icon.closest('.person-chip').remove();
+        }
+
+        function addPerson() {
+            const list = document.getElementById('person-list');
+            if (list.querySelector('[data-added-person]')) return;
+            const chip = document.createElement('span');
+            chip.className = 'person-chip';
+            chip.dataset.addedPerson = 'true';
+            chip.innerHTML = '王安全员(WX001386) <i class="fa fa-times cursor-pointer text-xs" onclick="removePerson(this)"></i>';
+            list.insertBefore(chip, document.getElementById('add-person-button'));
+        }
+
+        function deleteMark(button) {
+            button.closest('.mark-list-item').remove();
+        }
+
+        // 单据类型切换更新表单文字
+        function changeFormText() {
+            const isWz = document.getElementById('radio-wz').checked;
+            const descWrap = document.getElementById('desc-wrap');
+
+            // 1. 控制隐患描述显示隐藏
+            if(isWz) {
+                descWrap.classList.add('hidden');
+            } else {
+                descWrap.classList.remove('hidden');
+            }
+
+            // 2. 标签文字
+            document.getElementById('label-type').innerHTML = isWz ? "<span class='text-dangerRed'>*</span>违章名称" : "<span class='text-dangerRed'>*</span>隐患分类";
+            document.getElementById('label-level').innerHTML = isWz ? "<span class='text-dangerRed'>*</span>违章等级" : "<span class='text-dangerRed'>*</span>隐患等级";
+            document.getElementById('label-location').innerHTML = isWz ? "<span class='text-dangerRed'>*</span>作业位置" : "<span class='text-dangerRed'>*</span>隐患位置";
+            document.getElementById('label-unit').innerHTML = isWz ? "<span class='text-dangerRed'>*</span>违章单位" : "<span class='text-dangerRed'>*</span>隐患单位";
+            document.getElementById('label-rule').innerHTML = isWz ? "违章条款/依据" : "隐患依据";
+            document.getElementById('label-person').innerHTML = isWz ? "<span class='text-dangerRed'>*</span>违章人员" : "<span class='text-dangerRed'>*</span>隐患整改人";
+            document.getElementById('label-time').innerHTML = isWz ? "<span class='text-dangerRed'>*</span>发现时间" : "<span class='text-dangerRed'>*</span>隐患排查时间";
+            document.getElementById('score-wrap').classList.toggle('hidden', !isWz);
+            document.getElementById('rectification-deadline-wrap').classList.toggle('hidden', isWz);
+
+            // 下拉分组切换
+            document.getElementById('opt-wz').classList.toggle('hidden', !isWz);
+            document.getElementById('opt-yh').classList.toggle('hidden', isWz);
+            document.getElementById('level-wz').classList.toggle('hidden', !isWz);
+            document.getElementById('level-yh').classList.toggle('hidden', isWz);
+
+            // 文本域默认内容
+            const textarea = document.getElementById('textarea-rule');
+            if(isWz) {
+                textarea.value = `《矿山安全管理考核细则》第12条：井下作业人员未按规定佩戴安全防护用品，属于一般性违章，按对应条款进行考核处理。`;
+            } else {
+                textarea.value = `《煤矿重大事故隐患判定标准》第6条：井下作业场所防护设施缺失，需限期完成整改，整改完成后复查验收。`;
+            }
+        }
+
+        // ===== 数据源 =====
+        var violationData = {
+            1: { type: 'wz', photos: ['1011', '1012'], content: '未佩戴安全帽', time: '2026-08-05 14:32:16', unit: '采矿一厂', level: 'B类违章', person: '陶炳之(WX000864)、魏伟(WX001258)', location: '中碎作业区', rule: '《矿山安全管理考核细则》第12条：井下作业人员未按规定佩戴安全防护用品。', reviewStatus: '已复核', reviewResult: '确认违章' },
+            2: { type: 'wz', photos: ['1041'], content: '未佩戴安全带', time: '2026-08-05 14:28:42', unit: '运输车间', level: 'C类违章', person: '陶炳之(WX000864)', location: '井下运输大巷', rule: '《矿山安全管理考核细则》第15条：高处作业未系安全带。', reviewStatus: '待复核', reviewResult: '' },
+            3: { type: 'yh', photos: ['1042'], content: '跨越皮带输送机', time: '2026-08-05 14:24:07', unit: '采矿二厂', level: '一般隐患', person: '王安全员', location: '东帮658工作面', rule: '《矿山安全隐患排查治理管理制度》第8条：作业现场存在设备设施或环境安全隐患。', reviewStatus: '待核实', reviewResult: '' }
+        };
+
+        // ===== 详情侧边栏 =====
+        function openDetail(type, id) {
+            var d = violationData[id];
+            if (!d) return;
+            var isYh = type === 'yh';
+            var prefix = isYh ? '隐患' : '违章';
+            document.getElementById('detail-title').textContent = prefix + '详情';
+
+            var photoHtml = d.photos.map(function(p) {
+                return '<img src="https://picsum.photos/id/' + p + '/200/150" style="width:100px;height:75px;border-radius:6px;object-fit:cover;margin-right:8px;" />';
+            }).join('');
+
+            var html = '';
+            html += '<div style="margin-bottom:16px;"><div style="font-size:13px;color:#7887a0;margin-bottom:4px;">' + prefix + '/隐患照片</div><div style="display:flex;flex-wrap:wrap;">' + photoHtml + '</div></div>';
+            html += '<div style="margin-bottom:16px;"><div style="font-size:13px;color:#7887a0;margin-bottom:4px;">单据类型</div><div style="font-size:15px;color:#1f2937;">' + prefix + '</div></div>';
+            if (isYh) {
+                html += '<div style="margin-bottom:16px;"><div style="font-size:13px;color:#7887a0;margin-bottom:4px;">隐患描述</div><div style="font-size:15px;color:#1f2937;">' + d.content + '</div></div>';
+                html += '<div style="margin-bottom:16px;"><div style="font-size:13px;color:#7887a0;margin-bottom:4px;">隐患分类</div><div style="font-size:15px;color:#1f2937;">设备设施隐患</div></div>';
+            } else {
+                html += '<div style="margin-bottom:16px;"><div style="font-size:13px;color:#7887a0;margin-bottom:4px;">违章内容</div><div style="font-size:15px;color:#1f2937;">' + d.content + '</div></div>';
+                html += '<div style="margin-bottom:16px;"><div style="font-size:13px;color:#7887a0;margin-bottom:4px;">违章名称</div><div style="font-size:15px;color:#1f2937;">安全防护缺失</div></div>';
+            }
+            html += '<div style="margin-bottom:16px;"><div style="font-size:13px;color:#7887a0;margin-bottom:4px;">' + prefix + '等级</div><div style="font-size:15px;color:#1f2937;">' + d.level + '</div></div>';
+            html += '<div style="margin-bottom:16px;"><div style="font-size:13px;color:#7887a0;margin-bottom:4px;">' + prefix + '单位</div><div style="font-size:15px;color:#1f2937;">' + d.unit + '</div></div>';
+            html += '<div style="margin-bottom:16px;"><div style="font-size:13px;color:#7887a0;margin-bottom:4px;">' + prefix + '条款/依据</div><div style="font-size:15px;color:#1f2937;">' + d.rule + '</div></div>';
+            html += '<div style="margin-bottom:16px;"><div style="font-size:13px;color:#7887a0;margin-bottom:4px;">' + (isYh ? '隐患整改人' : '违章人员') + '</div><div style="font-size:15px;color:#1f2937;">' + d.person + '</div></div>';
+            html += '<div style="margin-bottom:16px;"><div style="font-size:13px;color:#7887a0;margin-bottom:4px;">' + (isYh ? '隐患排查时间' : '发现时间') + '</div><div style="font-size:15px;color:#1f2937;">' + d.time + '</div></div>';
+            html += '<div style="margin-bottom:16px;"><div style="font-size:13px;color:#7887a0;margin-bottom:4px;">' + (isYh ? '隐患位置' : '作业位置') + '</div><div style="font-size:15px;color:#1f2937;display:flex;align-items:center;gap:8px;">' + d.location + '<button type="button" onclick="openGisMap(\'detail-location\', \'detail-btn-gismark\')" id="detail-btn-gismark" style="border:1px solid #2563eb;border-radius:4px;padding:3px 9px;background:#fff;color:#2563eb;font-size:13px;cursor:pointer;white-space:nowrap;">查看位置</button></div></div>';
+            html += '<div style="margin-bottom:16px;"><div style="font-size:13px;color:#7887a0;margin-bottom:4px;">状态</div><div style="font-size:15px;color:' + (d.reviewStatus === '待核实' ? '#10b981' : '#f59e0b') + ';">' + d.reviewStatus + '</div></div>';
+            if (d.reviewResult) {
+                html += '<div style="margin-bottom:16px;"><div style="font-size:13px;color:#7887a0;margin-bottom:4px;">复核结果</div><div style="font-size:15px;color:' + (d.reviewResult === '确认违章' ? '#ef4444' : '#6b7280') + ';">' + d.reviewResult + '</div></div>';
+            }
+
+            document.getElementById('detail-body').innerHTML = html;
+            document.getElementById('detail-overlay').style.display = 'block';
+            document.getElementById('detail-sidebar').style.transform = 'translateX(0)';
+        }
+        function closeDetail() {
+            document.getElementById('detail-overlay').style.display = 'none';
+            document.getElementById('detail-sidebar').style.transform = 'translateX(100%)';
+        }
+
+        // ===== 编辑侧边栏 =====
+        function openEdit(type, id) {
+            var d = violationData[id];
+            if (!d) return;
+            var isYh = type === 'yh';
+            var prefix = isYh ? '隐患' : '违章';
+            document.getElementById('edit-title').textContent = '编辑' + prefix;
+
+            var photoHtml = d.photos.map(function(p) {
+                return '<div style="position:relative;width:100px;height:75px;border-radius:6px;overflow:hidden;margin-right:8px;"><img src="https://picsum.photos/id/' + p + '/200/150" style="width:100%;height:100%;object-fit:cover;" /><span style="position:absolute;top:2px;right:2px;width:18px;height:18px;background:rgba(0,0,0,0.5);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;">&times;</span></div>';
+            }).join('');
+            photoHtml += '<div style="width:100px;height:75px;border:1px dashed #c9cdd6;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:24px;color:#999;cursor:pointer;">+</div>';
+
+            var html = '';
+            html += '<div style="margin-bottom:16px;"><label style="display:block;font-size:13px;color:#374151;margin-bottom:6px;"><span style="color:red">*</span>' + prefix + '/隐患照片</label><div style="display:flex;gap:8px;align-items:center;">' + photoHtml + '</div></div>';
+            html += '<div style="margin-bottom:16px;"><label style="display:block;font-size:13px;color:#374151;margin-bottom:6px;">单据类型</label><div style="display:flex;gap:12px;"><div><input type="radio" name="editBillType" checked /> <span>' + prefix + '</span></div></div></div>';
+            if (isYh) {
+                html += '<div style="margin-bottom:16px;"><label style="display:block;font-size:13px;color:#374151;margin-bottom:6px;"><span style="color:red">*</span>隐患描述</label><textarea rows="2" style="width:100%;height:auto;padding:8px 12px;resize:none;border:1px solid #c9cdd6;border-radius:4px;outline:none;">' + d.content + '</textarea></div>';
+            }
+            html += '<div style="margin-bottom:16px;"><label style="display:block;font-size:13px;color:#374151;margin-bottom:6px;"><span style="color:red">*</span>' + (isYh ? '隐患分类' : '违章名称') + '</label><select style="width:100%;height:36px;border:1px solid #c9cdd6;border-radius:4px;padding:0 10px;outline:none;background:#fff;">';
+            if (isYh) {
+                html += '<option>设备设施隐患</option><option>作业环境隐患</option><option>消防通道隐患</option><option>电气安全隐患</option><option>其他隐患</option>';
+            } else {
+                html += '<option selected>安全防护缺失</option><option>违规操作设备</option><option>消防安全违规</option><option>井下运输违规</option><option>其他违章</option>';
+            }
+            html += '</select></div>';
+            html += '<div style="margin-bottom:16px;"><label style="display:block;font-size:13px;color:#374151;margin-bottom:6px;"><span style="color:red">*</span>' + prefix + '等级</label><select style="width:100%;height:36px;border:1px solid #c9cdd6;border-radius:4px;padding:0 10px;outline:none;background:#fff;">';
+            if (isYh) {
+                html += '<option>重大隐患</option><option>较大隐患</option><option selected>一般隐患</option><option>轻微隐患</option>';
+            } else {
+                html += '<option>A类违章</option><option selected>B类违章</option><option>C类违章</option><option>D类违章</option><option>其他类违章</option>';
+            }
+            html += '</select></div>';
+            html += '<div style="margin-bottom:16px;"><label style="display:block;font-size:13px;color:#374151;margin-bottom:6px;"><span style="color:red">*</span>' + prefix + '单位</label><select style="width:100%;height:36px;border:1px solid #c9cdd6;border-radius:4px;padding:0 10px;outline:none;background:#fff;"><option>' + d.unit + '</option><option>齐大山选矿厂</option><option>弓长岭铁矿</option><option>眼前山分公司</option></select></div>';
+            html += '<div style="margin-bottom:16px;"><label style="display:block;font-size:13px;color:#374151;margin-bottom:6px;">' + prefix + '条款/依据</label><textarea rows="2" style="width:100%;height:auto;padding:8px 12px;resize:none;border:1px solid #c9cdd6;border-radius:4px;outline:none;">' + d.rule + '</textarea></div>';
+            html += '<div style="margin-bottom:16px;"><label style="display:block;font-size:13px;color:#374151;margin-bottom:6px;"><span style="color:red">*</span>' + (isYh ? '隐患整改人' : '违章人员') + '</label><div style="display:flex;flex-wrap:wrap;"><span style="display:inline-flex;align-items:center;background:#eff6ff;color:#2570f2;font-size:13px;padding:3px 10px;border-radius:16px;margin-right:6px;">' + d.person + ' <span style="margin-left:6px;cursor:pointer;color:#2570f2;">&times;</span></span></div></div>';
+            html += '<div style="margin-bottom:16px;"><label style="display:block;font-size:13px;color:#374151;margin-bottom:6px;"><span style="color:red">*</span>' + (isYh ? '隐患排查时间' : '发现时间') + '</label><input type="datetime-local" style="width:100%;height:36px;border:1px solid #c9cdd6;border-radius:4px;padding:0 10px;outline:none;" /></div>';
+            html += '<div style="margin-bottom:16px;"><label style="display:block;font-size:13px;color:#374151;margin-bottom:6px;"><span style="color:red">*</span>' + (isYh ? '隐患位置' : '作业位置') + '</label><div style="position:relative;"><input id="edit-input-location" value="' + d.location + '" style="width:100%;height:36px;border:1px solid #c9cdd6;border-radius:4px;padding:0 80px 0 10px;outline:none;" /><span id="edit-btn-gismark" onclick="openGisMap(\'edit-input-location\', \'edit-btn-gismark\')" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);color:#2570f2;font-size:13px;cursor:pointer;white-space:nowrap;user-select:none;">标注点位&gt;</span></div></div>';
+
+            document.getElementById('edit-body').innerHTML = html;
+            document.getElementById('edit-overlay').style.display = 'block';
+            document.getElementById('edit-sidebar').style.transform = 'translateX(0)';
+        }
+        function closeEdit() {
+            document.getElementById('edit-overlay').style.display = 'none';
+            document.getElementById('edit-sidebar').style.transform = 'translateX(100%)';
+        }
+
+        // ===== XXXX楼栋-楼层（或者室外位置信息） =====
+        var gisContext = { inputId: null, btnId: null, markX: 0, markY: 0, hasMark: false };
+        // 记录每个场景的标注状态
+        var gisMarks = {};
+
+        function openGisMap(inputId, btnId) {
+            gisContext.inputId = inputId;
+            gisContext.btnId = btnId;
+            gisContext.hasMark = false;
+
+            // 恢复已有标注
+            var existing = gisMarks[inputId];
+            var markPoint = document.getElementById('gis-mark-point');
+            var coord = document.getElementById('gis-coord');
+            if (existing && existing.hasMark) {
+                markPoint.style.display = 'block';
+                markPoint.style.left = existing.x + '%';
+                markPoint.style.top = existing.y + '%';
+                gisContext.markX = existing.x;
+                gisContext.markY = existing.y;
+                gisContext.hasMark = true;
+                coord.textContent = '坐标：' + existing.x.toFixed(1) + '%, ' + existing.y.toFixed(1) + '% (已标注)';
+            } else {
+                markPoint.style.display = 'none';
+                coord.textContent = '坐标：未标注';
+            }
+
+            document.getElementById('gis-overlay').style.display = 'flex';
+            var modal = document.getElementById('gis-modal');
+            modal.style.opacity = '1';
+            modal.style.transform = 'translate(-50%,-50%) scale(1)';
+            modal.style.pointerEvents = 'auto';
+        }
+
+        function placeGisMark(e) {
+            var container = document.getElementById('gis-map-container');
+            var rect = container.getBoundingClientRect();
+            var x = ((e.clientX - rect.left) / rect.width) * 100;
+            var y = ((e.clientY - rect.top) / rect.height) * 100;
+
+            var markPoint = document.getElementById('gis-mark-point');
+            markPoint.style.display = 'block';
+            markPoint.style.left = x + '%';
+            markPoint.style.top = y + '%';
+
+            gisContext.markX = x;
+            gisContext.markY = y;
+            gisContext.hasMark = true;
+
+            document.getElementById('gis-coord').textContent = '坐标：' + x.toFixed(1) + '%, ' + y.toFixed(1) + '%';
+        }
+
+        function saveGisMark() {
+            if (!gisContext.hasMark) {
+                alert('请在地图上点击选择标注点位');
+                return;
+            }
+            // 保存标注状态
+            gisMarks[gisContext.inputId] = { hasMark: true, x: gisContext.markX, y: gisContext.markY };
+            // 更新按钮文字
+            var btn = document.getElementById(gisContext.btnId);
+            if (btn) {
+                btn.textContent = '查看位置';
+                btn.style.color = '#10b981';
+            }
+            closeGisMap();
+        }
+
+        function closeGisMap() {
+            document.getElementById('gis-overlay').style.display = 'none';
+            var modal = document.getElementById('gis-modal');
+            modal.style.opacity = '0';
+            modal.style.transform = 'translate(-50%,-50%) scale(0.9)';
+            modal.style.pointerEvents = 'none';
+        }
+
+    </script>
+    </div>
+    <script src="navigation.js?v=20260819-2"></script>
+</body>
+</html>

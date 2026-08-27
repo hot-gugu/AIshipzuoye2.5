@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>矿山智能算力管控平台 - 人脸采集库管理</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#2563EB',
+            sidebarDark: '#0F172A',
+            sidebarActive: '#1E293B',
+            pageBg: '#F8FAFC',
+            tableHeaderBg: '#F1F5F9',
+            textPrimary: '#1E293B',
+            textSecondary: '#64748B',
+            successGreen: '#10B981',
+            warningOrange: '#FF7D00',
+            dangerRed: '#EF4444',
+            tagAdminBg: '#DBEAFE',
+            tagAdminText: '#2563EB',
+            tagWorkerBg: '#D1FAE5',
+            tagWorkerText: '#059669',
+            tagBlackBg: '#FEE2E2',
+            tagBlackText: '#DC2626'
+          },
+          boxShadow: {
+            figma: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)'
+          }
+        }
+      }
+    }
+  </script>
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .scrollbar-thin::-webkit-scrollbar {
+        width: 6px;
+        height:6px;
+      }
+      .scrollbar-thin::-webkit-scrollbar-thumb {
+        background-color:#CBD5E1;
+        border-radius:999px;
+      }
+      .scrollbar-thin::-webkit-scrollbar-track {
+        background:transparent;
+      }
+      .table-row-hover:hover{
+        background-color:#EFF6FF;
+      }
+    }
+  </style>
+</head>
+
+<body class="bg-pageBg h-screen flex flex-col overflow-hidden font-sans">
+  <!-- 全局左侧深色主导航（由 navigation.js 统一渲染） -->
+  <aside></aside>
+
+  <!-- 主内容容器 -->
+  <div class="flex-1 flex flex-col overflow-hidden">
+    <!-- 顶部全局导航 -->
+    <header class="h-12 bg-white border-b border-slate-200 flex items-center justify-between px-4 shrink-0">
+      <div class="flex items-center gap-2">
+        <div class="font-bold text-lg text-primary flex items-center gap-2">
+          <i class="fa fa-cube text-primary"></i>
+          <span>矿山智能算力管控平台</span>
+        </div>
+        <div class="text-slate-400 text-xs">|</div>
+        <div class="text-sm text-textSecondary">基础管理 / 人脸采集库</div>
+      </div>
+      <div class="flex items-center gap-5">
+        <i class="fa fa-bell-o text-textSecondary cursor-pointer relative">
+          <span class="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+        </i>
+        <i class="fa fa-question-circle-o text-textSecondary cursor-pointer"></i>
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center">
+            <i class="fa fa-user"></i>
+          </div>
+          <div class="text-sm leading-tight">
+            <div>张伟</div>
+            <div class="text-xs text-textSecondary">安全管理员</div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- 主体横向布局：左侧组织架构 + 右侧人脸采集库 -->
+    <div class="flex flex-1 overflow-hidden">
+      <aside class="w-[260px] bg-white border-r border-cardBorder overflow-y-auto p-6 shrink-0">
+        <h3 class="font-semibold text-slate-800 mb-5 text-base">组织架构</h3>
+        <div class="pl-1">
+          <div class="font-medium text-primary mb-4 flex items-center gap-2">
+            <i class="fa fa-building"></i>鞍钢矿业公司
+          </div>
+          <div class="pl-6 flex flex-col gap-4">
+            <div class="text-slate-600 cursor-pointer hover:text-primary flex items-center gap-2 text-sm"><i
+                class="fa fa-mine text-xs"></i>齐大山铁矿</div>
+            <div class="text-slate-600 cursor-pointer hover:text-primary flex items-center gap-2 text-sm"><i
+                class="fa fa-mine text-xs"></i>弓长岭铁矿</div>
+            <div class="text-slate-600 cursor-pointer hover:text-primary flex items-center gap-2 text-sm"><i
+                class="fa fa-mine text-xs"></i>眼前山铁矿</div>
+            <div class="text-slate-600 cursor-pointer hover:text-primary flex items-center gap-2 text-sm"><i
+                class="fa fa-mine text-xs"></i>东鞍山分公司</div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- 主内容区域 -->
+      <main class="flex-1 overflow-auto scrollbar-thin p-6">
+        <div class="max-w-full">
+          <!-- 页面头部 -->
+          <div class="flex justify-between items-start mb-4">
+            <div>
+              <h1 class="text-xl font-semibold text-textPrimary">人脸采集库管理</h1>
+              <!-- <p class="text-xs text-textSecondary mt-1">对平台采集的人脸数据进行统一管理，支持人员信息维护、照片查看、批量导出及状态管理。</p> -->
+            </div>
+            <button id="openMobileCollect" class="bg-primary text-white px-4 py-2 rounded-lg text-sm flex items-center gap-2 shadow-figma hover:bg-blue-700">
+              <i class="fa fa-qrcode text-base"></i>
+              <span>手机采集</span>
+            </button>
+            <!-- <div class="flex items-center gap-3">
+            <button class="border border-slate-200 bg-white px-4 py-2 rounded-lg text-sm flex items-center gap-1 text-primary hover:bg-slate-50">
+              <i class="fa fa-download"></i>批量导出
+            </button>
+            <button class="bg-primary text-white px-4 py-2 rounded-lg text-sm flex items-center gap-1 shadow-figma hover:bg-blue-700">
+              <i class="fa fa-search"></i>查询
+            </button>
+          </div> -->
+          </div>
+
+          <!-- 筛选栏 -->
+          <div class="bg-white rounded-lg shadow-figma p-4 mb-5">
+            <div class="flex flex-wrap gap-x-6 gap-y-4 items-center">
+              <div class="flex items-center gap-2 min-w-[360px] flex-1 max-w-[520px]">
+                <!-- <label for="faceKeyword" class="text-sm text-textSecondary whitespace-nowrap">姓名</label> -->
+                <input id="faceKeyword" type="search" placeholder="请输入姓名/身份证号/手机号"
+                  class="flex-1 min-w-0 border border-slate-200 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary">
+              </div>
+              <!-- <div>
+              <label class="text-xs text-textSecondary block mb-1">身份证号/手机号</label>
+              <select class="w-full border border-slate-200 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary">
+                <option>请输入身份证号或手机号</option>
+              </select>
+            </div> -->
+              <!-- <div>
+              <label class="text-xs text-textSecondary block mb-1">所属企业</label>
+              <select class="w-full border border-slate-200 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary">
+                <option>请选择</option>
+              </select>
+            </div> -->
+              <div class="flex items-center gap-2 min-w-[200px]">
+                <label class="text-sm text-textSecondary whitespace-nowrap">状态</label>
+                <select
+                  class="flex-1 border border-slate-200 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary">
+                  <option>请选择</option>
+                </select>
+              </div>
+              <div class="flex items-center gap-2">
+                <label class="text-sm text-textSecondary whitespace-nowrap">更新时间</label>
+                <div class="flex gap-2 items-center">
+                  <input type="text" placeholder="开始日期" class="border border-slate-200 rounded px-3 py-2 text-sm w-28">
+                  <span class="text-textSecondary">~</span>
+                  <input type="text" placeholder="结束日期" class="border border-slate-200 rounded px-3 py-2 text-sm w-28">
+                </div>
+                <!-- <i class="fa fa-calendar text-textSecondary"></i> -->
+              </div>
+            </div>
+          </div>
+
+          <!-- 统计卡片区域 -->
+          <div class="grid grid-cols-5 gap-4 mb-5">
+            <div class="bg-white rounded-lg shadow-figma p-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <div class="text-xs text-textSecondary">人脸库总数</div>
+                  <div class="text-2xl font-semibold mt-1 text-textPrimary">12,856 <span
+                      class="text-sm font-normal text-textSecondary">人</span></div>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-primary">
+                  <i class="fa fa-users text-xl"></i>
+                </div>
+              </div>
+            </div>
+            <div class="bg-white rounded-lg shadow-figma p-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <div class="text-xs text-textSecondary">今日新增</div>
+                  <div class="text-2xl font-semibold mt-1 text-textPrimary">156 <span
+                      class="text-sm font-normal text-textSecondary">人</span></div>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-successGreen">
+                  <i class="fa fa-calendar-plus text-xl"></i>
+                </div>
+              </div>
+            </div>
+            <div class="bg-white rounded-lg shadow-figma p-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <div class="text-xs text-textSecondary">已启用</div>
+                  <div class="text-2xl font-semibold mt-1 text-textPrimary">12,256 <span
+                      class="text-sm font-normal text-textSecondary">人</span></div>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-primary">
+                  <i class="fa fa-check-circle text-xl"></i>
+                </div>
+              </div>
+            </div>
+            <div class="bg-white rounded-lg shadow-figma p-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <div class="text-xs text-textSecondary">未启用</div>
+                  <div class="text-2xl font-semibold mt-1 text-textPrimary">600 <span
+                      class="text-sm font-normal text-textSecondary">人</span></div>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-warningOrange">
+                  <i class="fa fa-pause-circle text-xl"></i>
+                </div>
+              </div>
+            </div>
+            <!-- <div class="bg-white rounded-lg shadow-figma p-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <div class="text-xs text-textSecondary">黑名单数量</div>
+                  <div class="text-2xl font-semibold mt-1 text-textPrimary">128 <span
+                      class="text-sm font-normal text-textSecondary">人</span></div>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-dangerRed">
+                  <i class="fa fa-user-times text-xl"></i>
+                </div>
+              </div>
+            </div> -->
+          </div>
+          <!-- 人员列表表格 -->
+          <div class="bg-white rounded-lg shadow-figma overflow-hidden">
+            <div class="flex justify-between items-center px-4 py-3 border-b border-slate-100">
+              <div class="text-sm font-medium text-textPrimary">人员列表（共 12,856 条）</div>
+              <button class="border border-slate-200 px-3 py-1.5 rounded text-sm flex items-center gap-1 text-primary">
+                <i class="fa fa-cog"></i>导出</i>
+                <!-- <i class="fa fa-cog"></i>批量操作 <i class="fa fa-angle-down text-xs"></i> -->
+              </button>
+            </div>
+            <table class="w-full text-sm">
+              <thead class="bg-tableHeaderBg text-textSecondary text-xs">
+                <tr>
+                  <th class="py-3 px-3 text-left">序号</th>
+                  <th class="py-3 px-3 text-left">人员信息</th>
+                  <th class="py-3 px-3 text-left">证件信息</th>
+                  <th class="py-3 px-3 text-left">所属企业</th>
+                  <th class="py-3 px-3 text-left">人脸照片</th>
+                  <th class="py-3 px-3 text-left">状态</th>
+                  <th class="py-3 px-3 text-left">更新时间</th>
+                  <th class="py-3 px-3 text-center">操作</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                <tr class="table-row-hover">
+                  <td class="py-3 px-3">1</td>
+                  <td class="py-3 px-3">
+                    <div>张三 <span class="px-1.5 py-0.5 rounded text-xs bg-tagAdminBg text-tagAdminText">管理员</span></div>
+                    <div class="text-xs text-textSecondary mt-0.5">138****5678</div>
+                  </td>
+                  <td class="py-3 px-3 text-xs">身份证<br />2102*******001X</td>
+                  <td class="py-3 px-3 text-xs">鞍钢矿业有限公司<br />鞍钢建设集团有限公司<br /><span
+                      class="text-textSecondary">共2家</span></td>
+                  <td class="py-3 px-3">
+                    <div class="w-12 h-14 bg-slate-200 rounded overflow-hidden"><img alt=""
+                        class="w-full h-full object-cover" src="https://picsum.photos/id/1005/80/100"></div>
+                  </td>
+                  <td class="py-3 px-3"><span
+                      class="px-2 py-0.5 rounded text-xs bg-green-100 text-successGreen">启用</span></td>
+                  <td class="py-3 px-3 text-xs text-textSecondary">2025‑05‑24<br />10:30:45</td>
+                  <td class="py-3 px-3 text-center text-xs space-x-2">
+                    <a class="text-primary cursor-pointer">查看</a>
+                    <a class="text-dangerRed cursor-pointer">删除</a>
+                  </td>
+                </tr>
+                <tr class="table-row-hover">
+                  <td class="py-3 px-3">2</td>
+                  <td class="py-3 px-3">
+                    <div>李四 <span class="px-1.5 py-0.5 rounded text-xs bg-tagWorkerBg text-tagWorkerText">作业人员</span>
+                    </div>
+                    <div class="text-xs text-textSecondary mt-0.5">139****5678</div>
+                  </td>
+                  <td class="py-3 px-3 text-xs">身份证<br />210103*******0038</td>
+                  <td class="py-3 px-3 text-xs">鞍钢矿业有限公司<br /><span class="text-textSecondary">共1家</span></td>
+                  <td class="py-3 px-3">
+                    <div class="w-12 h-14 bg-slate-200 rounded overflow-hidden"><img alt=""
+                        class="w-full h-full object-cover" src="https://picsum.photos/id/1012/80/100"></div>
+                  </td>
+                  <td class="py-3 px-3"><span
+                      class="px-2 py-0.5 rounded text-xs bg-green-100 text-successGreen">启用</span></td>
+                  <td class="py-3 px-3 text-xs text-textSecondary">2025‑05‑24<br />09:15:22</td>
+                  <td class="py-3 px-3 text-center text-xs space-x-2">
+                    <a class="text-primary cursor-pointer">查看</a>
+                    <a class="text-dangerRed cursor-pointer">删除</a>
+                  </td>
+                </tr>
+                <tr class="table-row-hover">
+                  <td class="py-3 px-3">3</td>
+                  <td class="py-3 px-3">
+                    <div>王五 <span class="px-1.5 py-0.5 rounded text-xs bg-tagWorkerBg text-tagWorkerText">作业人员</span>
+                    </div>
+                    <div class="text-xs text-textSecondary mt-0.5">137****5679</div>
+                  </td>
+                  <td class="py-3 px-3 text-xs">身份证<br />210104*******0056</td>
+                  <td class="py-3 px-3 text-xs">鞍钢矿业有限公司<br />鞍钢智能科技有限公司<br /><span
+                      class="text-textSecondary">共2家</span></td>
+                  <td class="py-3 px-3">
+                    <div class="w-12 h-14 bg-slate-200 rounded overflow-hidden"><img alt=""
+                        class="w-full h-full object-cover" src="https://picsum.photos/id/1025/80/100"></div>
+                  </td>
+                  <td class="py-3 px-3"><span
+                      class="px-2 py-0.5 rounded text-xs bg-green-100 text-successGreen">启用</span></td>
+                  <td class="py-3 px-3 text-xs text-textSecondary">2025‑05‑24<br />08:50:11</td>
+                  <td class="py-3 px-3 text-center text-xs space-x-2">
+                    <a class="text-primary cursor-pointer">查看</a>
+                    <a class="text-dangerRed cursor-pointer">删除</a>
+                  </td>
+                </tr>
+                <tr class="table-row-hover">
+                  <td class="py-3 px-3">4</td>
+                  <td class="py-3 px-3">
+                    <div>赵六 <span class="px-1.5 py-0.5 rounded text-xs bg-tagAdminBg text-tagAdminText">管理员</span></div>
+                    <div class="text-xs text-textSecondary mt-0.5">136****5680</div>
+                  </td>
+                  <td class="py-3 px-3 text-xs">身份证<br />210105*******0072</td>
+                  <td class="py-3 px-3 text-xs">鞍钢矿业有限公司<br /><span class="text-textSecondary">共1家</span></td>
+                  <td class="py-3 px-3">
+                    <div class="w-12 h-14 bg-slate-200 rounded overflow-hidden"><img alt=""
+                        class="w-full h-full object-cover" src="https://picsum.photos/id/1027/80/100"></div>
+                  </td>
+                  <td class="py-3 px-3"><span
+                      class="px-2 py-0.5 rounded text-xs bg-green-100 text-successGreen">启用</span></td>
+                  <td class="py-3 px-3 text-xs text-textSecondary">2025‑05‑23<br />17:45:33</td>
+                  <td class="py-3 px-3 text-center text-xs space-x-2">
+                    <a class="text-primary cursor-pointer">查看</a>
+                    <a class="text-dangerRed cursor-pointer">删除</a>
+                  </td>
+                </tr>
+                <tr class="table-row-hover">
+                  <td class="py-3 px-3">5</td>
+                  <td class="py-3 px-3">
+                    <div>孙七 <span class="px-1.5 py-0.5 rounded text-xs bg-tagWorkerBg text-tagWorkerText">作业人员</span>
+                    </div>
+                    <div class="text-xs text-textSecondary mt-0.5">135****5681</div>
+                  </td>
+                  <td class="py-3 px-3 text-xs">身份证<br />210106*******0090</td>
+                  <td class="py-3 px-3 text-xs">鞍钢矿业有限公司<br />鞍钢建设集团有限公司<br /><span
+                      class="text-textSecondary">共2家</span></td>
+                  <td class="py-3 px-3">
+                    <div class="w-12 h-14 bg-slate-200 rounded overflow-hidden"><img alt=""
+                        class="w-full h-full object-cover" src="https://picsum.photos/id/1074/80/100"></div>
+                  </td>
+                  <td class="py-3 px-3"><span
+                      class="px-2 py-0.5 rounded text-xs bg-slate-100 text-textSecondary">未启用</span></td>
+                  <td class="py-3 px-3 text-xs text-textSecondary">2025‑05‑23<br />16:20:18</td>
+                  <td class="py-3 px-3 text-center text-xs space-x-2">
+                    <a class="text-primary cursor-pointer">查看</a>
+                    <a class="text-dangerRed cursor-pointer">删除</a>
+                  </td>
+                </tr>
+                <tr class="table-row-hover">
+                  <td class="py-3 px-3">6</td>
+                  <td class="py-3 px-3">
+                    <div>周八</div>
+                    <div class="text-xs text-textSecondary mt-0.5">134****5682</div>
+                  </td>
+                  <td class="py-3 px-3 text-xs">身份证<br />210107*******0017</td>
+                  <td class="py-3 px-3 text-xs">鞍钢矿业有限公司<br /><span class="text-textSecondary">共1家</span></td>
+                  <td class="py-3 px-3">
+                    <div class="w-12 h-14 bg-slate-200 rounded overflow-hidden"><img alt=""
+                        class="w-full h-full object-cover" src="https://picsum.photos/id/1062/80/100"></div>
+                  </td>
+                 <td class="py-3 px-3"><span
+                      class="px-2 py-0.5 rounded text-xs bg-slate-100 text-textSecondary">未启用</span></td>
+                  <td class="py-3 px-3 text-xs text-textSecondary">2025‑05‑23<br />15:10:05</td>
+                  <td class="py-3 px-3 text-center text-xs space-x-2">
+                    <a class="text-primary cursor-pointer">查看</a>
+                    <a class="text-dangerRed cursor-pointer">删除</a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <!-- 分页 -->
+            <div class="flex justify-between items-center px-4 py-3 border-t border-slate-100">
+              <div class="text-xs text-textSecondary">共 12,856 条</div>
+              <div class="flex items-center gap-2 text-sm">
+                <div class="flex items-center gap-1">
+                  <span class="text-xs text-textSecondary">10条/页</span>
+                  <i class="fa fa-angle-down text-xs"></i>
+                </div>
+                <button class="px-2 py-1 border rounded text-xs hover:bg-slate-50"><i
+                    class="fa fa-angle-left"></i></button>
+                <button class="w-6 h-6 bg-primary text-white rounded text-xs">1</button>
+                <button class="w-6 h-6 border rounded text-xs hover:bg-slate-50">2</button>
+                <button class="w-6 h-6 border rounded text-xs hover:bg-slate-50">3</button>
+                <button class="w-6 h-6 border rounded text-xs hover:bg-slate-50">4</button>
+                <button class="w-6 h-6 border rounded text-xs hover:bg-slate-50">5</button>
+                <span>…</span>
+                <button class="w-6 h-6 border rounded text-xs hover:bg-slate-50">1286</button>
+                <button class="px-2 py-1 border rounded text-xs hover:bg-slate-50"><i
+                    class="fa fa-angle-right"></i></button>
+                <div class="flex items-center gap-1 text-xs">
+                  <span>跳至</span>
+                  <input class="w-10 border rounded px-1 py-0.5 text-center" value="1">
+                  <span>页</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+  <!-- 手机采集二维码弹窗 -->
+  <div id="mobileCollectModal" class="fixed inset-0 bg-slate-900/50 hidden z-[70] items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-xl w-[720px] max-w-full overflow-hidden">
+      <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+        <div>
+          <h2 class="text-lg font-semibold text-textPrimary">手机端人脸采集</h2>
+          <p class="text-xs text-textSecondary mt-1">使用手机扫码，打开人员信息与人脸照片采集页面</p>
+        </div>
+        <button id="closeMobileCollect" class="w-8 h-8 rounded hover:bg-slate-100 text-textSecondary" aria-label="关闭">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+      <div class="grid grid-cols-[260px_1fr] max-md:grid-cols-1">
+        <div class="bg-blue-50 p-7 flex flex-col items-center justify-center border-r border-blue-100 max-md:border-r-0 max-md:border-b">
+          <div class="bg-white p-3 rounded-lg border border-blue-200 shadow-figma">
+            <img id="mobileCollectQr" class="w-44 h-44 block" alt="手机端人脸采集二维码">
+          </div>
+          <div class="mt-4 text-sm font-medium text-textPrimary">微信或浏览器扫码</div>
+          <div class="mt-1 text-xs text-textSecondary">二维码有效期以实际服务配置为准</div>
+        </div>
+        <div class="p-7 flex flex-col justify-center">
+          <div class="flex items-start gap-3 mb-5">
+            <div class="w-9 h-9 rounded-full bg-blue-100 text-primary flex items-center justify-center shrink-0"><i class="fa fa-mobile-screen-button"></i></div>
+            <div><div class="text-sm font-medium">移动采集流程</div><div class="text-xs text-textSecondary mt-1 leading-5">填写人员身份信息，拍摄正面人脸照片，确认后提交至人脸采集库。</div></div>
+          </div>
+          <label class="text-xs text-textSecondary mb-2" for="mobileCollectUrl">H5 采集地址</label>
+          <div class="flex gap-2">
+            <input id="mobileCollectUrl" class="min-w-0 flex-1 border border-slate-200 rounded px-3 py-2 text-xs text-textPrimary outline-none focus:border-primary" value="移动端人脸采集.html">
+            <button id="refreshMobileQr" class="px-3 py-2 border border-slate-200 rounded text-sm text-primary hover:bg-blue-50" title="更新二维码"><i class="fa fa-rotate"></i></button>
+          </div>
+          <button id="copyMobileUrl" class="mt-3 w-full border border-primary text-primary rounded py-2 text-sm hover:bg-blue-50"><i class="fa fa-copy mr-2"></i>复制采集地址</button>
+          <!-- <p class="text-xs text-warningOrange mt-4 leading-5"><i class="fa fa-circle-info mr-1"></i>正式使用时，请将地址替换为手机可访问的服务器地址。</p> -->
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- 人员详情抽屉 -->
+  <div id="faceDetailDrawer" class="fixed inset-0 bg-black/40 hidden z-50">
+    <aside class="absolute right-0 top-0 h-full w-[480px] max-w-full bg-white shadow-xl flex flex-col">
+      <div class="h-16 px-6 border-b border-slate-200 flex items-center justify-between">
+        <div>
+          <h2 class="text-lg font-semibold">人员详情</h2>
+          <!-- <p class="text-xs text-textSecondary mt-1">查看人脸采集人员完整信息</p> -->
+        </div><button id="closeFaceDetail"><i class="fa fa-times text-textSecondary"></i></button>
+      </div>
+      <div class="flex-1 overflow-y-auto p-6">
+        <section>
+          <h3 class="font-medium border-l-4 border-primary pl-3 mb-4">基本信息</h3>
+          <div class="grid grid-cols-2 gap-x-5 gap-y-5 text-sm">
+            <div>
+              <div class="text-textSecondary text-xs">姓名</div>
+              <div id="basicFaceName" class="mt-1"></div>
+            </div>
+            <div>
+              <div class="text-textSecondary text-xs">手机号</div>
+              <div id="basicFacePhone" class="mt-1"></div>
+            </div>
+            <div>
+              <div class="text-textSecondary text-xs">证件类型</div>
+              <div class="mt-1">身份证</div>
+            </div>
+            <div>
+              <div class="text-textSecondary text-xs">证件号码</div>
+              <div id="detailFaceId" class="mt-1"></div>
+            </div>
+            <div class="col-span-2">
+              <div class="text-textSecondary text-xs">所属企业</div>
+              <div id="detailFaceCompany" class="mt-1 leading-6"></div>
+            </div>
+          </div>
+        </section>
+        <section class="mt-7">
+          <h3 class="font-medium border-l-4 border-primary pl-3 mb-4">采集信息</h3>
+          <div class="bg-slate-50 rounded-lg p-4 grid grid-cols-2 gap-5 text-sm">
+            <div>
+              <div class="text-textSecondary text-xs">当前状态</div>
+              <div id="detailFaceStatus" class="mt-1 text-successGreen"></div>
+            </div>
+            <div>
+              <div class="text-textSecondary text-xs">更新时间</div>
+              <div id="detailFaceTime" class="mt-1"></div>
+            </div>
+            <div>
+              <div class="text-textSecondary text-xs">采集来源</div>
+              <div class="mt-1">平台人脸采集</div>
+            </div>
+            <div>
+              <div class="text-textSecondary text-xs">人脸质量</div>
+              <div class="mt-1">合格</div>
+            </div>
+            <div class="col-span-2">
+              <div class="text-textSecondary text-xs mb-2">人脸照片</div><img id="detailCollectedFacePhoto" alt="采集的人脸照片"
+                class="w-24 h-28 rounded-lg object-cover bg-white border border-slate-200">
+            </div>
+          </div>
+        </section>
+      </div>
+      <div class="px-6 py-4 border-t flex justify-end"><button id="closeFaceDetailBottom"
+          class="px-5 py-2 bg-primary text-white rounded">关闭</button></div>
+    </aside>
+  </div>
+  <!-- 删除确认弹窗 -->
+  <div id="faceDeleteConfirm" class="fixed inset-0 bg-black/40 hidden z-[60] items-center justify-center">
+    <div class="bg-white rounded-lg shadow-xl w-[420px] max-w-[calc(100%-32px)] p-6">
+      <div class="flex gap-3">
+        <div class="w-10 h-10 rounded-full bg-red-50 text-dangerRed flex items-center justify-center"><i
+            class="fa fa-exclamation-triangle"></i></div>
+        <div>
+          <h3 class="text-lg font-medium">确认删除</h3>
+          <p id="faceDeleteMessage" class="text-sm text-textSecondary mt-2"></p>
+        </div>
+      </div>
+      <div class="flex justify-end gap-3 mt-6"><button id="cancelFaceDelete"
+          class="px-4 py-2 border rounded">取消</button><button id="confirmFaceDelete"
+          class="px-4 py-2 bg-dangerRed text-white rounded">确认删除</button></div>
+    </div>
+  </div>
+  <script>
+      (() => {
+        const tableBody = document.querySelector('tbody.divide-y'), drawer = document.getElementById('faceDetailDrawer'), confirm = document.getElementById('faceDeleteConfirm'); let deleteRow = null;
+        const show = e => { e.classList.remove('hidden'); if (e === confirm) e.classList.add('flex') }, hide = e => { e.classList.add('hidden'); e.classList.remove('flex') };
+        tableBody.addEventListener('click', event => { const action = event.target.closest('a'); if (!action) return; const row = action.closest('tr'), cells = row.children, text = action.textContent.trim(); if (text === '查看') { const info = cells[1].innerText.split('\n').map(x => x.trim()).filter(Boolean), cert = cells[2].innerText.split('\n').map(x => x.trim()).filter(Boolean), company = cells[3].innerText.split('\n').filter(x => !x.includes('共')).join('<br>'), time = cells[6].innerText.replace('\n', ' '), status = cells[5].innerText.trim(), photo = cells[4].querySelector('img'), photoSrc = photo ? photo.src : ''; document.getElementById('detailCollectedFacePhoto').src = photoSrc; document.getElementById('basicFaceName').textContent = info[0] || '-'; document.getElementById('basicFacePhone').textContent = info[2] || info[1] || '-'; document.getElementById('detailFaceId').textContent = cert[1] || '-'; document.getElementById('detailFaceCompany').innerHTML = company || '-'; document.getElementById('detailFaceStatus').textContent = status; document.getElementById('detailFaceTime').textContent = time; show(drawer) } else if (text === '删除') { deleteRow = row; document.getElementById('faceDeleteMessage').textContent = `确定删除“${cells[1].innerText.split('\n')[0]}”的人脸采集记录吗？删除后不可恢复。`; show(confirm) } });
+        ['closeFaceDetail', 'closeFaceDetailBottom'].forEach(id => document.getElementById(id).onclick = () => hide(drawer)); document.getElementById('cancelFaceDelete').onclick = () => hide(confirm); document.getElementById('confirmFaceDelete').onclick = () => { if (deleteRow) deleteRow.remove(); deleteRow = null; hide(confirm) };
+      })();
+  </script>
+  <script>
+    (() => {
+      const modal = document.getElementById('mobileCollectModal');
+      const urlInput = document.getElementById('mobileCollectUrl');
+      const qrImage = document.getElementById('mobileCollectQr');
+      const show = () => { modal.classList.remove('hidden'); modal.classList.add('flex'); renderQr(); };
+      const hide = () => { modal.classList.add('hidden'); modal.classList.remove('flex'); };
+      const getUrl = () => {
+        const value = urlInput.value.trim() || '移动端人脸采集.html';
+        try { return new URL(value, window.location.href).href; } catch (_) { return value; }
+      };
+      const renderQr = () => { qrImage.src = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=8&data=' + encodeURIComponent(getUrl()); };
+      document.getElementById('openMobileCollect').onclick = show;
+      document.getElementById('closeMobileCollect').onclick = hide;
+      document.getElementById('refreshMobileQr').onclick = renderQr;
+      document.getElementById('copyMobileUrl').onclick = async event => {
+        try { await navigator.clipboard.writeText(getUrl()); event.currentTarget.innerHTML = '<i class="fa fa-check mr-2"></i>已复制'; setTimeout(() => event.currentTarget.innerHTML = '<i class="fa fa-copy mr-2"></i>复制采集地址', 1500); } catch (_) { urlInput.select(); }
+      };
+      modal.addEventListener('click', event => { if (event.target === modal) hide(); });
+    })();
+  </script>
+  <script src="navigation.js?v=20260819-2"></script>
+<script src="org-panel-toggle.js?v=20260822-2"></script>
+</body>
+
+</html>

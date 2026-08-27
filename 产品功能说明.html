@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>产品功能说明 - 三违无视频不作业智慧管控系统</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <style>
+    :root{--blue:#165dff;--navy:#0f244e;--text:#17233d;--muted:#69758c;--line:#e2e8f2;--bg:#f4f7fb;--white:#fff}
+    *{box-sizing:border-box}
+    html,body{margin:0;min-height:100%;font-family:"Microsoft YaHei UI","Noto Sans SC",sans-serif;background:var(--bg);color:var(--text)}
+    body{display:flex}
+    main{min-height:100vh;padding:0 34px 48px}
+    .topbar{height:72px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}
+    .breadcrumb{font-size:14px;color:var(--muted)}
+    .breadcrumb strong{color:var(--text);font-weight:600}
+    .version{padding:6px 12px;border-radius:999px;background:#eaf1ff;color:var(--blue);font-size:12px;font-weight:700}
+    .hero{margin-top:28px;padding:34px 38px;border-radius:16px;color:#fff;background:linear-gradient(125deg,#102855 0%,#165dff 68%,#20b9c5 100%);box-shadow:0 18px 42px rgba(15,36,78,.16);position:relative;overflow:hidden}
+    .hero:after{content:"";position:absolute;width:280px;height:280px;right:-70px;top:-120px;border:46px solid rgba(255,255,255,.1);border-radius:50%}
+    .hero small{letter-spacing:2px;color:#bdeff2}.hero h1{margin:12px 0 10px;font-size:30px}.hero p{max-width:720px;margin:0;color:#dbe7ff;line-height:1.8;font-size:14px}
+    .section{margin-top:28px}.section-head{margin-bottom:16px}.section-head h2{margin:0;font-size:20px}.section-head p{margin:7px 0 0;color:var(--muted);font-size:13px}
+    .cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+    .doc-card{grid-column:span 2;display:flex;align-items:center;gap:20px;min-height:160px;padding:26px;background:var(--white);border:1px solid var(--line);border-radius:14px;text-decoration:none;color:inherit;box-shadow:0 8px 24px rgba(15,36,78,.06);transition:.2s}
+    .doc-card:hover{border-color:#8eb1ff;box-shadow:0 14px 34px rgba(22,93,255,.13);transform:translateY(-2px)}
+    .doc-icon{width:62px;height:62px;flex:0 0 62px;border-radius:15px;display:grid;place-items:center;background:#eaf1ff;color:var(--blue);font-size:26px}
+    .doc-content{flex:1}.doc-type{font-size:12px;color:var(--blue);font-weight:700;letter-spacing:1px}.doc-content h3{margin:8px 0;font-size:18px}.doc-content p{margin:0;color:var(--muted);font-size:13px;line-height:1.65}
+    .arrow{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:#f1f5fb;color:var(--blue);font-size:21px}
+    .tip-card{padding:24px;border:1px solid var(--line);border-radius:14px;background:#fff}.tip-card h3{font-size:15px;margin:0 0 12px}.tip-card p{font-size:13px;color:var(--muted);line-height:1.75;margin:0}
+    .reader{margin-top:26px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 8px 24px rgba(15,36,78,.06);overflow:visible}
+    .reader[hidden]{display:none}.reader-head{min-height:62px;padding:14px 22px;display:flex;align-items:center;justify-content:space-between;gap:16px;border-bottom:1px solid var(--line);border-radius:14px 14px 0 0;background:#f9fbfe}
+    .reader-title{display:flex;align-items:center;gap:10px;font-weight:700;font-size:15px}.reader-title i{color:var(--blue)}
+    .reader-actions{display:flex;align-items:center;gap:10px}.reader-link,.reader-close{padding:7px 12px;border-radius:7px;border:1px solid var(--line);background:#fff;color:#53627a;text-decoration:none;font-size:12px;cursor:pointer}.reader-link:hover,.reader-close:hover{border-color:#8eb1ff;color:var(--blue)}
+    .reader-layout{display:grid;grid-template-columns:220px minmax(0,1fr);align-items:start}.document-toc{position:sticky;top:16px;margin:26px 0 26px 22px;padding:18px 12px;border:1px solid var(--line);border-radius:10px;background:#f9fbfe;max-height:calc(100vh - 40px);overflow-y:auto}.document-toc[hidden]{display:none}.toc-title{padding:0 10px 12px;color:#17233d;font-size:14px;font-weight:700;border-bottom:1px solid var(--line)}.toc-list{display:flex;flex-direction:column;gap:4px;margin-top:10px}.toc-link{display:block;padding:9px 10px;border-radius:7px;color:#69758c;text-decoration:none;font-size:13px;line-height:1.45;transition:.18s}.toc-link:hover{color:var(--blue);background:#edf3ff}.toc-link.active{color:var(--blue);font-weight:700;background:#e8f0ff;box-shadow:inset 3px 0 0 var(--blue)}
+    .markdown-body{width:100%;max-width:940px;margin:0 auto;padding:34px 40px 50px;font-size:15px;line-height:1.85;color:#27344c;overflow-wrap:anywhere}.markdown-body .document-section-anchor{scroll-margin-top:22px}
+    .markdown-body h1,.markdown-body h2,.markdown-body h3{color:#17233d;line-height:1.4}.markdown-body h1{margin:0 0 24px;padding-bottom:14px;border-bottom:1px solid var(--line);font-size:28px}.markdown-body h2{margin:34px 0 14px;font-size:21px}.markdown-body h3{margin:26px 0 12px;font-size:17px}
+    .markdown-body p{margin:12px 0}.markdown-body ul,.markdown-body ol{padding-left:26px}.markdown-body li{margin:5px 0}.markdown-body blockquote{margin:18px 0;padding:10px 18px;border-left:4px solid var(--blue);background:#f3f7ff;color:#53627a}.markdown-body code{padding:2px 6px;border-radius:5px;background:#f0f3f8;color:#d14;font-family:Consolas,monospace}.markdown-body pre{padding:18px;border-radius:9px;background:#17233d;color:#e7eefc;overflow:auto}.markdown-body pre code{padding:0;background:transparent;color:inherit}.markdown-body img{display:block;max-width:100%;height:auto;margin:22px auto;border-radius:10px;border:1px solid var(--line)}.markdown-body table{width:100%;border-collapse:collapse;margin:18px 0}.markdown-body th,.markdown-body td{padding:10px 12px;border:1px solid var(--line);text-align:left}.markdown-body th{background:#f5f8fc}
+    .reader-state{padding:48px 24px;text-align:center;color:var(--muted)}.reader-state i{display:block;margin-bottom:12px;color:var(--blue);font-size:24px}.reader-error{color:#c0392b}.reader-error a{color:var(--blue)}
+    @media(max-width:900px){main{padding:0 18px 36px}.cards{grid-template-columns:1fr}.doc-card{grid-column:auto}.hero{padding:28px 24px}.reader-layout{grid-template-columns:1fr}.document-toc{position:static;margin:18px 18px 0;max-height:none}.toc-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:560px){.doc-card{align-items:flex-start;padding:20px}.arrow{display:none}.hero h1{font-size:24px}.reader-head{align-items:flex-start;flex-direction:column}.markdown-body{padding:26px 20px 38px}}
+  </style>
+</head>
+<body>
+  <aside aria-label="系统主导航"></aside>
+  <main>
+    <header class="topbar">
+      <div class="breadcrumb">产品资料&nbsp; / &nbsp;<strong>产品功能说明</strong></div>
+      <span class="version">V2.3</span>
+    </header>
+
+    <section class="hero">
+      <small>PRODUCT DOCUMENTATION</small>
+      <h1>产品功能说明</h1>
+      <p>集中查看系统功能规划、算力生命周期架构、智能调度策略与业务流程说明，为产品设计和功能评审提供统一参考。</p>
+    </section>
+
+    <section class="section" aria-labelledby="document-title">
+      <div class="section-head">
+        <h2 id="document-title">说明文档</h2>
+        <p>点击下方卡片，在当前页面阅读渲染后的 Markdown 产品功能说明。</p>
+      </div>
+      <div class="cards">
+        <a id="open-document" class="doc-card" href="#document-reader">
+          <span class="doc-icon"><i class="fa fa-file-text-o" aria-hidden="true"></i></span>
+          <span class="doc-content">
+            <span class="doc-type">MARKDOWN 文档</span>
+            <h3>产品功能说明.md</h3>
+            <p>涵盖核心逻辑、算力架构、智能算力管控、业务流程、特殊场景处理方案及事件等级字典。</p>
+          </span>
+          <span class="arrow" aria-hidden="true">→</span>
+        </a>
+        <aside class="tip-card">
+          <h3>文档内容概览</h3>
+          <p>以作业场景驱动算法与任务，说明中心算力和边缘智盒的职责边界，以及资源池化、优先级抢占和时间片轮巡策略。</p>
+        </aside>
+      </div>
+      <section id="document-reader" class="reader" aria-live="polite" hidden>
+        <header class="reader-head">
+          <div class="reader-title"><i class="fa fa-file-text-o" aria-hidden="true"></i><span>产品功能说明.md</span></div>
+          <div class="reader-actions">
+            <a class="reader-link" href="产品功能说明.md" target="_blank" rel="noopener">查看原始文件</a>
+            <button id="close-document" class="reader-close" type="button">收起文档</button>
+          </div>
+        </header>
+        <div class="reader-layout">
+          <aside id="document-toc" class="document-toc" aria-label="文档章节导航" hidden>
+            <div class="toc-title">内容导航</div>
+            <nav id="toc-list" class="toc-list"></nav>
+          </aside>
+          <article id="markdown-content" class="markdown-body"></article>
+        </div>
+      </section>
+    </section>
+  </main>
+  <script src="marked.min.js"></script>
+  <script src="purify.min.js"></script>
+  <script src="产品功能说明内嵌.js"></script>
+  <script src="navigation.js?v=20260819-2"></script>
+  <script>
+    (() => {
+      const sourceFile = '产品功能说明.md';
+      const openButton = document.getElementById('open-document');
+      const closeButton = document.getElementById('close-document');
+      const reader = document.getElementById('document-reader');
+      const content = document.getElementById('markdown-content');
+      const toc = document.getElementById('document-toc');
+      const tocList = document.getElementById('toc-list');
+      let loaded = false;
+      let sectionObserver;
+
+      const loadMarkdown = async () => {
+        if (location.protocol === 'file:' && typeof window.PRODUCT_DOC_MARKDOWN === 'string') {
+          return window.PRODUCT_DOC_MARKDOWN;
+        }
+        try {
+          const response = await fetch(encodeURI(sourceFile), { cache: 'no-cache' });
+          if (!response.ok) throw new Error(`文档请求失败（${response.status}）`);
+          return await response.text();
+        } catch (error) {
+          if (typeof window.PRODUCT_DOC_MARKDOWN === 'string') return window.PRODUCT_DOC_MARKDOWN;
+          throw error;
+        }
+      };
+
+      const buildSectionNavigation = () => {
+        const sectionPattern = /^(说在前面[：:]?|第[一二三四五六七八九十百零〇两\d]+部分[：:]?\s*.*)$/;
+        const sections = [...content.children].map(element => {
+          const firstLine = element.innerText.split(/\r?\n/)[0].trim();
+          const match = firstLine.match(sectionPattern);
+          if (!match) return null;
+          return { element, label: match[1].trim() };
+        }).filter(Boolean);
+
+        toc.hidden = sections.length === 0;
+        tocList.innerHTML = sections.map((section, index) => {
+          section.element.id = `document-section-${index + 1}`;
+          section.element.classList.add('document-section-anchor');
+          return `<a class="toc-link${index === 0 ? ' active' : ''}" href="#${section.element.id}" data-section-id="${section.element.id}">${section.label}</a>`;
+        }).join('');
+
+        tocList.querySelectorAll('.toc-link').forEach(link => {
+          link.addEventListener('click', event => {
+            event.preventDefault();
+            document.getElementById(link.dataset.sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            history.replaceState(null, '', `#${link.dataset.sectionId}`);
+          });
+        });
+
+        sectionObserver?.disconnect();
+        if (!sections.length) return;
+        sectionObserver = new IntersectionObserver(entries => {
+          const visible = entries.filter(entry => entry.isIntersecting)
+            .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+          if (!visible) return;
+          tocList.querySelectorAll('.toc-link').forEach(link => {
+            link.classList.toggle('active', link.dataset.sectionId === visible.target.id);
+          });
+        }, { rootMargin: '-12% 0px -72% 0px', threshold: 0 });
+        sections.forEach(section => sectionObserver.observe(section.element));
+      };
+
+      const showState = (html, className = 'reader-state') => {
+        content.className = `markdown-body ${className}`;
+        content.innerHTML = html;
+      };
+
+      const renderDocument = async () => {
+        reader.hidden = false;
+        location.hash = 'document-reader';
+        if (loaded) {
+          reader.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          return;
+        }
+
+        showState('<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>正在加载产品功能说明…');
+        try {
+          if (!window.marked) throw new Error('Markdown 解析库未加载');
+          const markdown = await loadMarkdown();
+          marked.setOptions({ gfm: true, breaks: true });
+          const parsed = marked.parse(markdown);
+          content.className = 'markdown-body';
+          content.innerHTML = window.DOMPurify ? DOMPurify.sanitize(parsed) : parsed;
+          buildSectionNavigation();
+          loaded = true;
+          reader.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } catch (error) {
+          showState(`<i class="fa fa-exclamation-circle" aria-hidden="true"></i>文档加载失败：${error.message}<br><small>请通过本地 Web 服务访问本页面，或<a href="${encodeURI(sourceFile)}" target="_blank" rel="noopener">查看原始文件</a>。</small>`, 'reader-state reader-error');
+        }
+      };
+
+      openButton.addEventListener('click', event => {
+        event.preventDefault();
+        renderDocument();
+      });
+      closeButton.addEventListener('click', () => {
+        reader.hidden = true;
+        history.replaceState(null, '', location.pathname + location.search);
+        openButton.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+      if (location.hash === '#document-reader') renderDocument();
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI智能分析 / 正负样本库</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#2563EB',
+            sidebarBg: '#0F172A',
+            sidebarHover: '#1E293B',
+            pageBg: '#F8FAFC',
+            positiveTag: '#10B981',
+            negativeTag: '#EF4444',
+            borderLine: '#E2E8F0',
+            textMain: '#1E293B',
+            textSub: '#64748B',
+            textLight: '#94A3B8'
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto { content-visibility: auto; }
+      .scrollbar-thin::-webkit-scrollbar { width:4px;height:4px; }
+      .scrollbar-thin::-webkit-scrollbar-thumb { background:#CBD5E1; border-radius:4px; }
+      .scrollbar-thin::-webkit-scrollbar-track { background:transparent; }
+      .tab-page { display: none; }
+      .tab-page.active { display: flex; }
+      .tree-item:hover { background-color: #F1F5F9; }
+      .tree-item.active { color: #2563EB; background-color: #EFF6FF; }
+      .sample-card { transition: all 0.2s ease; }
+      .sample-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-1px); }
+      .ai-box {
+        position: absolute;
+        border: 2px solid #EF4444;
+        background: rgba(239, 68, 68, 0.1);
+      }
+      .ai-box-label {
+        position: absolute;
+        top: -20px;
+        left: -2px;
+        background: #EF4444;
+        color: white;
+        font-size: 10px;
+        padding: 1px 4px;
+        border-radius: 2px 2px 2px 0;
+      }
+    }
+  </style>
+</head>
+<body class="bg-pageBg font-sans h-screen overflow-hidden text-textMain">
+<div class="flex h-full w-full">
+  <!-- 左侧侧边栏 -->
+  <aside></aside>
+
+  <!-- 主内容区域 -->
+  <div class="flex-1 flex flex-col overflow-hidden">
+    <header class="h-14 bg-white border-b border-borderLine flex items-center justify-between px-5 shrink-0">
+      <div class="flex items-center gap-4">
+        <button class="text-textSub hover:text-textMain"><i class="fa fa-bars"></i></button>
+        <div class="text-sm">
+          <span class="text-textSub">AI智能分析</span>
+          <span class="mx-2 text-textLight">/</span>
+          <span class="font-medium text-textMain">正负样本库</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-5">
+        <button class="relative text-textSub hover:text-textMain">
+          <i class="fa fa-bell-o text-lg"></i>
+          <span class="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center">11</span>
+        </button>
+        <div class="flex items-center gap-2 cursor-pointer">
+          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-sm font-medium">张</div>
+          <div class="text-sm leading-tight">
+            <div class="font-medium text-textMain">张安全</div>
+            <div class="text-[11px] text-textSub">安全环保部·管理员</div>
+          </div>
+          <i class="fa fa-angle-down text-textLight text-xs"></i>
+        </div>
+      </div>
+    </header>
+
+    <main class="flex-1 flex overflow-hidden">
+      <!-- 组织架构树 -->
+      <div class="w-64 bg-white border-r border-borderLine flex flex-col shrink-0">
+        <div class="p-3 border-b border-borderLine">
+          <div class="flex items-center justify-between mb-3">
+            <span class="font-medium text-sm">组织架构</span>
+            <button class="text-textLight hover:text-textSub"><i class="fa fa-times"></i></button>
+          </div>
+          <div class="relative">
+            <i class="fa fa-search absolute left-2.5 top-1/2 -translate-y-1/2 text-textLight text-xs"></i>
+            <input class="w-full border border-borderLine rounded-md pl-7 pr-3 py-1.5 text-xs focus:outline-none focus:border-primary" placeholder="搜索组织名称"/>
+          </div>
+        </div>
+        <div class="flex-1 overflow-y-auto scrollbar-thin p-2 text-sm">
+          <div class="mb-0.5">
+            <div class="flex items-center gap-1 px-2 py-1.5 rounded cursor-pointer hover:bg-slate-50">
+              <i class="fa fa-chevron-down text-[10px] text-textLight w-3"></i>
+              <i class="fa fa-folder-open text-amber-500 w-4"></i>
+              <span>鞍钢矿业集团</span>
+            </div>
+            <div class="pl-4">
+              <div class="mb-0.5">
+                <div class="flex items-center gap-1 px-2 py-1.5 rounded cursor-pointer tree-item active">
+                  <i class="fa fa-chevron-right text-[10px] text-primary w-3"></i>
+                  <i class="fa fa-folder text-primary w-4"></i>
+                  <span class="font-medium">齐大山铁矿</span>
+                </div>
+                <div class="pl-4">
+                  <div class="flex items-center gap-1 px-2 py-1.5 rounded cursor-pointer tree-item">
+                    <i class="fa fa-chevron-right text-[10px] text-textLight w-3"></i>
+                    <i class="fa fa-folder text-textLight w-4"></i>
+                    <span class="text-textSub">安全环保部</span>
+                  </div>
+                  <div class="flex items-center gap-1 px-2 py-1.5 rounded cursor-pointer tree-item">
+                    <i class="fa fa-chevron-right text-[10px] text-textLight w-3"></i>
+                    <i class="fa fa-folder text-textLight w-4"></i>
+                    <span class="text-textSub">生产技术部</span>
+                  </div>
+                  <div class="flex items-center gap-1 px-2 py-1.5 rounded cursor-pointer tree-item">
+                    <i class="fa fa-chevron-right text-[10px] text-textLight w-3"></i>
+                    <i class="fa fa-folder text-textLight w-4"></i>
+                    <span class="text-textSub">采矿作业区</span>
+                  </div>
+                  <div class="flex items-center gap-1 px-2 py-1.5 rounded cursor-pointer tree-item">
+                    <i class="fa fa-chevron-right text-[10px] text-textLight w-3"></i>
+                    <i class="fa fa-folder text-textLight w-4"></i>
+                    <span class="text-textSub">选矿作业区</span>
+                  </div>
+                  <div class="flex items-center gap-1 px-2 py-1.5 rounded cursor-pointer tree-item">
+                    <i class="fa fa-chevron-right text-[10px] text-textLight w-3"></i>
+                    <i class="fa fa-folder text-textLight w-4"></i>
+                    <span class="text-textSub">设备保障部</span>
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center gap-1 px-2 py-1.5 rounded cursor-pointer tree-item">
+                <i class="fa fa-chevron-right text-[10px] text-textLight w-3"></i>
+                <i class="fa fa-folder text-textLight w-4"></i>
+                <span class="text-textSub">眼前山铁矿</span>
+              </div>
+              <div class="flex items-center gap-1 px-2 py-1.5 rounded cursor-pointer tree-item">
+                <i class="fa fa-chevron-right text-[10px] text-textLight w-3"></i>
+                <i class="fa fa-folder text-textLight w-4"></i>
+                <span class="text-textSub">弓长岭露天矿</span>
+              </div>
+              <div class="flex items-center gap-1 px-2 py-1.5 rounded cursor-pointer tree-item">
+                <i class="fa fa-chevron-right text-[10px] text-textLight w-3"></i>
+                <i class="fa fa-folder text-textLight w-4"></i>
+                <span class="text-textSub">大孤山铁矿</span>
+              </div>
+              <div class="flex items-center gap-1 px-2 py-1.5 rounded cursor-pointer tree-item">
+                <i class="fa fa-chevron-right text-[10px] text-textLight w-3"></i>
+                <i class="fa fa-folder text-textLight w-4"></i>
+                <span class="text-textSub">鲅鱼圈矿业公司</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="p-2.5 border-t border-borderLine text-xs text-textSub flex justify-between items-center">
+          <span>共 24 个组织</span>
+          <button class="flex items-center gap-1 hover:text-primary">
+            <i class="fa fa-cog"></i><span>管理组织</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 样本库主面板 -->
+      <div class="flex-1 flex flex-col overflow-hidden bg-pageBg">
+        <div class="p-4 flex flex-col h-full">
+          <!-- Tab移到内容区域顶部 -->
+          <div class="flex justify-start mb-4">
+            <div class="flex gap-0 border border-borderLine rounded-md overflow-hidden">
+              <div data-tab="all" class="tab-item px-4 py-2 text-sm cursor-pointer font-medium bg-primary text-white">全部样本</div>
+              <div data-tab="positive" class="tab-item px-4 py-2 text-sm cursor-pointer bg-white text-textSub hover:bg-slate-50">正样本</div>
+              <div data-tab="negative" class="tab-item px-4 py-2 text-sm cursor-pointer bg-white text-textSub hover:bg-slate-50">负样本</div>
+              <div data-tab="video" class="tab-item px-4 py-2 text-sm cursor-pointer bg-white text-textSub hover:bg-slate-50">视频正样本库</div>
+            </div>
+          </div>
+
+          <!-- 全部样本页面 -->
+          <div id="page-all" class="tab-page active flex-col h-full overflow-y-auto scrollbar-thin">
+            <div class="bg-white rounded-lg p-4 mb-4 border border-borderLine">
+              <div class="grid grid-cols-12 gap-4 items-end">
+                <div class="col-span-3">
+                  <label class="text-xs text-textSub block mb-1.5">样本类型：</label>
+                  <div class="relative">
+                    <select class="w-full border border-borderLine rounded-md px-3 py-1.5 text-xs bg-white appearance-none focus:outline-none focus:border-primary">
+                      <option>请选择</option>
+                    </select>
+                    <i class="fa fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-textLight text-[10px] pointer-events-none"></i>
+                  </div>
+                </div>
+                <div class="col-span-3">
+                  <label class="text-xs text-textSub block mb-1.5">算法模型：</label>
+                  <div class="relative">
+                    <select class="w-full border border-borderLine rounded-md px-3 py-1.5 text-xs bg-white appearance-none focus:outline-none focus:border-primary">
+                      <option>请选择</option>
+                    </select>
+                    <i class="fa fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-textLight text-[10px] pointer-events-none"></i>
+                  </div>
+                </div>
+                <div class="col-span-3">
+                  <label class="text-xs text-textSub block mb-1.5">来源：</label>
+                  <div class="relative">
+                    <select class="w-full border border-borderLine rounded-md px-3 py-1.5 text-xs bg-white appearance-none focus:outline-none focus:border-primary">
+                      <option>请选择</option>
+                    </select>
+                    <i class="fa fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-textLight text-[10px] pointer-events-none"></i>
+                  </div>
+                </div>
+                <div class="col-span-3"></div>
+                <div class="col-span-5">
+                  <label class="text-xs text-textSub block mb-1.5">拍摄时间：</label>
+                  <div class="flex gap-2 items-center">
+                    <div class="flex-1 relative">
+                      <input type="text" class="w-full border border-borderLine rounded-md px-3 py-1.5 text-xs focus:outline-none focus:border-primary" placeholder="请开始日期"/>
+                      <i class="fa fa-calendar absolute right-3 top-1/2 -translate-y-1/2 text-textLight text-xs pointer-events-none"></i>
+                    </div>
+                    <span class="text-xs text-textLight">至</span>
+                    <div class="flex-1 relative">
+                      <input type="text" class="w-full border border-borderLine rounded-md px-3 py-1.5 text-xs focus:outline-none focus:border-primary" placeholder="结束日期"/>
+                      <i class="fa fa-calendar absolute right-3 top-1/2 -translate-y-1/2 text-textLight text-xs pointer-events-none"></i>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-span-4">
+                  <label class="text-xs text-textSub block mb-1.5">标签：</label>
+                  <input class="w-full border border-borderLine rounded-md px-3 py-1.5 text-xs focus:outline-none focus:border-primary" placeholder="请输入标签关键字"/>
+                </div>
+                <!-- 删除查询重置按钮列 -->
+                <div class="col-span-3"></div>
+              </div>
+            </div>
+
+            <div class="flex justify-between items-center mb-3">
+              <span class="text-sm font-medium text-textMain">样本列表 <span class="text-textSub font-normal">（共 1,258 条）</span></span>
+              <div class="flex gap-3 items-center">
+                <span class="text-xs text-textSub">排序：<span class="text-textMain">上传时间↓</span></span>
+                <!-- 卡片导出移到排序右侧 -->
+                <button id="exportCardBtn" class="bg-white border border-borderLine px-3 py-1.5 rounded-md text-xs text-textMain flex items-center gap-1.5 hover:bg-slate-50 transition-colors">
+                  <i class="fa fa-download"></i>卡片导出
+                </button>
+              </div>
+            </div>
+
+            <!-- 卡片网格 -->
+            <div class="grid grid-cols-4 gap-4 mb-6">
+              <!-- 卡片1 -->
+              <div class="sample-card bg-white rounded-lg shadow-sm overflow-hidden border border-borderLine">
+                <div class="relative">
+                  <div class="absolute top-2 left-2 bg-positiveTag text-white text-[11px] px-2 py-0.5 rounded-md z-10 font-medium">正样本</div>
+                  <!-- 删除编辑按钮 -->
+                  <div class="h-36 bg-gray-100 relative overflow-hidden">
+                    <img src="sample-no-helmet.jpg" class="w-full h-full object-cover" alt="未佩戴安全帽"/>
+                    <div class="ai-box" style="top: 15%; left: 25%; width: 50%; height: 70%;">
+                      <!-- <div class="ai-box-label">person 96%</div> -->
+                    </div>
+                  </div>
+                </div>
+                <div class="p-3">
+                  <!-- 删除序号 -->
+                  <div class="text-sm font-medium mb-1.5">未佩戴安全帽</div>
+                  <div class="text-xs text-textSub mb-2">人员行为</div>
+                  <div class="text-xs text-textSub mb-1.5">算法模型：安全帽识别模型V2.1</div>
+                  <div class="text-xs mb-1.5">置信度：<span class="text-positiveTag font-medium">96%</span></div>
+                  <div class="text-xs text-textSub">来源：人工标注</div>
+                </div>
+              </div>
+              <!-- 卡片2 -->
+              <div class="sample-card bg-white rounded-lg shadow-sm overflow-hidden border border-borderLine">
+                <div class="relative">
+                  <div class="absolute top-2 left-2 bg-negativeTag text-white text-[11px] px-2 py-0.5 rounded-md z-10 font-medium">负样本</div>
+                  <div class="h-36 bg-gray-100 relative overflow-hidden">
+                    <img src="sample-helmet.jpg" class="w-full h-full object-cover" alt="正常佩戴安全帽"/>
+                  </div>
+                </div>
+                <div class="p-3">
+                  <div class="text-sm font-medium mb-1.5">正常佩戴安全帽</div>
+                  <div class="text-xs text-textSub mb-2">人员行为</div>
+                  <div class="text-xs text-textSub mb-1.5">算法模型：安全帽识别模型V2.1</div>
+                  <div class="text-xs mb-1.5">置信度：<span class="text-negativeTag font-medium">12%</span></div>
+                  <div class="text-xs text-textSub">来源：人工标注</div>
+                </div>
+              </div>
+              <!-- 卡片3 -->
+              <div class="sample-card bg-white rounded-lg shadow-sm overflow-hidden border border-borderLine">
+                <div class="relative">
+                  <div class="absolute top-2 left-2 bg-positiveTag text-white text-[11px] px-2 py-0.5 rounded-md z-10 font-medium">正样本</div>
+                  <div class="h-36 bg-gray-100 relative overflow-hidden">
+                    <img src="sample-fire.jpg" class="w-full h-full object-cover" alt="烟火识别"/>
+                    <div class="ai-box" style="top: 20%; left: 30%; width: 45%; height: 55%;">
+                      <!-- <div class="ai-box-label">fire 94%</div> -->
+                    </div>
+                  </div>
+                </div>
+                <div class="p-3">
+                  <div class="text-sm font-medium mb-1.5">烟火识别</div>
+                  <div class="text-xs text-textSub mb-2">环境与设施</div>
+                  <div class="text-xs text-textSub mb-1.5">算法模型：烟火识别模型V1.3</div>
+                  <div class="text-xs mb-1.5">置信度：<span class="text-positiveTag font-medium">94%</span></div>
+                  <div class="text-xs text-textSub">来源：AI自动采集</div>
+                </div>
+              </div>
+              <!-- 卡片4 -->
+              <div class="sample-card bg-white rounded-lg shadow-sm overflow-hidden border border-borderLine">
+                <div class="relative">
+                  <div class="absolute top-2 left-2 bg-negativeTag text-white text-[11px] px-2 py-0.5 rounded-md z-10 font-medium">负样本</div>
+                  <div class="h-36 bg-gray-100 relative overflow-hidden">
+                    <img src="sample-normal-scene.jpg" class="w-full h-full object-cover" alt="正常环境"/>
+                  </div>
+                </div>
+                <div class="p-3">
+                  <div class="text-sm font-medium mb-1.5">烟火识别</div>
+                  <div class="text-xs text-textSub mb-2">环境与设施</div>
+                  <div class="text-xs text-textSub mb-1.5">算法模型：烟火识别模型V1.3</div>
+                  <div class="text-xs mb-1.5">置信度：<span class="text-negativeTag font-medium">8%</span></div>
+                  <div class="text-xs text-textSub">来源：AI自动采集</div>
+                </div>
+              </div>
+              <!-- 卡片5 -->
+              <div class="sample-card bg-white rounded-lg shadow-sm overflow-hidden border border-borderLine">
+                <div class="relative">
+                  <div class="absolute top-2 left-2 bg-positiveTag text-white text-[11px] px-2 py-0.5 rounded-md z-10 font-medium">正样本</div>
+                  <div class="h-36 bg-gray-100 relative overflow-hidden">
+                    <img src="sample-safety-belt.jpg" class="w-full h-full object-cover" alt="高处作业未系安全带"/>
+                    <div class="ai-box" style="top: 10%; left: 35%; width: 40%; height: 80%;">
+                      <!-- <div class="ai-box-label">person 93%</div> -->
+                    </div>
+                  </div>
+                </div>
+                <div class="p-3">
+                  <div class="text-sm font-medium mb-1.5">高处作业未系安全带</div>
+                  <div class="text-xs text-textSub mb-2">人员行为</div>
+                  <div class="text-xs text-textSub mb-1.5">算法模型：安全带识别模型V2.0</div>
+                  <div class="text-xs mb-1.5">置信度：<span class="text-positiveTag font-medium">93%</span></div>
+                  <div class="text-xs text-textSub">来源：人工标注</div>
+                </div>
+              </div>
+              <!-- 卡片6 -->
+              <div class="sample-card bg-white rounded-lg shadow-sm overflow-hidden border border-borderLine">
+                <div class="relative">
+                  <div class="absolute top-2 left-2 bg-negativeTag text-white text-[11px] px-2 py-0.5 rounded-md z-10 font-medium">负样本</div>
+                  <div class="h-36 bg-gray-100 relative overflow-hidden">
+                    <img src="sample-safety-belt.jpg" class="w-full h-full object-cover" alt="高处作业系安全带"/>
+                  </div>
+                </div>
+                <div class="p-3">
+                  <div class="text-sm font-medium mb-1.5">高处作业系安全带</div>
+                  <div class="text-xs text-textSub mb-2">人员行为</div>
+                  <div class="text-xs text-textSub mb-1.5">算法模型：安全带识别模型V2.0</div>
+                  <div class="text-xs mb-1.5">置信度：<span class="text-negativeTag font-medium">11%</span></div>
+                  <div class="text-xs text-textSub">来源：人工标注</div>
+                </div>
+              </div>
+              <!-- 卡片7 -->
+              <div class="sample-card bg-white rounded-lg shadow-sm overflow-hidden border border-borderLine">
+                <div class="relative">
+                  <div class="absolute top-2 left-2 bg-positiveTag text-white text-[11px] px-2 py-0.5 rounded-md z-10 font-medium">正样本</div>
+                  <div class="h-36 bg-gray-100 relative overflow-hidden">
+                    <img src="sample-blocked-passage.jpg" class="w-full h-full object-cover" alt="通道堵塞"/>
+                    <div class="ai-box" style="top: 30%; left: 20%; width: 60%; height: 50%;">
+                      <!-- <div class="ai-box-label">block 92%</div> -->
+                    </div>
+                  </div>
+                </div>
+                <div class="p-3">
+                  <div class="text-sm font-medium mb-1.5">通道堵塞</div>
+                  <div class="text-xs text-textSub mb-2">环境与设施</div>
+                  <div class="text-xs text-textSub mb-1.5">算法模型：通道堵塞模型V1.1</div>
+                  <div class="text-xs mb-1.5">置信度：<span class="text-positiveTag font-medium">92%</span></div>
+                  <div class="text-xs text-textSub">来源：AI自动采集</div>
+                </div>
+              </div>
+              <!-- 卡片8 -->
+              <div class="sample-card bg-white rounded-lg shadow-sm overflow-hidden border border-borderLine">
+                <div class="relative">
+                  <div class="absolute top-2 left-2 bg-negativeTag text-white text-[11px] px-2 py-0.5 rounded-md z-10 font-medium">负样本</div>
+                  <div class="h-36 bg-gray-100 relative overflow-hidden">
+                    <img src="sample-normal-scene.jpg" class="w-full h-full object-cover" alt="通道通畅"/>
+                  </div>
+                </div>
+                <div class="p-3">
+                  <div class="text-sm font-medium mb-1.5">通道通畅</div>
+                  <div class="text-xs text-textSub mb-2">环境与设施</div>
+                  <div class="text-xs text-textSub mb-1.5">算法模型：通道堵塞模型V1.1</div>
+                  <div class="text-xs mb-1.5">置信度：<span class="text-negativeTag font-medium">7%</span></div>
+                  <div class="text-xs text-textSub">来源：AI自动采集</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 分页 -->
+            <div class="flex justify-center items-center gap-2 text-xs mt-auto pt-4">
+              <span class="text-textSub">共 1,258 条</span>
+              <div class="relative ml-2">
+                <select class="border border-borderLine rounded-md px-2 py-1 text-xs bg-white appearance-none pr-6 focus:outline-none">
+                  <option>20条/页</option>
+                </select>
+                <i class="fa fa-chevron-down absolute right-2 top-1/2 -translate-y-1/2 text-textLight text-[10px] pointer-events-none"></i>
+              </div>
+              <button class="w-7 h-7 border border-borderLine rounded-md flex items-center justify-center text-textSub hover:border-primary hover:text-primary"><i class="fa fa-angle-left"></i></button>
+              <button class="w-7 h-7 border border-primary bg-primary text-white rounded-md flex items-center justify-center font-medium">1</button>
+              <button class="w-7 h-7 border border-borderLine rounded-md flex items-center justify-center text-textSub hover:border-primary hover:text-primary">2</button>
+              <button class="w-7 h-7 border border-borderLine rounded-md flex items-center justify-center text-textSub hover:border-primary hover:text-primary">3</button>
+              <span class="text-textLight">...</span>
+              <button class="w-7 h-7 border border-borderLine rounded-md flex items-center justify-center text-textSub hover:border-primary hover:text-primary">63</button>
+              <button class="w-7 h-7 border border-borderLine rounded-md flex items-center justify-center text-textSub hover:border-primary hover:text-primary"><i class="fa fa-angle-right"></i></button>
+              <span class="text-textSub ml-2">跳至</span>
+              <input class="w-10 border border-borderLine rounded-md py-1 text-center text-xs focus:outline-none focus:border-primary" value="1"/>
+              <span class="text-textSub">页</span>
+            </div>
+          </div>
+
+          <!-- 正样本页面 -->
+          <div id="page-positive" class="tab-page flex-col h-full overflow-y-auto scrollbar-thin">
+            <div class="bg-white rounded-lg p-4 mb-4 border border-borderLine">
+              <div class="grid grid-cols-12 gap-4 items-end">
+                <div class="col-span-3">
+                  <label class="text-xs text-textSub block mb-1.5">样本类型：</label>
+                  <div class="relative">
+                    <select class="w-full border border-borderLine rounded-md px-3 py-1.5 text-xs bg-white appearance-none focus:outline-none focus:border-primary"><option>正样本</option></select>
+                    <i class="fa fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-textLight text-[10px] pointer-events-none"></i>
+                  </div>
+                </div>
+                <div class="col-span-3">
+                  <label class="text-xs text-textSub block mb-1.5">算法模型：</label>
+                  <div class="relative">
+                    <select class="w-full border border-borderLine rounded-md px-3 py-1.5 text-xs bg-white appearance-none focus:outline-none focus:border-primary"><option>请选择</option></select>
+                    <i class="fa fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-textLight text-[10px] pointer-events-none"></i>
+                  </div>
+                </div>
+                <div class="col-span-3">
+                  <label class="text-xs text-textSub block mb-1.5">来源：</label>
+                  <div class="relative">
+                    <select class="w-full border border-borderLine rounded-md px-3 py-1.5 text-xs bg-white appearance-none focus:outline-none focus:border-primary"><option>请选择</option></select>
+                    <i class="fa fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-textLight text-[10px] pointer-events-none"></i>
+                  </div>
+                </div>
+                <div class="col-span-3"></div>
+                <div class="col-span-5">
+                  <label class="text-xs text-textSub block mb-1.5">拍摄时间：</label>
+                  <div class="flex gap-2 items-center">
+                    <div class="flex-1 relative"><input type="text" class="w-full border border-borderLine rounded-md px-3 py-1.5 text-xs focus:outline-none focus:border-primary" placeholder="请开始日期"/><i class="fa fa-calendar absolute right-3 top-1/2 -translate-y-1/2 text-textLight text-xs pointer-events-none"></i></div>
+                    <span class="text-xs text-textLight">至</span>
+                    <div class="flex-1 relative"><input type="text" class="w-full border border-borderLine rounded-md px-3 py-1.5 text-xs focus:outline-none focus:border-primary" placeholder="结束日期"/><i class="fa fa-calendar absolute right-3 top-1/2 -translate-y-1/2 text-textLight text-xs pointer-events-none"></i></div>
+                  </div>
+                </div>
+                <div class="col-span-4">
+                  <label class="text-xs text-textSub block mb-1.5">标签：</label>
+                  <input class="w-full border border-borderLine rounded-md px-3 py-1.5 text-xs focus:outline-none focus:border-primary" placeholder="请输入标签关键字"/>
+                </div>
+                <div class="col-span-3"></div>
+              </div>
+            </div>
+            <div class="flex justify-between items-center mb-3">
+              <span class="text-sm font-medium text-textMain">样本列表 <span class="text-textSub font-normal">（共 722 条）</span></span>
+              <div class="flex gap-3 items-center">
+                <span class="text-xs text-textSub">排序：<span class="text-textMain">上传时间↓</span></span>
+                <button id="exportCardBtn2" class="bg-white border border-borderLine px-3 py-1.5 rounded-md text-xs text-textMain flex items-center gap-1.5 hover:bg-slate-50 transition-colors">
+                  <i class="fa fa-download"></i>卡片导出
+                </button>
+              </div>
+            </div>
+            <div class="grid grid-cols-4 gap-4 mb-6">
+              <div class="sample-card bg-white rounded-lg shadow-sm overflow-hidden border border-borderLine">
+                <div class="relative">
+                  <div class="absolute top-2 left-2 bg-positiveTag text-white text-[11px] px-2 py-0.5 rounded-md z-10 font-medium">正样本</div>
+                  <div class="h-36 bg-gray-100 relative overflow-hidden"><img src="sample-no-helmet.jpg" class="w-full h-full object-cover" alt="未佩戴安全帽"/></div>
+                </div>
+                <div class="p-3">
+                  <div class="text-sm font-medium mb-1.5">未佩戴安全帽</div>
+                  <div class="text-xs text-textSub mb-2">人员行为，安全防护</div>
+                  <div class="text-xs text-textSub mb-1.5">算法模型：安全帽识别模型V2.1</div>
+                  <div class="text-xs mb-1.5">置信度：<span class="text-positiveTag font-medium">96%</span></div>
+                  <div class="text-xs text-textSub">来源：人工标注</div>
+                </div>
+              </div>
+            </div>
+            <div class="flex justify-center items-center gap-2 text-xs mt-auto pt-4">
+              <span class="text-textSub">共 722 条</span>
+              <div class="relative ml-2"><select class="border border-borderLine rounded-md px-2 py-1 text-xs bg-white appearance-none pr-6 focus:outline-none"><option>20条/页</option></select><i class="fa fa-chevron-down absolute right-2 top-1/2 -translate-y-1/2 text-textLight text-[10px] pointer-events-none"></i></div>
+              <button class="w-7 h-7 border border-borderLine rounded-md flex items-center justify-center text-textSub hover:border-primary hover:text-primary"><i class="fa fa-angle-left"></i></button>
+              <button class="w-7 h-7 border border-primary bg-primary text-white rounded-md flex items-center justify-center font-medium">1</button>
+              <button class="w-7 h-7 border border-borderLine rounded-md flex items-center justify-center text-textSub hover:border-primary hover:text-primary">2</button>
+              <span class="text-textLight">...</span>
+              <button class="w-7 h-7 border border-borderLine rounded-md flex items-center justify-center text-textSub hover:border-primary hover:text-primary">37</button>
+              <button class="w-7 h-7 border border-borderLine rounded-md flex items-center justify-center text-textSub hover:border-primary hover:text-primary"><i class="fa fa-angle-right"></i></button>
+              <span class="text-textSub ml-2">跳至</span>
+              <input class="w-10 border border-borderLine rounded-md py-1 text-center text-xs focus:outline-none focus:border-primary" value="1"/>
+              <span class="text-textSub">页</span>
+            </div>
+          </div>
+
+          <!-- 负样本页面 -->
+          <div id="page-negative" class="tab-page flex-col h-full overflow-y-auto scrollbar-thin">
+            <div class="bg-white rounded-lg p-4 mb-4 border border-borderLine">
+              <div class="grid grid-cols-12 gap-4 items-end">
+                <div class="col-span-3">
+                  <label class="text-xs text-textSub block mb-1.5">样本类型：</label>
+                  <div class="relative">
+                    <select class="w-full border border-borderLine rounded-md px-3 py-1.5 text-xs bg-white appearance-none focus:outline-none focus:border-primary"><option>负样本</option></select>
+                    <i class="fa fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-textLight text-[10px] pointer-events-none"></i>
+                  </div>
+                </div>
+                <div class="col-span-3">
+                  <label class="text-xs text-textSub block mb-1.5">算法模型：</label>
+                  <div class="relative">
+                    <select class="w-full border border-borderLine rounded-md px-3 py-1.5 text-xs bg-white appearance-none focus:outline-none focus:border-primary"><option>请选择</option></select>
+                    <i class="fa fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-textLight text-[10px] pointer-events-none"></i>
+                  </div>
+                </div>
+                <div class="col-span-3">
+                  <label class="text-xs text-textSub block mb-1.5">来源：</label>
+                  <div class="relative">
+                    <select class="w-full border border-borderLine rounded-md px-3 py-1.5 text-xs bg-white appearance-none focus:outline-none focus:border-primary"><option>请选择</option></select>
+                    <i class="fa fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-textLight text-[10px] pointer-events-none"></i>
+                  </div>
+                </div>
+                <div class="col-span-3"></div>
+                <div class="col-span-5">
+                  <label class="text-xs text-textSub block mb-1.5">拍摄时间：</label>
+                  <div class="flex gap-2 items-center">
+                    <div class="flex-1 relative"><input type="text" class="w-full border border-borderLine rounded-md px-3 py-1.5 text-xs focus:outline-none focus:border-primary" placeholder="请开始日期"/><i class="fa fa-calendar absolute right-3 top-1/2 -translate-y-1/2 text-textLight text-xs pointer-events-none"></i></div>
+                    <span class="text-xs text-textLight">至</span>
+                    <div class="flex-1 relative"><input type="text" class="w-full border border-borderLine rounded-md px-3 py-1.5 text-xs focus:outline-none focus:border-primary" placeholder="结束日期"/><i class="fa fa-calendar absolute right-3 top-1/2 -translate-y-1/2 text-textLight text-xs pointer-events-none"></i></div>
+                  </div>
+                </div>
+                <div class="col-span-4">
+                  <label class="text-xs text-textSub block mb-1.5">标签：</label>
+                  <input class="w-full border border-borderLine rounded-md px-3 py-1.5 text-xs focus:outline-none focus:border-primary" placeholder="请输入标签关键字"/>
+                </div>
+                <div class="col-span-3"></div>
+              </div>
+            </div>
+            <div class="flex justify-between items-center mb-3">
+              <span class="text-sm font-medium text-textMain">样本列表 <span class="text-textSub font-normal">（共536条）</span></span>
+              <div class="flex gap-3 items-center">
+                <span class="text-xs text-textSub">排序：<span class="text-textMain">上传时间↓</span></span>
+                <button id="exportCardBtn3" class="bg-white border border-borderLine px-3 py-1.5 rounded-md text-xs text-textMain flex items-center gap-1.5 hover:bg-slate-50 transition-colors">
+                  <i class="fa fa-download"></i>卡片导出
+                </button>
+              </div>
+            </div>
+            <div class="grid grid-cols-4 gap-4 mb-6">
+            </div>
+          </div>
+
+          <!-- 视频正样本库 -->
+          <div id="page-video" class="tab-page flex-col h-full overflow-y-auto scrollbar-thin">
+            <div class="bg-white rounded-lg p-4 mb-4 border border-borderLine grid grid-cols-12 gap-4 items-end">
+              <div class="col-span-3"><label class="text-xs text-textSub block mb-1.5">视频类型：</label><select class="w-full border border-borderLine rounded-md px-3 py-1.5 text-xs"><option>全部</option><option>违章视频</option><option>隐患视频</option></select></div>
+              <div class="col-span-3"><label class="text-xs text-textSub block mb-1.5">算法模型：</label><select class="w-full border border-borderLine rounded-md px-3 py-1.5 text-xs"><option>请选择</option><option>安全帽识别</option><option>烟火识别</option></select></div>
+              <div class="col-span-3"><label class="text-xs text-textSub block mb-1.5">来源：</label><select class="w-full border border-borderLine rounded-md px-3 py-1.5 text-xs"><option>全部来源</option><option>AI自动采集</option><option>视频倒查</option></select></div>
+              <div class="col-span-3"><label class="text-xs text-textSub block mb-1.5">关键词：</label><input class="w-full border border-borderLine rounded-md px-3 py-1.5 text-xs" placeholder="请输入视频名称"></div>
+            </div>
+            <div class="flex justify-between items-center mb-3"><span class="text-sm font-medium">短视频列表 <span class="text-textSub font-normal">（共 386 条）</span></span><span class="text-xs text-textSub">包含全部违章和隐患短视频</span></div>
+            <div id="videoSampleGrid" class="grid grid-cols-4 gap-4 mb-6"></div>
+          </div>
+
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+// 左侧组织架构与作业计划管理页面保持一致
+const orgScroll = document.querySelector('main > div.w-64 > div.flex-1');
+if (orgScroll) orgScroll.innerHTML = `<div class="p-6 text-sm"><h3 class="font-semibold text-slate-800 mb-5 text-base">组织架构</h3><div class="pl-1"><div class="font-medium text-primary mb-4 flex items-center gap-2"><i class="fa fa-building"></i>鞍钢矿业公司</div><div class="pl-6 flex flex-col gap-4"><div class="text-slate-600 cursor-pointer hover:text-primary"><i class="fa fa-industry mr-2"></i>齐大山铁矿</div><div class="text-slate-600 cursor-pointer hover:text-primary"><i class="fa fa-industry mr-2"></i>弓长岭铁矿</div><div class="text-slate-600 cursor-pointer hover:text-primary"><i class="fa fa-industry mr-2"></i>眼前山铁矿</div><div class="text-slate-600 cursor-pointer hover:text-primary"><i class="fa fa-building mr-2"></i>东鞍山分公司</div></div></div></div>`;
+
+// 为负样本页补充卡片内容
+const negativeGrid = document.querySelector('#page-negative .grid.grid-cols-4');
+const card = (title, scene, score, negative = true) => `<div class="bg-white border border-borderLine rounded-lg overflow-hidden shadow-sm"><div class="relative h-36 bg-slate-200 flex items-center justify-center"><i class="fa fa-image text-3xl text-textLight"></i><span class="absolute top-2 left-2 ${negative?'bg-negativeTag':'bg-positiveTag'} text-white text-[11px] px-2 py-0.5 rounded">${negative?'负样本':'正样本'}</span></div><div class="p-3"><h3 class="text-sm font-medium mb-2">${title}</h3><p class="text-xs text-textSub mb-2">${scene}</p><p class="text-xs">置信度：<span class="${negative?'text-red-500':'text-green-500'}">${score}</span></p><p class="text-xs text-textSub mt-2">来源：AI自动采集</p></div></div>`;
+if (negativeGrid) negativeGrid.innerHTML = card('正常佩戴安全帽','人员行为，安全防护','12%')+card('正常通行作业区','环境与设施，正常环境','8%')+card('规范系挂安全带','高处作业，安全防护','11%')+card('通道保持畅通','通道管理，正常环境','7%');
+
+// 视频正样本库短视频卡片
+const videoGrid = document.getElementById('videoSampleGrid');
+const videoCard = (title,type,time) => `<div class="bg-white border border-borderLine rounded-lg overflow-hidden shadow-sm"><div class="relative h-36 bg-slate-800 flex items-center justify-center text-white"><span class="w-11 h-11 rounded-full bg-white/20 flex items-center justify-center"><i class="fa fa-play ml-1"></i></span><span class="absolute top-2 left-2 ${type==='违章'?'bg-red-500':'bg-orange-500'} text-white text-[11px] px-2 py-0.5 rounded">${type}视频</span><span class="absolute bottom-2 right-2 bg-black/60 px-1.5 rounded text-xs">${time}</span></div><div class="p-3"><h3 class="text-sm font-medium">${title}</h3><p class="text-xs text-textSub mt-2">2024-05-18 · AI自动采集</p></div></div>`;
+if (videoGrid) videoGrid.innerHTML=videoCard('未佩戴安全帽作业','违章','00:18')+videoCard('皮带滚筒异常隐患','隐患','00:24')+videoCard('高处作业未系安全带','违章','00:15')+videoCard('现场烟雾隐患','隐患','00:21')+videoCard('人员进入危险区域','违章','00:12')+videoCard('通道堆物隐患','隐患','00:19')+videoCard('违规跨越设备','违章','00:16')+videoCard('配电柜未上锁','隐患','00:14');
+
+// tab切换逻辑
+const tabItems = document.querySelectorAll('.tab-item');
+const tabPages = document.querySelectorAll('.tab-page');
+tabItems.forEach(item=>{
+  item.addEventListener('click',()=>{
+    const tabKey = item.dataset.tab;
+    //重置tab样式
+    tabItems.forEach(t=>{
+      t.classList.remove('bg-primary','text-white');
+      t.classList.add('bg-white','text-textSub');
+    })
+    item.classList.remove('bg-white','text-textSub');
+    item.classList.add('bg-primary','text-white');
+    //切换页面
+    tabPages.forEach(page=>{
+      page.classList.remove('active');
+    })
+    document.getElementById('page-'+tabKey).classList.add('active');
+  })
+})
+</script>
+<script src="navigation.js?v=20260819-2"></script>
+<script src="org-panel-toggle.js?v=20260822-2"></script>
+</body>
+</html>

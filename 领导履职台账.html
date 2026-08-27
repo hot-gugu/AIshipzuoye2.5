@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>三维无线矿山智慧管控系统 - 领导履职台账</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        sidebar: '#ffffff',
+                        pageBg: '#f6f8fa',
+                        cardBg: '#ffffff',
+                        borderLine: '#e5e7eb',
+                        primary: '#2563eb',
+                        textMuted: '#6b7280',
+                        textMain: '#1f2937',
+                        danger: '#dc2626',
+                        warn: '#f97316',
+                        purple: '#8b5cf6',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .card-shadow {
+                box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            }
+            .item-hover {
+                transition: all 0.22s ease;
+            }
+            .item-hover:hover {
+                background-color: rgba(0,0,0,0.03);
+            }
+            .scrollbar-hide::-webkit-scrollbar {
+                width: 6px;
+                height:6px;
+            }
+            .scrollbar-hide::-webkit-scrollbar-thumb {
+                background: #d1d5db;
+                border-radius: 4px;
+            }
+        }
+        body {
+            background-color: #f6f8fa;
+        }
+        #ledgerDetailPage {
+            position: fixed;
+            left: 220px;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            z-index: 40;
+        }
+        .quick-date { padding: 6px 12px; border: 1px solid #e5e7eb; border-radius: 4px; font-size: 13px; background: #fff; }
+        .quick-date.bg-primary { background: #2563eb; border-color: #2563eb; }
+    </style>
+</head>
+<body class="text-textMain overflow-hidden font-sans">
+    <div class="flex h-screen w-full">
+        <!-- 左侧侧边栏（保持统一层级样式，领导履职台账为一级菜单，不再嵌套子菜单） -->
+        <aside class="w-[220px] bg-sidebar flex flex-col flex-shrink-0 border-r border-borderLine">
+            <!-- Logo区域 -->
+            <div class="h-[72px] flex items-center px-4 border-b border-borderLine">
+                <div class="w-9 h-9 rounded bg-primary flex items-center justify-center mr-3">
+                    <i class="fa fa-cubes text-white text-lg"></i>
+                </div>
+                <div>
+                    <div class="text-textMain font-semibold text-sm">三维无线矿山</div>
+                    <div class="text-textMuted text-xs">智慧管控系统</div>
+                </div>
+            </div>
+            <!-- 导航菜单 -->
+            <nav class="flex-1 py-4 overflow-y-auto scrollbar-hide">
+                <a href="#" class="flex items-center px-5 py-3 text-textMuted item-hover">
+                    <i class="fa fa-home w-5 mr-3"></i>
+                    <span>首页</span>
+                </a>
+                <a href="#" class="flex items-center px-5 py-3 text-textMuted item-hover">
+                    <i class="fa fa-video-camera w-5 mr-3"></i>
+                    <span>实时监控</span>
+                </a>
+                <a href="#" class="flex items-center px-5 py-3 text-textMuted item-hover">
+                    <i class="fa fa-search w-5 mr-3"></i>
+                    <span>视频倒查管理</span>
+                </a>
+                <a href="#" class="flex items-center px-5 py-3 text-textMuted item-hover">
+                    <i class="fa fa-line-chart w-5 mr-3"></i>
+                    <span>智能分析</span>
+                </a>
+                <a href="#" class="flex items-center px-5 py-3 text-textMuted item-hover">
+                    <i class="fa fa-bell w-5 mr-3"></i>
+                    <span>预警管理</span>
+                </a>
+                <a href="#" class="flex items-center px-5 py-3 text-textMuted item-hover">
+                    <i class="fa fa-calendar-check-o w-5 mr-3"></i>
+                    <span>作业计划管理</span>
+                </a>
+                <a href="#" class="flex items-center px-5 py-3 text-textMuted item-hover">
+                    <i class="fa fa-desktop w-5 mr-3"></i>
+                    <span>设备管理</span>
+                </a>
+                <a href="#" class="flex items-center px-5 py-3 text-textMuted item-hover">
+                    <i class="fa fa-database w-5 mr-3"></i>
+                    <span>基础数据管理</span>
+                </a>
+                <a href="#" class="flex items-center px-5 py-3 text-textMuted item-hover">
+                    <i class="fa fa-cog w-5 mr-3"></i>
+                    <span>系统管理</span>
+                </a>
+                <!-- 领导履职台账：一级菜单，和作业计划管理同级，统一样式 -->
+                <a href="#" class="flex items-center px-5 py-3 bg-primary/10 text-primary rounded-r-md mt-3">
+                    <i class="fa fa-book w-5 mr-3"></i>
+                    <span>领导履职台账</span>
+                </a>
+            </nav>
+            <!-- 底部收起按钮 -->
+            <div class="px-4 py-3 border-t border-borderLine">
+                <button class="w-full flex items-center text-textMuted text-sm px-2 py-2 item-hover rounded">
+                    <i class="fa fa-angle-left mr-2"></i>
+                    <span>收起菜单</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- 主内容区域 -->
+        <main id="ledgerListPage" class="flex-1 flex flex-col overflow-hidden">
+            <!-- 顶部导航栏 -->
+            <header class="h-[64px] bg-cardBg border-b border-borderLine flex items-center justify-between px-6 flex-shrink-0">
+                <h1 class="text-xl font-semibold">领导履职台账</h1>
+                <div class="flex items-center gap-5">
+                    <button class="relative text-textMuted hover:text-textMain transition">
+                        <i class="fa fa-bell-o text-lg"></i>
+                        <span class="absolute -top-1 -right-1 w-2 h-2 bg-danger rounded-full"></span>
+                    </button>
+                    <button class="text-textMuted hover:text-textMain transition">
+                        <i class="fa fa-question-circle-o text-lg"></i>
+                    </button>
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center mr-2">
+                            <i class="fa fa-user text-textMuted"></i>
+                        </div>
+                        <div class="text-sm leading-tight">
+                            <div>张安全</div>
+                            <div class="text-textMuted text-xs">安全管理部</div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="flex flex-1 overflow-hidden">
+                <aside class="w-[260px] bg-white border-r border-borderLine overflow-y-auto p-6 shrink-0"><h3 class="font-semibold text-slate-800 mb-5 text-base">组织架构</h3><div class="pl-1"><div class="font-medium text-primary mb-4 flex items-center gap-2"><i class="fa fa-building"></i>鞍钢矿业公司</div><div class="pl-6 flex flex-col gap-4 text-sm text-slate-600"><div><i class="fa fa-industry mr-2"></i>齐大山铁矿</div><div><i class="fa fa-industry mr-2"></i>弓长岭铁矿</div><div><i class="fa fa-industry mr-2"></i>眼前山铁矿</div><div><i class="fa fa-building mr-2"></i>东鞍山分公司</div></div></div></aside>
+            <!-- 页面内容滚动区 -->
+            <div class="flex-1 overflow-y-auto p-6 scrollbar-hide">
+                <!-- 筛选区域 -->
+                <div class="bg-cardBg rounded-lg p-5 card-shadow mb-5">
+                    <div class="grid grid-cols-12 gap-4 items-center">
+                        <div class="col-span-5 flex items-center gap-3" id="quickDates">
+                            <label class="text-textMuted text-sm whitespace-nowrap">倒查日期：</label>
+                            <input type="date" value="2024-05-18" aria-label="倒查开始日期" class="bg-pageBg border border-borderLine rounded px-3 py-2 text-sm outline-none flex-1">
+                            <span class="text-textMuted">至</span>
+                            <input type="date" value="2024-05-18" aria-label="倒查结束日期" class="bg-pageBg border border-borderLine rounded px-3 py-2 text-sm outline-none flex-1">
+                        </div>
+                        <!-- <div class="col-span-3 flex items-center gap-3">
+                            <label class="text-textMuted text-sm whitespace-nowrap">领导名称：</label>
+                            <div class="relative w-full">
+                                <input type="text" placeholder="请输入领导姓名" class="bg-pageBg border border-borderLine rounded px-3 py-2 text-sm w-full outline-none">
+                                <i class="fa fa-search absolute right-3 top-2.5 text-textMuted"></i>
+                            </div>
+                        </div> -->
+                        <div class="col-span-4"></div>
+                    </div>
+                </div>
+
+                <!-- 顶部统计指标卡片【修改：6栏布局，新增倒查总时长；已整改数→整改完成率(待处置数：16/38)】 -->
+                <div class="grid grid-cols-6 gap-5 mb-5">
+                    <!-- 卡片1 -->
+                    <div class="bg-cardBg rounded-lg p-5 card-shadow">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <div class="text-textMuted text-sm mb-1">倒查总视频数</div>
+                                <div class="text-[26px] font-semibold mt-1">56 <span class="text-base font-normal text-textMuted">个</span></div>
+                            </div>
+                            <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
+                                <i class="fa fa-play-circle text-blue-500 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 卡片2 -->
+                    <div class="bg-cardBg rounded-lg p-5 card-shadow">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <div class="text-textMuted text-sm mb-1">参与人员数</div>
+                                <div class="text-[26px] font-semibold mt-1">18 <span class="text-base font-normal text-textMuted">人</span></div>
+                            </div>
+                            <div class="w-10 h-10 rounded-lg bg-sky-50 flex items-center justify-center">
+                                <i class="fa fa-users text-sky-500 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 卡片3 新增：倒查总时长 -->
+                    <div class="bg-cardBg rounded-lg p-5 card-shadow">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <div class="text-textMuted text-sm mb-1">倒查总时长</div>
+                                <div class="text-[26px] font-semibold mt-1">0天11时43分</div>
+                            </div>
+                            <div class="w-10 h-10 rounded-lg bg-cyan-50 flex items-center justify-center">
+                                <i class="fa fa-clock-o text-cyan-500 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 卡片4 -->
+                    <div class="bg-cardBg rounded-lg p-5 card-shadow">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <div class="text-textMuted text-sm mb-1">发现违章/隐患总数</div>
+                                <div class="text-[26px] font-semibold mt-1">38 <span class="text-base font-normal text-textMuted">条</span></div>
+                            </div>
+                            <div class="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center">
+                                <i class="fa fa-exclamation-triangle text-amber-500 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 卡片5 -->
+                    <!-- <div class="bg-cardBg rounded-lg p-5 card-shadow">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <div class="text-textMuted text-sm mb-1">我标记违章数</div>
+                                <div class="text-[26px] font-semibold mt-1">22 <span class="text-base font-normal text-textMuted">条</span></div>
+                                <div class="text-emerald-600 text-xs mt-2"><i class="fa fa-arrow-up"></i> 环比 ↑22.2%</div>
+                            </div>
+                            <div class="w-10 h-10 rounded-lg bg-red-50 flex items-center justify-center">
+                                <i class="fa fa-edit text-red-500 text-xl"></i>
+                            </div>
+                        </div>
+                    </div> -->
+                    <!-- 卡片6 原【已整改数】改为整改完成率 -->
+                    <div class="bg-cardBg rounded-lg p-5 card-shadow">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <div class="text-textMuted text-sm mb-1">整改完成率</div>
+                                <div class="text-[26px] font-semibold mt-1">42.1% <span class="text-sm font-normal text-textMuted"></span></br><span style="font-size:12px;font-weight: normal;">待处置数:16/38</span></div>
+                            </div>
+                            <div class="w-10 h-10 rounded-lg bg-purple-50 flex items-center justify-center">
+                                <i class="fa fa-check-square-o text-purple-500 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 表格区域 -->
+                <div class="bg-cardBg rounded-lg card-shadow">
+                    <div class="flex items-center justify-between px-5 py-3 border-b border-borderLine"><div><h3 class="font-medium">履职人员列表</h3></div><div class="flex items-center gap-4"><label class="flex items-center gap-2 text-sm cursor-pointer"><input id="ownUnitOnly" type="checkbox" class="accent-blue-600">仅查本单位</label><button class="border border-borderLine rounded px-4 py-2 text-sm flex items-center gap-2 hover:bg-pageBg"><i class="fa fa-download"></i>导出台账</button></div></div>
+                    <!-- 表格容器 -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="text-textMuted border-b border-borderLine bg-gray-50">
+                                    <th class="px-4 py-3 text-left font-medium">序号</th>
+                                    <th class="px-4 py-3 text-left font-medium">倒查日期</th>
+                                    <th class="px-4 py-3 text-left font-medium">履职人员</th>
+                                    <th class="px-4 py-3 text-left font-medium">单位-部门</th>
+                                    <th class="px-4 py-3 text-left font-medium">倒查方式</th>
+                                    <th class="px-4 py-3 text-left font-medium">倒查总视频数</th>
+                                    <th class="px-4 py-3 text-left font-medium">倒查时长</th>
+                                    <th class="px-4 py-3 text-left font-medium">发现违章/隐患数</th>
+                                    <th class="px-4 py-3 text-left font-medium">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b border-borderLine item-hover">
+                                    <td class="px-4 py-3">1</td>
+                                    <td class="px-4 py-3">2024-05-16 ~ 2024-05-18</td>
+                                    <td class="px-4 py-3">张安全</td>
+                                    <td class="px-4 py-3">三维无线矿山公司-安全管理部</td>
+                                    <td class="px-4 py-3">按摄像头</td>
+                                    <td class="px-4 py-3">28</td>
+                                    <td class="px-4 py-3">0天1时32分</td>
+                                    <td class="px-4 py-3 text-danger">3</td>
+                                    <td class="px-4 py-3"><a href="领导履职详情.html" class="text-blue-600 hover:text-blue-700">查看详情</a></td>
+                                </tr>
+                                <tr class="border-b border-borderLine item-hover">
+                                    <td class="px-4 py-3">2</td>
+                                    <td class="px-4 py-3">2024-05-18</td>
+                                    <td class="px-4 py-3">李建国</td>
+                                    <td class="px-4 py-3">三维无线矿山公司-生产技术部</td>
+                                    <td class="px-4 py-3">按作业计划</td>
+                                    <td class="px-4 py-3">35</td>
+                                    <td class="px-4 py-3">0天2时15分</td>
+                                    <td class="px-4 py-3 text-danger">5</td>
+                                    <td class="px-4 py-3"><a href="领导履职详情.html" class="text-blue-600 hover:text-blue-700">查看详情</a></td>
+                                </tr>
+                                <tr class="border-b border-borderLine item-hover">
+                                    <td class="px-4 py-3">3</td>
+                                    <td class="px-4 py-3">2024-05-18</td>
+                                    <td class="px-4 py-3">王伟</td>
+                                    <td class="px-4 py-3">三维无线矿山公司-机电管理部</td>
+                                    <td class="px-4 py-3">按摄像头</td>
+                                    <td class="px-4 py-3">12</td>
+                                    <td class="px-4 py-3">0天0时48分</td>
+                                    <td class="px-4 py-3 text-danger">2</td>
+                                    <td class="px-4 py-3"><a href="领导履职详情.html" class="text-blue-600 hover:text-blue-700">查看详情</a></td>
+                                </tr>
+                                <tr class="border-b border-borderLine item-hover">
+                                    <td class="px-4 py-3">4</td>
+                                    <td class="px-4 py-3">2024-05-18</td>
+                                    <td class="px-4 py-3">刘刚</td>
+                                    <td class="px-4 py-3">三维无线矿山公司-通风管理部</td>
+                                    <td class="px-4 py-3">按作业计划</td>
+                                    <td class="px-4 py-3">20</td>
+                                    <td class="px-4 py-3">0天1时5分</td>
+                                    <td class="px-4 py-3 text-danger">1</td>
+                                    <td class="px-4 py-3"><a href="领导履职详情.html" class="text-blue-600 hover:text-blue-700">查看详情</a></td>
+                                </tr>
+                                <tr class="border-b border-borderLine item-hover">
+                                    <td class="px-4 py-3">5</td>
+                                    <td class="px-4 py-3">2024-05-18</td>
+                                    <td class="px-4 py-3">陈强</td>
+                                    <td class="px-4 py-3">三维无线矿山公司-安全管理部</td>
+                                    <td class="px-4 py-3">按摄像头</td>
+                                    <td class="px-4 py-3">26</td>
+                                    <td class="px-4 py-3">0天1时20分</td>
+                                    <td class="px-4 py-3 text-danger">4</td>
+                                    <td class="px-4 py-3"><a href="领导履职详情.html" class="text-blue-600 hover:text-blue-700">查看详情</a></td>
+                                </tr>
+                                <tr class="border-b border-borderLine item-hover">
+                                    <td class="px-4 py-3">6</td>
+                                    <td class="px-4 py-3">2024-05-17</td>
+                                    <td class="px-4 py-3">张安全</td>
+                                    <td class="px-4 py-3">三维无线矿山公司-安全管理部</td>
+                                    <td class="px-4 py-3">按作业计划</td>
+                                    <td class="px-4 py-3">32</td>
+                                    <td class="px-4 py-3">0天2时2分</td>
+                                    <td class="px-4 py-3 text-danger">6</td>
+                                    <td class="px-4 py-3"><a href="领导履职详情.html" class="text-blue-600 hover:text-blue-700">查看详情</a></td>
+                                </tr>
+                                <tr class="border-b border-borderLine item-hover">
+                                    <td class="px-4 py-3">7</td>
+                                    <td class="px-4 py-3">2024-05-17</td>
+                                    <td class="px-4 py-3">李建国</td>
+                                    <td class="px-4 py-3">三维无线矿山公司-生产技术部</td>
+                                    <td class="px-4 py-3">按摄像头</td>
+                                    <td class="px-4 py-3">18</td>
+                                    <td class="px-4 py-3">0天1时10分</td>
+                                    <td class="px-4 py-3 text-danger">2</td>
+                                    <td class="px-4 py-3"><a href="领导履职详情.html" class="text-blue-600 hover:text-blue-700">查看详情</a></td>
+                                </tr>
+                                <tr class="border-b border-borderLine item-hover">
+                                    <td class="px-4 py-3">8</td>
+                                    <td class="px-4 py-3">2024-05-17</td>
+                                    <td class="px-4 py-3">王伟</td>
+                                    <td class="px-4 py-3">三维无线矿山公司-机电管理部</td>
+                                    <td class="px-4 py-3">按作业计划</td>
+                                    <td class="px-4 py-3">15</td>
+                                    <td class="px-4 py-3">0天0时55分</td>
+                                    <td class="px-4 py-3 text-danger">1</td>
+                                    <td class="px-4 py-3"><a href="领导履职详情.html" class="text-blue-600 hover:text-blue-700">查看详情</a></td>
+                                </tr>
+                                <tr class="border-b border-borderLine item-hover">
+                                    <td class="px-4 py-3">9</td>
+                                    <td class="px-4 py-3">2024-05-17</td>
+                                    <td class="px-4 py-3">刘刚</td>
+                                    <td class="px-4 py-3">三维无线矿山公司-通风管理部</td>
+                                    <td class="px-4 py-3">按摄像头</td>
+                                    <td class="px-4 py-3">10</td>
+                                    <td class="px-4 py-3">0天0时35分</td>
+                                    <td class="px-4 py-3">0</td>
+                                    <td class="px-4 py-3"><a href="领导履职详情.html" class="text-blue-600 hover:text-blue-700">查看详情</a></td>
+                                </tr>
+                                <tr class="item-hover">
+                                    <td class="px-4 py-3">10</td>
+                                    <td class="px-4 py-3">2024-05-17</td>
+                                    <td class="px-4 py-3">陈强</td>
+                                    <td class="px-4 py-3">三维无线矿山公司-安全管理部</td>
+                                    <td class="px-4 py-3">按作业计划</td>
+                                    <td class="px-4 py-3">22</td>
+                                    <td class="px-4 py-3">0天1时45分</td>
+                                    <td class="px-4 py-3 text-danger">3</td>
+                                    <td class="px-4 py-3"><a href="领导履职详情.html" class="text-blue-600 hover:text-blue-700">查看详情</a></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- 分页 -->
+                    <div class="flex justify-between items-center px-4 py-4 border-t border-borderLine">
+                        <div class="text-textMuted text-sm">共 56 条</div>
+                        <div class="flex items-center gap-2">
+                            <button class="w-8 h-8 flex items-center justify-center rounded hover:bg-pageBg">
+                                <i class="fa fa-angle-left"></i>
+                            </button>
+                            <button class="w-8 h-8 flex items-center justify-center rounded bg-primary text-white">1</button>
+                            <button class="w-8 h-8 flex items-center justify-center rounded hover:bg-pageBg">2</button>
+                            <button class="w-8 h-8 flex items-center justify-center rounded hover:bg-pageBg">3</button>
+                            <button class="w-8 h-8 flex items-center justify-center rounded hover:bg-pageBg">4</button>
+                            <button class="w-8 h-8 flex items-center justify-center rounded hover:bg-pageBg">5</button>
+                            <button class="w-8 h-8 flex items-center justify-center rounded hover:bg-pageBg">
+                                <i class="fa fa-angle-right"></i>
+                            </button>
+                            <select class="bg-pageBg border border-borderLine rounded px-2 py-1 ml-3 text-sm">
+                                <option>10条/页</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </main>
+    </div>
+    <main id="ledgerDetailPage" class="hidden flex-1 flex-col overflow-hidden bg-pageBg"><header class="h-[72px] bg-white border-b px-6 flex items-center"><button id="backLedger" class="text-primary mr-4"><i class="fa fa-angle-left mr-2"></i>返回</button><div><h2 class="text-lg font-semibold">履职台账详情</h2><p id="detailBreadcrumb" class="text-xs text-textMuted mt-1"></p></div></header><div class="flex-1 overflow-y-auto p-6"><div class="bg-white rounded-lg card-shadow p-5 mb-5"><div id="ledgerBasic" class="grid grid-cols-4 gap-5 text-sm"></div></div><div class="bg-white rounded-lg card-shadow"><div class="flex border-b"><button data-detail-tab="videos" class="detail-tab px-5 py-3 border-b-2 border-primary text-primary">倒查视频</button><button data-detail-tab="findings" class="detail-tab px-5 py-3 text-textMuted">发现违章/隐患</button></div><div id="detailVideos" class="p-5"><div class="grid grid-cols-3 gap-4" id="videoList"></div></div><div id="detailFindings" class="hidden p-5"><div class="flex mb-4"><button data-finding-tab="violation" class="finding-tab px-5 py-2 bg-primary text-white rounded-l">违章查处</button><button data-finding-tab="hazard" class="finding-tab px-5 py-2 border rounded-r">隐患查处</button></div><div class="overflow-x-auto"><table class="w-full text-sm"><thead id="findingHead" class="bg-gray-50"></thead><tbody id="findingBody"></tbody></table></div></div></div></div></main>
+    <script src="navigation.js?v=20260819-2"></script>
+    <script>
+    document.querySelectorAll('.quick-date').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('.quick-date').forEach(x=>x.classList.remove('bg-primary','text-white'));button.classList.add('bg-primary','text-white');}));
+    const ledgerTable=document.querySelector('#ledgerListPage table');if(ledgerTable){ledgerTable.querySelectorAll('tr').forEach(row=>{if(row.cells.length>4)row.cells[4].classList.add('hidden');});}
+    document.getElementById('ownUnitOnly')?.addEventListener('change',event=>{document.querySelectorAll('#ledgerListPage tbody tr').forEach(row=>{const sameUnit=row.cells[3]?.innerText.includes('安全管理部');row.classList.toggle('hidden',event.target.checked&&!sameUnit);});});
+    (()=>{const list=document.getElementById('ledgerListPage'),detail=document.getElementById('ledgerDetailPage');const videoCard=(name,type,time)=>`<div class="border rounded overflow-hidden"><div class="h-36 bg-slate-800 text-white flex items-center justify-center relative"><i class="fa fa-play-circle text-4xl"></i><span class="absolute top-2 left-2 bg-${type==='违章'?'red':'orange'}-500 px-2 py-0.5 rounded text-xs">${type}</span><span class="absolute bottom-2 right-2 bg-black/60 px-2 rounded text-xs">${time}</span></div><div class="p-3"><b>${name}</b><p class="text-xs text-textMuted mt-2">AI倒查采集 · 2024-05-18</p></div></div>`;document.getElementById('videoList').innerHTML=videoCard('未佩戴安全帽','违章','00:18')+videoCard('皮带滚筒破损','隐患','00:24')+videoCard('违规跨越设备','违章','00:15')+videoCard('配电柜未上锁','隐患','00:21')+videoCard('高处作业未系安全带','违章','00:16')+videoCard('通道堆物','隐患','00:12');const renderFinding=type=>{const violation=type==='violation';document.getElementById('findingHead').innerHTML=violation?'<tr><th class="p-3">发生时间</th><th>预警来源</th><th>违章名称</th><th>违章等级</th><th>违章单位</th><th>处理状态</th></tr>':'<tr><th class="p-3">发生时间</th><th>隐患来源</th><th>隐患分类</th><th>隐患等级</th><th>隐患位置</th><th>整改状态</th></tr>';document.getElementById('findingBody').innerHTML=violation?'<tr class="border-t"><td class="p-3">2024-05-18 10:24</td><td>AI预警</td><td>未佩戴安全帽</td><td class="text-red-500">A类</td><td>采矿一分区</td><td class="text-green-600">已处理</td></tr><tr class="border-t"><td class="p-3">2024-05-18 10:18</td><td>视频倒查</td><td>违规跨越设备</td><td class="text-orange-500">B类</td><td>机电动力部</td><td class="text-orange-500">处理中</td></tr>':'<tr class="border-t"><td class="p-3">2024-05-18 10:21</td><td>视频倒查</td><td>设备设施类</td><td class="text-red-500">重大隐患</td><td>皮带运输系统驱动滚筒处</td><td class="text-orange-500">待整改</td></tr><tr class="border-t"><td class="p-3">2024-05-18 10:12</td><td>人工上报</td><td>消防安全类</td><td>一般隐患</td><td>办公楼3楼走廊</td><td class="text-green-600">已整改</td></tr>';};renderFinding('violation');document.querySelector('#ledgerListPage tbody').addEventListener('click',e=>{const a=e.target.closest('a');if(!a||a.textContent.trim()!=='查看详情')return;e.preventDefault();const c=a.closest('tr').cells,t=i=>c[i].innerText.trim();document.getElementById('detailBreadcrumb').textContent=`${t(1)} · ${t(2)} · ${t(3)}`;document.getElementById('ledgerBasic').innerHTML=`<div><span class="text-textMuted">履职人员</span><b class="block mt-1">${t(2)}</b></div><div><span class="text-textMuted">倒查方式</span><b class="block mt-1">${t(4)}</b></div><div><span class="text-textMuted">视频数</span><b class="block mt-1">${t(5)}</b></div><div><span class="text-textMuted">倒查时长</span><b class="block mt-1">${t(6)}</b></div>`;list.classList.add('hidden');detail.classList.remove('hidden');detail.classList.add('flex');});document.getElementById('backLedger').onclick=()=>{detail.classList.add('hidden');detail.classList.remove('flex');list.classList.remove('hidden');};document.querySelectorAll('[data-detail-tab]').forEach(b=>b.onclick=()=>{const v=b.dataset.detailTab==='videos';document.getElementById('detailVideos').classList.toggle('hidden',!v);document.getElementById('detailFindings').classList.toggle('hidden',v);document.querySelectorAll('.detail-tab').forEach(x=>{x.classList.toggle('border-b-2',x===b);x.classList.toggle('border-primary',x===b);x.classList.toggle('text-primary',x===b);});});document.querySelectorAll('[data-finding-tab]').forEach(b=>b.onclick=()=>{renderFinding(b.dataset.findingTab);document.querySelectorAll('.finding-tab').forEach(x=>{x.classList.toggle('bg-primary',x===b);x.classList.toggle('text-white',x===b);});});})();
+    </script>
+<script>
+document.addEventListener('click', function (event) {
+    const detailLink = event.target.closest('a[href="领导履职详情.html"]');
+    if (!detailLink) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    window.location.href = detailLink.href;
+}, true);
+</script>
+<script src="org-panel-toggle.js?v=20260822-2"></script>
+</body>
+</html>

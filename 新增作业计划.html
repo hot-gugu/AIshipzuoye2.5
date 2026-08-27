@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>“三维”无视频不作业智慧管控平台 - 作业计划列表</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        danger: '#F53F3F',
+                        success: '#00B42A',
+                        warning: '#FF7D00',
+                        grayText: '#4E5969',
+                        lightBorder: '#E5E6EB',
+                        pageBg: '#F2F3F5'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .scrollbar-thin::-webkit-scrollbar {
+                width: 5px;
+                height: 5px;
+            }
+            .scrollbar-thin::-webkit-scrollbar-thumb {
+                background: #DCDFE6;
+                border-radius: 4px;
+            }
+            .scrollbar-thin::-webkit-scrollbar-track {
+                background: transparent;
+            }
+            .drawer-transition {
+                transition: transform 0.3s ease-out;
+            }
+            .overlay-transition {
+                transition: opacity 0.3s ease;
+            }
+        }
+    </style>
+</head>
+
+<body class="font-inter bg-pageBg h-screen overflow-hidden flex flex-col">
+    <!-- 顶部导航栏 -->
+    <header class="bg-white shadow-sm z-10 flex items-center justify-between px-6 py-3 border-b border-lightBorder">
+        <div class="flex items-center gap-3">
+            <h1 class="text-lg font-bold text-gray-800">
+                <span class="text-primary">“三维”</span>无视频不作业智慧管控平台
+            </h1>
+        </div>
+        <div class="flex items-center gap-6">
+            <span class="text-grayText"><i class="fa fa-bell-o mr-1"></i>消息通知</span>
+            <div class="flex items-center gap-2">
+                <i class="fa fa-user-circle-o text-lg text-grayText"></i>
+                <span>管理员</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex flex-1 overflow-hidden">
+        <!-- 左侧主导航菜单 -->
+        <aside class="w-56 bg-gray-800 text-white flex-shrink-0 overflow-y-auto scrollbar-thin">
+            <nav class="py-3">
+                <div class="px-4 py-2 text-gray-400 text-xs">功能菜单</div>
+                <a href="#"
+                    class="flex items-center gap-3 px-4 py-3 bg-primary/20 text-white border-l-4 border-primary">
+                    <i class="fa fa-list-alt w-5 text-center"></i>
+                    <span>作业计划管理</span>
+                </a>
+                <a href="#" class="flex items-center gap-3 px-4 py-3 hover:bg-gray-700 text-gray-300 transition">
+                    <i class="fa fa-video-camera w-5 text-center"></i>
+                    <span>视频监控</span>
+                </a>
+                <a href="#" class="flex items-center gap-3 px-4 py-3 hover:bg-gray-700 text-gray-300 transition">
+                    <i class="fa fa-map-o w-5 text-center"></i>
+                    <span>作业区域管理</span>
+                </a>
+                <a href="#" class="flex items-center gap-3 px-4 py-3 hover:bg-gray-700 text-gray-300 transition">
+                    <i class="fa fa-exclamation-triangle w-5 text-center"></i>
+                    <span>违章预警复核</span>
+                </a>
+                <a href="#" class="flex items-center gap-3 px-4 py-3 hover:bg-gray-700 text-gray-300 transition">
+                    <i class="fa fa-bar-chart w-5 text-center"></i>
+                    <span>统计分析</span>
+                </a>
+                <a href="#" class="flex items-center gap-3 px-4 py-3 hover:bg-gray-700 text-gray-300 transition">
+                    <i class="fa fa-cog w-5 text-center"></i>
+                    <span>系统设置</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- 主内容区域：作业计划列表 -->
+        <main class="flex-1 overflow-auto scrollbar-thin p-6">
+            <div class="bg-white rounded-lg shadow-sm h-full flex flex-col">
+                <!-- 面包屑 -->
+                <div class="px-5 py-4 border-b border-lightBorder">
+                    <div class="text-grayText text-sm">
+                        <i class="fa fa-home text-primary"></i>
+                        <span class="mx-2">/</span>
+                        <span>作业计划管理</span>
+                        <span class="mx-2">/</span>
+                        <span>作业计划列表</span>
+                    </div>
+                </div>
+                <!-- 筛选栏 -->
+                <div class="px-5 py-4 border-b border-lightBorder flex flex-wrap gap-4 items-end">
+                    <div>
+                        <label class="text-gray-500 text-sm block mb-1">作业状态</label>
+                        <select
+                            class="border border-lightBorder rounded px-3 py-2 w-44 outline-none focus:border-primary">
+                            <option>请选择</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-gray-500 text-sm block mb-1">作业类型</label>
+                        <select
+                            class="border border-lightBorder rounded px-3 py-2 w-44 outline-none focus:border-primary">
+                            <option>请选择</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-gray-500 text-sm block mb-1">作业日期</label>
+                        <input type="date"
+                            class="border border-lightBorder rounded px-3 py-2 w-44 outline-none focus:border-primary">
+                    </div>
+                    <div class="flex gap-3">
+                        <button id="openDrawerBtn"
+                            class="bg-primary text-white px-4 py-2 rounded hover:bg-primary/90 transition">
+                            <i class="fa fa-plus mr-1"></i>新增作业计划
+                        </button>
+                        <button class="border border-lightBorder px-4 py-2 rounded text-grayText hover:bg-gray-50">
+                            <i class="fa fa-upload mr-1"></i>批量导入
+                        </button>
+                    </div>
+                </div>
+                <!-- 表格 -->
+                <div class="flex-1 overflow-auto scrollbar-thin">
+                    <table class="w-full text-sm">
+                        <!-- <thead class="bg-gray-50 sticky top-0">
+                            <tr>
+                                <th class="px-4 py-3 text-left font-medium text-grayText">作业内容</th>
+                                <th class="px-4 py-3 text-left font-medium text-grayText">作业区域</th>
+                                <th class="px-4 py-3 text-left font-medium text-grayText">作业水平</th>
+                                <th class="px-4 py-3 text-left font-medium text-grayText">作业类型</th>
+                                <th class="px-4 py-3 text-left font-medium text-grayText">作业班次</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b border-lightBorder hover:bg-gray-50">
+                                <td class="px-4 py-3">皮带机更换作业</td>
+                                <td class="px-4 py-3">主运输巷</td>
+                                <td class="px-4 py-3">-123水平</td>
+                                <td class="px-4 py-3">检修维修作业</td>
+                                <td class="px-4 py-3">白班</td>
+                            </tr>
+                            <tr class="border-b border-lightBorder hover:bg-gray-50">
+                                <td class="px-4 py-3">通风机检修作业</td>
+                                <td class="px-4 py-3">通风机房</td>
+                                <td class="px-4 py-3">+362水平</td>
+                                <td class="px-4 py-3">检修维修作业</td>
+                                <td class="px-4 py-3">中班</td>
+                            </tr>
+                            <tr class="border-b border-lightBorder hover:bg-gray-50">
+                                <td class="px-4 py-3">瓦斯抽放作业</td>
+                                <td class="px-4 py-3">回风巷</td>
+                                <td class="px-4 py-3">-56水平</td>
+                                <td class="px-4 py-3"><span class="px-1.5 py-0.5 bg-danger/10 text-danger rounded text-xs">高危作业</span></td>
+                                <td class="px-4 py-3">夜班</td>
+                            </tr>
+                            <tr class="border-b border-lightBorder hover:bg-gray-50">
+                                <td class="px-4 py-3">掘进作业</td>
+                                <td class="px-4 py-3">掘进工作面</td>
+                                <td class="px-4 py-3">-210水平</td>
+                                <td class="px-4 py-3"><span class="px-1.5 py-0.5 bg-success/10 text-success rounded text-xs">生产作业</span></td>
+                                <td class="px-4 py-3">白班</td>
+                            </tr>
+                        </tbody> -->
+                    </table>
+                </div>
+                <!-- 分页 -->
+                <div class="px-5 py-4 border-t border-lightBorder flex justify-between items-center">
+                    <span class="text-sm text-gray-500">共 128 项</span>
+                    <div class="flex items-center gap-2 text-sm">
+                        <span>20项/页</span>
+                        <button class="border border-lightBorder rounded px-2 py-1">&lt;</button>
+                        <button class="bg-primary text-white rounded px-2 py-1">1</button>
+                        <button class="border border-lightBorder rounded px-2 py-1">2</button>
+                        <button class="border border-lightBorder rounded px-2 py-1">3</button>
+                        <button class="border border-lightBorder rounded px-2 py-1">4</button>
+                        <button class="border border-lightBorder rounded px-2 py-1">…</button>
+                        <button class="border border-lightBorder rounded px-2 py-1">&gt;</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- ====================== 右侧抽屉遮罩+弹窗 ====================== -->
+    <div id="drawerOverlay"
+        class="fixed inset-0 bg-black/40 backdrop-blur-sm overlay-transition opacity-0 invisible z-[99]">
+        <!-- 右侧抽屉容器 -->
+        <div
+            class="absolute right-0 top-0 h-full w-[620px] bg-white shadow-xl drawer-transition translate-x-full flex flex-col">
+            <!-- 抽屉头部 -->
+            <div class="px-6 py-4 border-b border-lightBorder flex items-center justify-between flex-shrink-0">
+                <h2 class="text-lg font-semibold text-gray-800">新增作业计划</h2>
+                <button id="closeDrawerBtn" class="text-gray-400 hover:text-gray-700 text-xl">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
+            <!-- 表单滚动区域 -->
+            <div class="flex-1 overflow-y-auto scrollbar-thin px-6 py-5">
+                <!-- 模块1 基础信息 -->
+                <div class="mb-7">
+                    <div class="flex items-center gap-2 mb-4">
+                        <span
+                            class="w-5 h-5 rounded-full bg-primary text-white text-xs flex items-center justify-center">1</span>
+                        <h3 class="font-medium text-gray-800">基础信息</h3>
+                    </div>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm text-grayText mb-1.5">所属单位 <span
+                                    class="text-danger">*</span></label>
+                            <select
+                                class="w-full border border-lightBorder rounded px-3 py-2 outline-none focus:border-primary">
+                                <option>请选择所属单位</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm text-grayText mb-1.5">作业内容 <span
+                                    class="text-danger">*</span></label>
+                            <textarea maxlength="100" rows="2"
+                                class="w-full border border-lightBorder rounded px-3 py-2 outline-none focus:border-primary resize-none"
+                                placeholder="请输入作业内容（不超过100字）"></textarea>
+                            <div class="text-right text-xs text-gray-400 mt-0.5">0/100</div>
+                        </div>
+                        <div>
+                            <label class="block text-sm text-grayText mb-1.5">作业类型 <span
+                                    class="text-danger">*</span></label>
+                            <select
+                                class="w-full border border-lightBorder rounded px-3 py-2 outline-none focus:border-primary">
+                                <option>请选择作业类型</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm text-grayText mb-1.5">二级分类 <span
+                                    class="text-danger">*</span></label>
+                            <select
+                                class="w-full border border-lightBorder rounded px-3 py-2 outline-none focus:border-primary">
+                                <option>请选择二级分类</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm text-grayText mb-1.5">是否为高危作业 <span
+                                    class="text-danger">*</span></label>
+                            <div class="flex gap-6">
+                                <label class="flex items-center gap-1.5 cursor-pointer">
+                                    <input type="radio" name="dangerWork" checked>
+                                    <span>是（高危作业）</span>
+                                </label>
+                                <label class="flex items-center gap-1.5 cursor-pointer">
+                                    <input type="radio" name="dangerWork">
+                                    <span>否（一般作业）</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm text-grayText mb-1.5">作业区域 <span
+                                    class="text-danger">*</span></label>
+                            <select
+                                class="w-full border border-lightBorder rounded px-3 py-2 outline-none focus:border-primary">
+                                <option>请选择作业区域</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm text-grayText mb-1.5">作业位置 <span
+                                    class="text-danger">*</span></label>
+                            <div class="flex items-center gap-3">
+                                <input id="workLocationInput" type="text"
+                                    class="flex-1 min-w-0 border border-lightBorder rounded px-3 py-2 outline-none focus:border-primary"
+                                    placeholder="请输入作业位置（巷道/硐室/设备/点位等）">
+                                <button id="markLocationBtn" type="button"
+                                    class="text-primary text-sm whitespace-nowrap hover:underline">去标注点位 &gt;</button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm text-grayText mb-1.5">作业单位 <span
+                                    class="text-danger">*</span></label>
+                            <select
+                                class="w-full border border-lightBorder rounded px-3 py-2 outline-none focus:border-primary">
+                                <option>请选择作业单位</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm text-grayText mb-1.5">作业班次 <span
+                                    class="text-danger">*</span></label>
+                            <select
+                                class="w-full border border-lightBorder rounded px-3 py-2 outline-none focus:border-primary">
+                                <option>请选择作业班次</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 模块2 作业人员 -->
+                <div class="mb-7">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-2">
+                            <span
+                                class="w-5 h-5 rounded-full bg-primary text-white text-xs flex items-center justify-center">2</span>
+                            <h3 class="font-medium text-gray-800">作业人员</h3>
+                        </div>
+                        <span class="text-primary text-sm cursor-pointer hover:underline"><i
+                                class="fa fa-plus mr-1"></i>添加人员</span>
+                    </div>
+                    <table class="w-full text-sm border border-lightBorder rounded overflow-hidden">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-2 py-2 text-left font-normal text-grayText">姓名</th>
+                                <th class="px-2 py-2 text-left font-normal text-grayText">岗位</th>
+                                <th class="px-2 py-2 text-left font-normal text-grayText">手机号</th>
+                                <th class="px-2 py-2 text-left font-normal text-grayText">单位名称</th>
+                                <th class="px-2 py-2 text-left font-normal text-grayText">单位类型</th>
+                                <th class="px-2 py-2 text-center font-normal text-grayText">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-t border-lightBorder">
+                                <td class="px-2 py-2">王建国</td>
+                                <td class="px-2 py-2">采矿工</td>
+                                <td class="px-2 py-2">138****1234</td>
+                                <td class="px-2 py-2">齐大山铁矿采矿作业区</td>
+                                <td class="px-2 py-2"><span
+                                        class="px-1 py-0.5 bg-primary/10 text-primary rounded text-xs">组织内</span></td>
+                                <td class="px-2 py-2 text-center"><span
+                                        class="text-danger cursor-pointer hover:underline">删除</span></td>
+                            </tr>
+                            <tr class="border-t border-lightBorder">
+                                <td class="px-2 py-2">李安全</td>
+                                <td class="px-2 py-2">电工</td>
+                                <td class="px-2 py-2">139****5678</td>
+                                <td class="px-2 py-2">齐大山铁矿机电检修部</td>
+                                <td class="px-2 py-2"><span
+                                        class="px-1 py-0.5 bg-primary/10 text-primary rounded text-xs">组织内</span></td>
+                                <td class="px-2 py-2 text-center"><span
+                                        class="text-danger cursor-pointer hover:underline">删除</span></td>
+                            </tr>
+                            <tr class="border-t border-lightBorder">
+                                <td class="px-2 py-2">张伟</td>
+                                <td class="px-2 py-2">钻工</td>
+                                <td class="px-2 py-2">137****9012</td>
+                                <td class="px-2 py-2">大连安远工程有限公司</td>
+                                <td class="px-2 py-2"><span
+                                        class="px-1 py-0.5 bg-warning/10 text-warning rounded text-xs">相关方</span></td>
+                                <td class="px-2 py-2 text-center"><span
+                                        class="text-danger cursor-pointer hover:underline">删除</span></td>
+                            </tr>
+                            <tr class="border-t border-lightBorder">
+                                <td class="px-2 py-2">赵强</td>
+                                <td class="px-2 py-2">焊工</td>
+                                <td class="px-2 py-2">136****3456</td>
+                                <td class="px-2 py-2">鞍钢建设集团有限公司</td>
+                                <td class="px-2 py-2"><span
+                                        class="px-1 py-0.5 bg-warning/10 text-warning rounded text-xs">相关方</span></td>
+                                <td class="px-2 py-2 text-center"><span
+                                        class="text-danger cursor-pointer hover:underline">删除</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 模块3 选择摄像头 -->
+                <div class="mb-7">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-2">
+                            <span
+                                class="w-5 h-5 rounded-full bg-primary text-white text-xs flex items-center justify-center">3</span>
+                            <h3 class="font-medium text-gray-800">选择摄像头</h3>
+                        </div>
+                        <div class="flex gap-4 text-sm">
+                            <span class="text-primary cursor-pointer hover:underline"><i
+                                    class="fa fa-magic mr-1"></i>智能推荐</span>
+                            <span class="text-primary cursor-pointer hover:underline"><i
+                                    class="fa fa-plus mr-1"></i>选择摄像头</span>
+                        </div>
+                    </div>
+                    <table class="w-full text-sm border border-lightBorder rounded overflow-hidden">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-2 py-2 text-left font-normal text-grayText">摄像头名称</th>
+                                <th class="px-2 py-2 text-left font-normal text-grayText">摄像头类型</th>
+                                <th class="px-2 py-2 text-left font-normal text-grayText">安装位置</th>
+                                <th class="px-2 py-2 text-center font-normal text-grayText">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-t border-lightBorder">
+                                <td class="px-2 py-2">东帮65段8区工作面摄像头</td>
+                                <td class="px-2 py-2">固定摄像头</td>
+                                <td class="px-2 py-2">东帮采区/-362水平面/东帮65段</td>
+                                <td class="px-2 py-2 text-center"><span
+                                        class="text-danger cursor-pointer hover:underline">删除</span></td>
+                            </tr>
+                            <tr class="border-t border-lightBorder">
+                                <td class="px-2 py-2">19#回采工作面主摄像头</td>
+                                <td class="px-2 py-2">固定摄像头</td>
+                                <td class="px-2 py-2">主运输巷 -123水平面 /19#回采工作面</td>
+                                <td class="px-2 py-2 text-center"><span
+                                        class="text-danger cursor-pointer hover:underline">删除</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="text-xs text-gray-400 mt-2">已选择 2 个摄像头，系统将自动关联作业区域的剩余摄像头</div>
+                </div>
+
+                <!-- 模块4 备注 -->
+                <div>
+                    <div class="flex items-center gap-2 mb-4">
+                        <span
+                            class="w-5 h-5 rounded-full bg-primary text-white text-xs flex items-center justify-center">4</span>
+                        <h3 class="font-medium text-gray-800">备注（选填）</h3>
+                    </div>
+                    <textarea maxlength="200" rows="4"
+                        class="w-full border border-lightBorder rounded px-3 py-2 outline-none focus:border-primary resize-none"
+                        placeholder="请输入备注信息（不超过200字）"></textarea>
+                    <div class="text-right text-xs text-gray-400 mt-0.5">0/200</div>
+                </div>
+            </div>
+            <!-- 底部按钮 -->
+            <div class="px-6 py-4 border-t border-lightBorder flex justify-end gap-3 flex-shrink-0" id="action-bar">
+                <button id="cancelBtn" class="border border-lightBorder rounded px-6 py-2 hover:bg-gray-50">取消</button>
+                <button id="submitBtn"
+                    class="bg-primary text-white rounded px-6 py-2 hover:bg-primary/90">保存并提交</button>
+                <button id="closeBtn" class="hidden border border-lightBorder rounded px-6 py-2 hover:bg-gray-50">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- GIS 点位标注弹窗 -->
+    <div id="gisModal" class="fixed inset-0 z-[200] hidden items-center justify-center bg-black/50 px-4">
+        <div class="w-full max-w-5xl overflow-hidden rounded-lg bg-white shadow-2xl" role="dialog" aria-modal="true"
+            aria-labelledby="gisModalTitle">
+            <div class="flex items-start justify-between border-b border-lightBorder px-5 py-4">
+                <div class="flex-1">
+                    <h3 id="gisModalTitle" class="font-medium text-gray-800">GIS 标注作业点位</h3>
+                    <p id="gisModalSubtitle" class="mt-1 text-xs text-gray-400">请在地图中点击选择具体作业位置</p>
+                    <div id="gisLocationSelectors" class="mt-4 flex flex-wrap items-center gap-4">
+                        <label class="flex items-center gap-2 text-sm text-grayText">
+                            <span>楼栋</span>
+                            <select id="gisBuilding" class="w-40 rounded border border-lightBorder bg-white px-3 py-2 outline-none focus:border-primary">
+                                <option value="">请选择楼栋</option>
+                                <option>生产综合楼</option>
+                                <option>选矿主厂房</option>
+                                <option>智能调度中心</option>
+                                <option>设备检修楼</option>
+                            </select>
+                        </label>
+                        <label class="flex items-center gap-2 text-sm text-grayText">
+                            <span>楼层</span>
+                            <select id="gisFloor" class="w-36 rounded border border-lightBorder bg-white px-3 py-2 outline-none focus:border-primary">
+                                <option value="">请选择楼层</option>
+                                <option>负一层</option>
+                                <option>一层</option>
+                                <option>二层</option>
+                                <option>三层</option>
+                                <option>四层</option>
+                            </select>
+                        </label>
+                    </div>
+                </div>
+                <button id="closeGisModal" type="button" class="text-xl text-gray-400 hover:text-gray-700" aria-label="关闭">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
+            <div class="h-[560px] max-md:h-[440px]">
+                <div class="relative h-full w-full overflow-hidden bg-[#dfe8da]" id="gisMap">
+                    <div class="absolute inset-0 opacity-70" style="background-image:linear-gradient(28deg,transparent 46%,#b7c5ae 47%,#b7c5ae 49%,transparent 50%),linear-gradient(118deg,transparent 46%,#c3d0ba 47%,#c3d0ba 49%,transparent 50%);background-size:120px 120px"></div>
+                    <div class="absolute left-[8%] top-[14%] h-[68%] w-[86%] rotate-[-8deg] rounded-[45%] border-[16px] border-[#b9c9d3] bg-[#c8d7df] shadow-inner"></div>
+                    <div class="absolute left-[18%] top-[23%] h-[48%] w-[65%] rotate-[-8deg] rounded-[45%] bg-[#92a77e]"></div>
+                    <div class="absolute left-[30%] top-[33%] h-[28%] w-[42%] rotate-[-8deg] rounded-[44%] bg-[#c9b68d] shadow-inner"></div>
+                    <div class="absolute left-[6%] top-[10%] rounded bg-white/90 px-3 py-2 text-xs text-gray-600 shadow">
+                        <i class="fa fa-map-marker mr-1 text-primary"></i>梅山矿区 GIS
+                    </div>
+                    <span class="absolute left-[25%] top-[25%] rounded bg-white/75 px-2 py-1 text-xs text-gray-600">北帮采区</span>
+                    <span class="absolute right-[19%] top-[39%] rounded bg-white/75 px-2 py-1 text-xs text-gray-600">东帮采区</span>
+                    <span class="absolute bottom-[18%] left-[42%] rounded bg-white/75 px-2 py-1 text-xs text-gray-600">南帮作业面</span>
+                    <div id="gisMarker" class="pointer-events-none absolute hidden -translate-x-1/2 -translate-y-full text-center">
+                        <i class="fa fa-map-marker text-4xl text-danger drop-shadow-lg"></i>
+                        <span class="block whitespace-nowrap rounded bg-gray-900/80 px-2 py-1 text-xs text-white">作业点位</span>
+                    </div>
+                    <div class="absolute bottom-3 left-3 rounded bg-white/90 px-3 py-2 text-xs text-gray-500 shadow">
+                        <i class="fa fa-mouse-pointer mr-1"></i>单击地图放置或调整点位
+                    </div>
+                    <div class="absolute right-3 top-3 flex flex-col overflow-hidden rounded bg-white shadow">
+                        <button type="button" class="h-9 w-9 border-b text-lg text-gray-600">+</button>
+                        <button type="button" class="h-9 w-9 text-lg text-gray-600">−</button>
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-end gap-3 border-t border-lightBorder px-5 py-4">
+                <button id="cancelGisModal" type="button" class="rounded border border-lightBorder px-5 py-2 text-sm hover:bg-gray-50">取消</button>
+                <button id="confirmGisLocation" type="button" disabled
+                    class="cursor-not-allowed rounded bg-primary/50 px-5 py-2 text-sm text-white">确认点位</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const overlay = document.getElementById('drawerOverlay');
+        const drawerPanel = overlay.querySelector('div');
+        const openBtn = document.getElementById('openDrawerBtn');
+        const closeBtn = document.getElementById('closeDrawerBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const submitBtn = document.getElementById('submitBtn');
+        const gisModal = document.getElementById('gisModal');
+        const gisMap = document.getElementById('gisMap');
+        const gisMarker = document.getElementById('gisMarker');
+        const markLocationBtn = document.getElementById('markLocationBtn');
+        const workLocationInput = document.getElementById('workLocationInput');
+        const confirmGisLocation = document.getElementById('confirmGisLocation');
+        const gisBuilding = document.getElementById('gisBuilding');
+        const gisFloor = document.getElementById('gisFloor');
+        let selectedPoint = null;
+
+        // 打开抽屉
+        function openDrawer() {
+            overlay.classList.remove('invisible');
+            overlay.classList.remove('opacity-0');
+            setTimeout(() => {
+                drawerPanel.classList.remove('translate-x-full');
+            }, 10)
+        }
+        // 关闭抽屉
+        function closeDrawer() {
+            drawerPanel.classList.add('translate-x-full');
+            setTimeout(() => {
+                overlay.classList.add('opacity-0');
+                overlay.classList.add('invisible');
+            }, 300)
+        }
+        // 返回作业计划管理页面
+        function backToList() {
+            location.href = '作业计划管理.html';
+        }
+
+        openBtn.addEventListener('click', openDrawer);
+        closeBtn.addEventListener('click', closeDrawer);
+        // 点击遮罩、取消、提交按钮均跳转回作业计划管理页面
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) backToList();
+        })
+        cancelBtn.addEventListener('click', backToList);
+        submitBtn.addEventListener('click', backToList);
+
+        // GIS 作业点位标注
+        function openGisModal() {
+            gisModal.classList.remove('hidden');
+            gisModal.classList.add('flex');
+        }
+        function closeGisModal() {
+            gisModal.classList.add('hidden');
+            gisModal.classList.remove('flex');
+        }
+        markLocationBtn.addEventListener('click', openGisModal);
+        document.getElementById('closeGisModal').addEventListener('click', closeGisModal);
+        document.getElementById('cancelGisModal').addEventListener('click', closeGisModal);
+        gisModal.addEventListener('click', function (event) {
+            if (event.target === gisModal) closeGisModal();
+        });
+        gisMap.addEventListener('click', function (event) {
+            if (event.target.closest('button')) return;
+            const rect = gisMap.getBoundingClientRect();
+            const x = Math.max(0, Math.min(100, (event.clientX - rect.left) / rect.width * 100));
+            const y = Math.max(0, Math.min(100, (event.clientY - rect.top) / rect.height * 100));
+            const area = x > 62 ? '东帮采区' : (y > 62 ? '南帮作业面' : '北帮采区');
+            selectedPoint = {
+                x: x,
+                y: y,
+                area: area,
+                lng: (118.742000 + x * 0.00063).toFixed(6),
+                lat: (31.918000 - y * 0.00048).toFixed(6)
+            };
+            gisMarker.style.left = x + '%';
+            gisMarker.style.top = y + '%';
+            gisMarker.classList.remove('hidden');
+            confirmGisLocation.disabled = false;
+            confirmGisLocation.className = 'rounded bg-primary px-5 py-2 text-sm text-white hover:bg-primary/90';
+        });
+        confirmGisLocation.addEventListener('click', function () {
+            if (!selectedPoint) return;
+            const indoorLocation = [gisBuilding.value, gisFloor.value].filter(Boolean).join(' / ');
+            const mapLocation = selectedPoint.area + '（' + selectedPoint.lng + ', ' + selectedPoint.lat + '）';
+            workLocationInput.value = indoorLocation ? indoorLocation + ' / ' + mapLocation : mapLocation;
+            markLocationBtn.textContent = '查看位置';
+            markLocationBtn.classList.remove('text-primary');
+            markLocationBtn.classList.add('text-success');
+            closeGisModal();
+        });
+
+        // 进入页面自动弹出抽屉
+        window.addEventListener('load', openDrawer);
+
+        // ===== 详情/编辑模式处理 =====
+        var urlParams = new URLSearchParams(window.location.search);
+        var mode = urlParams.get('mode');
+        // 编辑和详情模式已有历史点位，默认展示为已标注状态
+        if (mode === 'edit' || mode === 'view') {
+            markLocationBtn.textContent = '查看位置';
+            markLocationBtn.classList.remove('text-primary');
+            markLocationBtn.classList.add('text-success');
+        }
+        if (mode === 'view') {
+            // 详情模式只查看已选点位，不展示选点表单
+            document.getElementById('gisModalTitle').textContent = '楼栋-楼层信息';
+            document.getElementById('gisModalSubtitle').classList.add('hidden');
+            document.getElementById('gisLocationSelectors').classList.add('hidden');
+            // 详情模式：隐藏取消和保存按钮，显示关闭按钮
+            document.getElementById('cancelBtn').classList.add('hidden');
+            document.getElementById('submitBtn').classList.add('hidden');
+            document.getElementById('closeBtn').classList.remove('hidden');
+            document.getElementById('closeBtn').addEventListener('click', backToList);
+            // 将所有输入控件设为只读
+            document.querySelectorAll('input, select, textarea').forEach(function(el) {
+                if (el.type !== 'button' && el.type !== 'submit') {
+                    el.readOnly = true;
+                    el.disabled = true;
+                }
+            });
+            // 修改页面标题提示
+            var headerTitle = document.querySelector('.px-6.py-4.border-b.border-lightBorder h2');
+            if (headerTitle) headerTitle.textContent = '作业计划详情';
+        } else if (mode === 'edit') {
+            // 编辑模式：保持原样新增页面，标题改为编辑
+            var headerTitle2 = document.querySelector('.px-6.py-4.border-b.border-lightBorder h2');
+            if (headerTitle2) headerTitle2.textContent = '编辑作业计划';
+        }
+    </script>
+    <script src="navigation.js?v=20260819-2"></script>
+</body>
+
+</html>

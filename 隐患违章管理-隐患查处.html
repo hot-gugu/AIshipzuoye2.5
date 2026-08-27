@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>“三违”无视频不作业智慧管控平台 - 隐患查处台账</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        sidebarDark: '#0F2038',
+                        pageBg: '#F7F8FA',
+                        cardBg: '#ffffff',
+                        borderLine: '#E5E6EB',
+                        textMain: '#1D2129',
+                        textSecondary: '#6E7681',
+                        textLight: '#86909C',
+                        statusWait: '#FF7D00',
+                        statusIng: '#FFC53D',
+                        statusFinish: '#00B42A',
+                        levelMajor: '#F53F3F',
+                        levelBig: '#FF7D00',
+                        levelNormal: '#FFC53D',
+                        levelLow: '#00B42A',
+                        levelOther: '#9E88FF',
+                    },
+                    fontFamily: {
+                        system: ['PingFang SC', 'Microsoft YaHei', 'system-ui', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .scrollbar-hide::-webkit-scrollbar { display: none; }
+            .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+            .menu-active { @apply bg-primary/20 text-white border-l-[3px] border-primary; }
+            .tree-item-hover { @apply hover:bg-gray-100 rounded cursor-pointer; }
+            .tree-active { @apply text-primary font-medium; }
+        }
+        body { overflow: hidden; }
+        .audit-drawer-mask { transition: opacity .2s ease; }
+        .audit-drawer-panel { transition: transform .25s ease; }
+        .audit-drawer-closed { pointer-events: none; }
+        .audit-drawer-closed .audit-drawer-mask { opacity: 0; }
+        .audit-drawer-closed .audit-drawer-panel { transform: translateX(100%); }
+    </style>
+</head>
+<body class="font-system bg-pageBg text-textMain h-screen flex">
+    <!-- 左侧主导航菜单 -->
+    <aside class="w-[210px] bg-sidebarDark flex flex-col flex-shrink-0 text-slate-300">
+        <!-- Logo标题 -->
+        <div class="h-[64px] flex items-center px-4 border-b border-slate-700/50 gap-2">
+            <div class="w-8 h-8 rounded bg-white flex items-center justify-center">
+                <i class="fa fa-cube text-primary text-lg"></i>
+            </div>
+            <div class="leading-tight">
+                <div class="text-white text-sm font-medium">视频AI识别自进化能力平台</div>
+                <div class="text-[10px] text-slate-400">隐患违章管控系统</div>
+            </div>
+        </div>
+        <!-- 侧边菜单 -->
+        <nav class="flex-1 py-3 overflow-y-auto scrollbar-hide text-sm">
+            <div class="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-700/30 cursor-pointer">
+                <i class="fa fa-home w-5 text-center"></i>
+                <span>首页</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-700/30 cursor-pointer">
+                <i class="fa fa-video-camera w-5 text-center"></i>
+                <span>实时监控</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-700/30 cursor-pointer">
+                <i class="fa fa-history w-5 text-center"></i>
+                <span>视频管理</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-700/30 cursor-pointer">
+                <i class="fa fa-bolt w-5 text-center"></i>
+                <span>AI隐患管理</span>
+            </div>
+            <div class="menu-active flex items-center gap-3 px-4 py-2.5 cursor-pointer">
+                <i class="fa fa-exclamation-triangle w-5 text-center"></i>
+                <span>隐患违章管理</span>
+            </div>
+            <div class="pl-8 flex flex-col gap-1 py-1">
+                <div class="flex items-center gap-3 px-4 py-2 hover:bg-slate-700/30 cursor-pointer">
+                    <span>违章查处</span>
+                </div>
+                <div class="menu-active flex items-center gap-3 px-4 py-2 cursor-pointer">
+                    <span>隐患查处</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-700/30 cursor-pointer">
+                <i class="fa fa-list-alt w-5 text-center"></i>
+                <span>考核管理</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-700/30 cursor-pointer">
+                <i class="fa fa-sitemap w-5 text-center"></i>
+                <span>组织架构</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-700/30 cursor-pointer">
+                <i class="fa fa-camera w-5 text-center"></i>
+                <span>设备管理</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-700/30 cursor-pointer">
+                <i class="fa fa-cog w-5 text-center"></i>
+                <span>系统设置</span>
+            </div>
+        </nav>
+        <div class="h-10 border-t border-slate-700/50 flex items-center justify-center text-xs text-slate-400 cursor-pointer hover:text-white">
+            <i class="fa fa-angle-double-left mr-1"></i>收起菜单
+        </div>
+    </aside>
+
+    <!-- 主体区域：组织架构 + 页面内容 -->
+    <div class="flex flex-1 overflow-hidden">
+        <!-- 左侧组织架构栏 -->
+        <div class="w-[260px] bg-white border-r border-borderLine overflow-y-auto p-6 flex-shrink-0">
+            <h3 class="font-semibold text-slate-800 mb-5 text-base">组织架构</h3>
+            <div class="pl-1">
+                <div class="font-medium text-primary mb-4 flex items-center gap-2">
+                    <i class="fa fa-building"></i>鞍钢矿业公司
+                </div>
+                <div class="pl-6 flex flex-col gap-4">
+                    <div class="text-slate-600 cursor-pointer hover:text-primary flex items-center gap-2 text-sm"><i class="fa fa-mine text-xs"></i>齐大山铁矿</div>
+                    <div class="text-slate-600 cursor-pointer hover:text-primary flex items-center gap-2 text-sm"><i class="fa fa-mine text-xs"></i>弓长岭铁矿</div>
+                    <div class="text-slate-600 cursor-pointer hover:text-primary flex items-center gap-2 text-sm"><i class="fa fa-mine text-xs"></i>眼前山铁矿</div>
+                    <div class="text-slate-600 cursor-pointer hover:text-primary flex items-center gap-2 text-sm"><i class="fa fa-mine text-xs"></i>东鞍山分公司</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧主内容区域 -->
+        <main class="flex-1 flex flex-col overflow-hidden">
+            <!-- 顶部栏 -->
+            <header class="h-[60px] bg-white border-b border-borderLine flex items-center justify-between px-6 flex-shrink-0">
+                <div class="flex items-center gap-2">
+                    <i class="fa fa-bars cursor-pointer"></i>
+                    <span class="text-base font-medium">隐患违章管理 / 隐患查处台账</span>
+                </div>
+                <div class="flex items-center gap-6">
+                    <div class="relative cursor-pointer">
+                        <i class="fa fa-bell-o text-textSecondary text-lg"></i>
+                    </div>
+                    <div class="flex items-center gap-2 cursor-pointer">
+                        <div class="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center">
+                            <i class="fa fa-user text-textSecondary"></i>
+                        </div>
+                        <span class="text-sm">张安全 <span class="text-textLight text-xs">安全环保部·安全科</span></span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="flex-1 overflow-y-auto p-6 scrollbar-hide">
+                <!-- Tab切换 -->
+                <!-- <div class="flex gap-1 mb-5">
+                    <div class="px-4 py-2 border-b-2 border-transparent text-textSecondary hover:text-primary cursor-pointer">违章查处台账</div>
+                    <div class="px-4 py-2 border-b-2 border-primary text-primary font-medium cursor-pointer">隐患查处台账</div>
+                </div> -->
+
+                <!-- 筛选区域 -->
+                <div class="bg-white rounded-lg p-5 mb-5 shadow-sm">
+                    <div class="grid grid-cols-5 gap-4 mb-4">
+                        <div>
+                            <label class="text-xs text-textSecondary block mb-1">发生时间：</label>
+                            <div class="flex items-center gap-1">
+                                <input type="text" value="2024-05-01" class="border border-borderLine rounded px-2 py-1.5 text-sm w-full">
+                                <span>至</span>
+                                <input type="text" value="2024-05-18" class="border border-borderLine rounded px-2 py-1.5 text-sm w-full">
+                                <i class="fa fa-calendar-o text-textSecondary"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-xs text-textSecondary block mb-1">隐患来源：</label>
+                            <select class="w-full border border-borderLine rounded px-2 py-1.5 text-sm">
+                                <option>全部</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-xs text-textSecondary block mb-1">隐患等级：</label>
+                            <select class="w-full border border-borderLine rounded px-2 py-1.5 text-sm">
+                                <option>全部</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-xs text-textSecondary block mb-1">隐患分类：</label>
+                            <select class="w-full border border-borderLine rounded px-2 py-1.5 text-sm">
+                                <option>全部</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-xs text-textSecondary block mb-1">所属单位：</label>
+                            <select class="w-full border border-borderLine rounded px-2 py-1.5 text-sm">
+                                <option>全部</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-xs text-textSecondary block mb-1">隐患位置：</label>
+                            <input type="text" placeholder="请输入隐患位置" class="w-full border border-borderLine rounded px-2 py-1.5 text-sm">
+                        </div>
+                        <div>
+                            <label class="text-xs text-textSecondary block mb-1">整改状态：</label>
+                            <select class="w-full border border-borderLine rounded px-2 py-1.5 text-sm">
+                                <option>全部</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-xs text-textSecondary block mb-1">整改人：</label>
+                            <input type="text" placeholder="请输入整改人" class="w-full border border-borderLine rounded px-2 py-1.5 text-sm">
+                        </div>
+                        <div>
+                            <label class="text-xs text-textSecondary block mb-1">验收人：</label>
+                            <input type="text" placeholder="请输入验收人" class="w-full border border-borderLine rounded px-2 py-1.5 text-sm">
+                        </div>
+                        <div class="flex items-end justify-end gap-3">
+                            <!-- <button class="border border-borderLine rounded px-3 py-1.5 text-sm flex items-center gap-1">
+                                <i class="fa fa-refresh"></i>重置
+                            </button>
+                            <button class="bg-primary text-white rounded px-3 py-1.5 text-sm flex items-center gap-1">
+                                <i class="fa fa-search"></i>查询
+                            </button> -->
+                            <div class="border border-borderLine rounded px-3 py-1.5 text-sm flex items-center gap-1 cursor-pointer">
+                                展开 <i class="fa fa-angle-down"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 统计卡片行 -->
+                <div class="grid grid-cols-6 gap-4 mb-5">
+                    <div class="bg-white rounded-lg p-4 shadow-sm flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center">
+                            <i class="fa fa-list text-primary text-lg"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs text-textSecondary">全部隐患</div>
+                            <div class="text-xl font-semibold">356 件</div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg p-4 shadow-sm flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-lg bg-red-50 flex items-center justify-center">
+                            <i class="fa fa-shield text-levelMajor text-lg"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs text-textSecondary">重大隐患</div>
+                            <div class="text-xl font-semibold">18 件</div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg p-4 shadow-sm flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-lg bg-orange-50 flex items-center justify-center">
+                            <i class="fa fa-exclamation-triangle text-levelBig text-lg"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs text-textSecondary">较大隐患</div>
+                            <div class="text-xl font-semibold">62 件</div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg p-4 shadow-sm flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-lg bg-yellow-50 flex items-center justify-center">
+                            <i class="fa fa-warning text-levelNormal text-lg"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs text-textSecondary">一般隐患</div>
+                            <div class="text-xl font-semibold">204 件</div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg p-4 shadow-sm flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-lg bg-green-50 flex items-center justify-center">
+                            <i class="fa fa-check-circle text-levelLow text-lg"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs text-textSecondary">低风险隐患</div>
+                            <div class="text-xl font-semibold">60 件</div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg p-4 shadow-sm flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-lg bg-purple-50 flex items-center justify-center">
+                            <i class="fa fa-cube text-levelOther text-lg"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs text-textSecondary">其他隐患</div>
+                            <div class="text-xl font-semibold">12 件</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 表格区域 -->
+                <div class="bg-white rounded-lg shadow-sm">
+                    <div class="flex justify-between items-center p-4 border-b border-borderLine">
+                        <span class="text-sm">隐患查处台账列表（共 356 条）</span>
+                        <div class="flex gap-3">
+                            <button class="border border-borderLine rounded px-3 py-1.5 text-sm flex items-center gap-1">
+                                <i class="fa fa-download"></i>导出
+                            </button>
+                            <!-- <button class="border border-borderLine rounded px-3 py-1.5 text-sm flex items-center gap-1">
+                                <i class="fa fa-th-list"></i>列设置
+                            </button> -->
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-2 py-3 text-left font-normal text-textSecondary"><input type="checkbox"></th>
+                                    <th class="px-2 py-3 text-left font-normal text-textSecondary">序号</th>
+                                    <th class="px-2 py-3 text-left font-normal text-textSecondary">发生时间</th>
+                                    <th class="px-2 py-3 text-left font-normal text-textSecondary">隐患来源</th>
+                                    <th class="px-2 py-3 text-left font-normal text-textSecondary">隐患分类</th>
+                                    <th class="px-2 py-3 text-left font-normal text-textSecondary">隐患等级</th>
+                                    <th class="px-2 py-3 text-left font-normal text-textSecondary">隐患位置</th>
+                                    <th class="px-2 py-3 text-left font-normal text-textSecondary">隐患单位</th>
+                                    <th class="px-2 py-3 text-left font-normal text-textSecondary">隐患描述</th>
+                                    <th class="px-2 py-3 text-left font-normal text-textSecondary">隐患照片</th>
+                                    <th class="px-2 py-3 text-left font-normal text-textSecondary">查处人</th>
+                                    <th class="px-2 py-3 text-left font-normal text-textSecondary">查处人单位</th>
+                                    <th class="px-2 py-3 text-left font-normal text-textSecondary">核实结果</th>
+                                    <th class="px-2 py-3 text-left font-normal text-textSecondary">整改状态</th>
+                                    <th class="px-2 py-3 text-left font-normal text-textSecondary">整改时间</th>
+                                    <th class="px-2 py-3 text-left font-normal text-textSecondary">整改人</th>
+                                    <th class="px-2 py-3 text-left font-normal text-textSecondary">验收时间</th>
+                                    <th class="px-2 py-3 text-left font-normal text-textSecondary">验收人</th>
+                                    <th class="px-2 py-3 text-left font-normal text-textSecondary">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b border-borderLine hover:bg-gray-50">
+                                    <td class="px-2 py-2.5"><input type="checkbox"></td>
+                                    <td class="px-2 py-2.5">1</td>
+                                    <td class="px-2 py-2.5">2024-05-18 10:24:36</td>
+                                    <td class="px-2 py-2.5"><span class="bg-blue-50 text-blue-600 px-1 rounded text-xs">AI预警-视频识别</span></td>
+                                    <td class="px-2 py-2.5">设备设施类</td>
+                                    <td class="px-2 py-2.5"><span class="text-levelMajor font-medium">重大隐患</span></td>
+                                    <td class="px-2 py-2.5">皮带运输系统驱动滚筒处</td>
+                                    <td class="px-2 py-2.5">采矿一分区</td>
+                                    <td class="px-2 py-2.5">皮带滚动破损</td>
+                                    <td class="px-2 py-2.5"><div class="w-8 h-8 bg-slate-300 rounded"></div></td>
+                                    <td class="px-2 py-2.5">张安全</td>
+                                    <td class="px-2 py-2.5">安全环保部</td>
+                                    <td class="px-2 py-2.5"><span class="bg-orange-50 text-orange-600 px-1.5 py-0.5 rounded text-xs">待核实</span></td>
+                                    <td class="px-2 py-2.5"><span class="bg-orange-50 text-statusWait px-1.5 py-0.5 rounded text-xs">-</span></td>
+                                    <td class="px-2 py-2.5">-</td>
+                                    <td class="px-2 py-2.5">-</td>
+                                    <td class="px-2 py-2.5">-</td>
+                                    <td class="px-2 py-2.5">-</td>
+                                    <td class="px-2 py-2.5">
+                                        <a class="text-primary cursor-pointer" style="color: orange;">核实审核</a>
+                                        <span class="mx-1">  </span>
+                                        <a class="text-primary cursor-pointer">详情</a>
+                                    </td>
+                                </tr>
+                                <tr class="border-b border-borderLine hover:bg-gray-50">
+                                    <td class="px-2 py-2.5"><input type="checkbox"></td>
+                                    <td class="px-2 py-2.5">2</td>
+                                    <td class="px-2 py-2.5">2024-05-18 10:21:15</td>
+                                    <td class="px-2 py-2.5"><span class="bg-purple-50 text-purple-600 px-1 rounded text-xs">实时巡查上报</span></td>
+                                    <td class="px-2 py-2.5">电气安全类</td>
+                                    <td class="px-2 py-2.5"><span class="text-levelBig font-medium">较大隐患</span></td>
+                                    <td class="px-2 py-2.5">配电室低压柜</td>
+                                    <td class="px-2 py-2.5">机电动力部</td>
+                                    <td class="px-2 py-2.5">配电柜未上锁</td>
+                                    <td class="px-2 py-2.5"><div class="w-8 h-8 bg-slate-300 rounded"></div></td>
+                                    <td class="px-2 py-2.5">赵强</td>
+                                    <td class="px-2 py-2.5">安全环保部</td>
+                                    <td class="px-2 py-2.5"><span class="bg-green-50 text-green-600 px-1.5 py-0.5 rounded text-xs">不是隐患</span></td>
+                                    <td class="px-2 py-2.5"><span class="bg-yellow-50 text-statusIng px-1.5 py-0.5 rounded text-xs">--</span></td>
+                                    <td class="px-2 py-2.5">-</td>
+                                    <td class="px-2 py-2.5">-</td>
+                                    <td class="px-2 py-2.5">-</td>
+                                    <td class="px-2 py-2.5">-</td>
+                                    <td class="px-2 py-2.5">
+                                        <!-- <a class="text-primary cursor-pointer">整改记录</a>
+                                        <span class="mx-1">|</span> -->
+                                        <a class="text-primary cursor-pointer">详情</a>
+                                    </td>
+                                </tr>
+                                <tr class="border-b border-borderLine hover:bg-gray-50">
+                                    <td class="px-2 py-2.5"><input type="checkbox"></td>
+                                    <td class="px-2 py-2.5">3</td>
+                                    <td class="px-2 py-2.5">2024-05-18 10:18:34</td>
+                                    <td class="px-2 py-2.5"><span class="bg-green-50 text-green-600 px-1 rounded text-xs">视频倒查上报</span></td>
+                                    <td class="px-2 py-2.5">作业环境类</td>
+                                    <td class="px-2 py-2.5"><span class="text-levelBig font-medium">较大隐患</span></td>
+                                    <td class="px-2 py-2.5">成品库房北侧</td>
+                                    <td class="px-2 py-2.5">采矿二分区</td>
+                                    <td class="px-2 py-2.5"></td>
+                                    <td class="px-2 py-2.5"><div class="w-8 h-8 bg-slate-300 rounded"></div></td>
+                                    <td class="px-2 py-2.5">李强</td>
+                                    <td class="px-2 py-2.5">安全环保部</td>
+                                    <td class="px-2 py-2.5"><span class="bg-green-50 text-green-600 px-1.5 py-0.5 rounded text-xs">是隐患</span></td>
+                                    <td class="px-2 py-2.5"><span class="bg-green-50 text-statusFinish px-1.5 py-0.5 rounded text-xs">已整改</span></td>
+                                    <td class="px-2 py-2.5">2024-05-18 15:10</td>
+                                    <td class="px-2 py-2.5">李强</td>
+                                    <td class="px-2 py-2.5">2024-05-18 16:00</td>
+                                    <td class="px-2 py-2.5">李强</td>
+                                    <td class="px-2 py-2.5">
+                                        <!-- <a class="text-primary cursor-pointer">整改记录</a>
+                                        <span class="mx-1">|</span> -->
+                                        <a class="text-primary cursor-pointer">详情</a>
+                                    </td>
+                                </tr>
+                                <tr class="border-b border-borderLine hover:bg-gray-50">
+                                    <td class="px-2 py-2.5"><input type="checkbox"></td>
+                                    <td class="px-2 py-2.5">4</td>
+                                    <td class="px-2 py-2.5">2024-05-18 10:15:42</td>
+                                    <td class="px-2 py-2.5"><span class="bg-blue-50 text-blue-600 px-1 rounded text-xs">AI预警-视频识别</span></td>
+                                    <td class="px-2 py-2.5">高处作业类</td>
+                                    <td class="px-2 py-2.5"><span class="text-levelNormal font-medium">一般隐患</span></td>
+                                    <td class="px-2 py-2.5">防护栏杆局部锈蚀</td>
+                                    <td class="px-2 py-2.5">选矿一分厂</td>
+                                    <td class="px-2 py-2.5">配电柜未上锁</td>
+                                    <td class="px-2 py-2.5"><div class="w-8 h-8 bg-slate-300 rounded"></div></td>
+                                    <td class="px-2 py-2.5">赵强</td>
+                                    <td class="px-2 py-2.5">安全环保部</td>
+                                    <td class="px-2 py-2.5"><span class="bg-green-50 text-green-600 px-1.5 py-0.5 rounded text-xs">是隐患</span></td>
+                                    <td class="px-2 py-2.5"><span class="bg-yellow-50 text-statusIng px-1.5 py-0.5 rounded text-xs">整改中</span></td>
+                                    <td class="px-2 py-2.5">2024-05-18 11:20</td>
+                                    <td class="px-2 py-2.5">赵强</td>
+                                    <td class="px-2 py-2.5">-</td>
+                                    <td class="px-2 py-2.5">-</td>
+                                    <td class="px-2 py-2.5">
+                                        <!-- <a class="text-primary cursor-pointer">整改记录</a>
+                                        <span class="mx-1">|</span> -->
+                                        <a class="text-primary cursor-pointer">详情</a>
+                                    </td>
+                                </tr>
+                                <tr class="border-b border-borderLine hover:bg-gray-50">
+                                    <td class="px-2 py-2.5"><input type="checkbox"></td>
+                                    <td class="px-2 py-2.5">5</td>
+                                    <td class="px-2 py-2.5">2024-05-18 10:12:08</td>
+                                    <td class="px-2 py-2.5"><span class="bg-green-50 text-green-600 px-1 rounded text-xs">视频倒查上报</span></td>
+                                    <td class="px-2 py-2.5">消防安全类</td>
+                                    <td class="px-2 py-2.5"><span class="text-levelNormal font-medium">一般隐患</span></td>
+                                    <td class="px-2 py-2.5">办公楼3楼走廊设备</td>
+                                    <td class="px-2 py-2.5">外协工程管理部</td>
+                                    <td class="px-2 py-2.5">配电柜未上锁</td>
+                                    <td class="px-2 py-2.5"><div class="w-8 h-8 bg-slate-300 rounded"></div></td>
+                                    <td class="px-2 py-2.5">陈磊</td>
+                                    <td class="px-2 py-2.5">外协工程管理部</td>
+                                    <td class="px-2 py-2.5"><span class="bg-green-50 text-green-600 px-1.5 py-0.5 rounded text-xs">是隐患</span></td>
+                                    <td class="px-2 py-2.5"><span class="bg-green-50 text-statusFinish px-1.5 py-0.5 rounded text-xs">已整改</span></td>
+                                    <td class="px-2 py-2.5">2024-05-18 09:30</td>
+                                    <td class="px-2 py-2.5">陈磊</td>
+                                    <td class="px-2 py-2.5">2024-05-18 10:00</td>
+                                    <td class="px-2 py-2.5">李强</td>
+                                    <td class="px-2 py-2.5">
+                                        <!-- <a class="text-primary cursor-pointer">整改记录</a>
+                                        <span class="mx-1">|</span> -->
+                                        <a class="text-primary cursor-pointer">详情</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- 分页 -->
+                    <div class="flex justify-between items-center p-4 border-t border-borderLine text-sm">
+                        <span>共 356 条</span>
+                        <div class="flex items-center gap-2">
+                            <span>10条/页</span>
+                            <button class="border border-borderLine rounded w-7 h-7 flex items-center justify-center"><i class="fa fa-angle-left"></i></button>
+                            <button class="bg-primary text-white rounded w-7 h-7 flex items-center justify-center">1</button>
+                            <button class="border border-borderLine rounded w-7 h-7 flex items-center justify-center">2</button>
+                            <button class="border border-borderLine rounded w-7 h-7 flex items-center justify-center">3</button>
+                            <button class="border border-borderLine rounded w-7 h-7 flex items-center justify-center">4</button>
+                            <span>...</span>
+                            <button class="border border-borderLine rounded w-7 h-7 flex items-center justify-center">36</button>
+                            <button class="border border-borderLine rounded w-7 h-7 flex items-center justify-center"><i class="fa fa-angle-right"></i></button>
+                            <span>跳至</span>
+                            <input type="text" value="1" class="w-8 border border-borderLine rounded text-center py-1">
+                            <span>页</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 核实审核右侧抽屉 -->
+    <div id="auditDrawer" class="audit-drawer-closed fixed inset-0 z-50" aria-hidden="true">
+        <div class="audit-drawer-mask absolute inset-0 bg-black/30" data-audit-close></div>
+        <aside class="audit-drawer-panel absolute right-0 top-0 h-full w-[560px] max-w-[92vw] bg-white shadow-2xl flex flex-col">
+            <div class="h-16 px-6 border-b border-borderLine flex items-center justify-between flex-shrink-0">
+                <div><h2 class="text-lg font-semibold">隐患核实审核</h2><p class="text-xs text-textLight mt-0.5">判断是否为隐患并完善整改信息</p></div>
+                <button type="button" class="w-8 h-8 rounded hover:bg-gray-100 text-textSecondary" data-audit-close><i class="fa fa-times"></i></button>
+            </div>
+            <form id="auditForm" class="flex-1 overflow-y-auto p-6">
+                <div class="mb-6">
+                    <label class="text-sm font-medium block mb-3">是否为隐患 <span class="text-red-500">*</span></label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <label class="audit-result-option border border-primary bg-blue-50 rounded-lg p-3 cursor-pointer flex items-center gap-2"><input type="radio" name="isHazard" value="yes" checked class="accent-blue-600"><span><strong class="block text-sm">是</strong><small class="text-textLight">确认隐患并完善信息</small></span></label>
+                        <label class="audit-result-option border border-borderLine rounded-lg p-3 cursor-pointer flex items-center gap-2"><input type="radio" name="isHazard" value="no" class="accent-blue-600"><span><strong class="block text-sm">否</strong><small class="text-textLight">确认并非隐患</small></span></label>
+                    </div>
+                </div>
+                <div id="hazardEditFields" class="space-y-5">
+                    <div>
+                        <label class="text-sm font-medium block mb-2">隐患描述 <span class="text-red-500">*</span></label>
+                        <textarea id="auditDescription" required rows="4" class="w-full border border-borderLine rounded px-3 py-2 text-sm resize-none focus:outline-none focus:border-primary"></textarea>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><label class="text-sm font-medium block mb-2">隐患分类 <span class="text-red-500">*</span></label><select id="auditCategory" required class="w-full border border-borderLine rounded px-3 py-2 text-sm"><option>设备设施类</option><option>电气安全类</option><option>作业环境类</option><option>高处作业类</option><option>消防安全类</option></select></div>
+                        <div><label class="text-sm font-medium block mb-2">隐患等级 <span class="text-red-500">*</span></label><select id="auditLevel" required class="w-full border border-borderLine rounded px-3 py-2 text-sm"><option>重大隐患</option><option>较大隐患</option><option>一般隐患</option><option>低风险隐患</option></select></div>
+                    </div>
+                    <div><div class="flex items-center justify-between mb-2"><label class="text-sm font-medium">隐患位置 <span class="text-red-500">*</span></label><button id="openGis" type="button" class="text-primary text-sm hover:underline"><i class="fa fa-map-marker mr-1"></i>地图标注</button></div><input id="auditLocation" required class="w-full border border-borderLine rounded px-3 py-2 text-sm focus:outline-none focus:border-primary"><p id="gisCoordinateHint" class="hidden text-xs text-textLight mt-1"></p></div>
+                    <div>
+                        <label class="text-sm font-medium block mb-2">隐患照片</label>
+                        <button type="button" class="w-full h-28 border border-dashed border-borderLine rounded-lg text-textLight hover:border-primary hover:text-primary"><i class="fa fa-cloud-upload text-xl block mb-2"></i><span class="text-sm">点击上传或重新选择隐患照片</span></button>
+                    </div>
+                    <div><label class="text-sm font-medium block mb-2">隐患整改人 <span class="text-red-500">*</span></label><button id="rectifierPicker" type="button" class="w-full border border-borderLine rounded px-3 py-2 text-sm text-left flex justify-between items-center"><span id="rectifierText" class="text-textLight">请选择整改人</span><i class="fa fa-angle-down text-textLight"></i></button><input id="auditRectifier" required type="hidden"></div>
+                    <div><label class="text-sm font-medium block mb-2">整改期限 <span class="text-red-500">*</span></label><input id="auditRectificationDeadline" required type="date" value="2024-05-25" class="w-full border border-borderLine rounded px-3 py-2 text-sm focus:outline-none focus:border-primary"></div>
+                </div>
+            </form>
+            <div class="h-[68px] px-6 border-t border-borderLine flex items-center justify-end gap-3 flex-shrink-0">
+                <button type="button" class="border border-borderLine rounded px-5 py-2 text-sm hover:bg-gray-50" data-audit-close>取消</button>
+                <button id="submitAudit" type="button" class="bg-primary text-white rounded px-5 py-2 text-sm hover:bg-blue-700">提交审核</button>
+            </div>
+        </aside>
+    </div>
+
+    <!-- 隐患详情抽屉 -->
+    <div id="detailDrawer" class="audit-drawer-closed fixed inset-0 z-50" aria-hidden="true">
+        <div class="audit-drawer-mask absolute inset-0 bg-black/30" data-detail-close></div>
+        <aside class="audit-drawer-panel absolute right-0 top-0 h-full w-[560px] max-w-[94vw] bg-[#f5f8fc] shadow-2xl flex flex-col">
+            <div class="h-16 px-6 border-b border-borderLine bg-white flex items-center justify-between"><h2 class="text-lg font-semibold"><i class="fa fa-forward text-blue-500 mr-3"></i>隐患详情</h2><button data-detail-close class="w-8 h-8"><i class="fa fa-times text-textSecondary"></i></button></div>
+            <div class="px-6 pt-4 bg-white"><div class="flex justify-center"><button data-detail-tab="info" class="detail-tab bg-primary text-white border border-primary rounded-l px-10 py-2 text-sm">隐患信息</button><button data-detail-tab="record" class="detail-tab border border-borderLine rounded-r px-10 py-2 text-sm">隐患整改记录</button></div></div>
+            <div class="flex-1 overflow-y-auto p-6">
+                <div id="detailInfo" class="space-y-5">
+                    <section class="bg-white border border-borderLine rounded p-5"><h3 class="font-semibold text-base mb-4">核实结果记录</h3><div class="space-y-3 text-sm"><p>核实结果：<span id="detailVerifyResult" class="text-green-600">是隐患</span></p><p>核实人：<span id="detailVerifier">张安全</span></p><p>核实人单位：<span id="detailVerifierOrg">安全环保部</span></p><p>核实时间：<span id="detailVerifyTime">2024-05-18 10:35:20</span></p></div></section>
+                    <section class="bg-white border border-borderLine rounded p-5"><h3 class="font-semibold text-base mb-4">隐患基本信息</h3><div id="detailBasic" class="space-y-3 text-sm"></div></section>
+                    <section class="bg-white border border-borderLine rounded p-5"><h3 class="font-semibold text-base mb-4">隐患详细信息</h3><div id="detailExtra" class="space-y-3 text-sm"></div></section>
+                </div>
+                <div id="detailRecord" class="hidden bg-white border border-borderLine rounded p-5"><div class="border-l-2 border-slate-300 pl-5 space-y-8 text-sm"><div class="relative"><i class="absolute -left-[27px] top-1 w-3 h-3 rounded-full border-2 border-slate-500 bg-white"></i><h3 class="font-medium mb-3">隐患整改复查</h3><p class="mb-2">审批人：谷春旭</p><p class="mb-2">复查时间：2024-05-18 16:13:00</p><p class="mb-2">复查结果：通过</p><p class="mb-2">现场照片：</p><div class="w-24 h-20 rounded bg-slate-200 flex items-center justify-center text-textLight"><i class="fa fa-picture-o text-xl"></i></div></div><div class="relative"><i class="absolute -left-[27px] top-1 w-3 h-3 rounded-full border-2 border-slate-500 bg-white"></i><h3 class="font-medium mb-3">临时安全措施</h3><p class="mb-2">临时安全措施：设置警戒区域并安排专人监护</p><p>填写时间：2024-05-18 11:05:30</p></div><div class="relative"><i class="absolute -left-[27px] top-1 w-3 h-3 rounded-full border-2 border-slate-500 bg-white"></i><h3 class="font-medium mb-3">隐患整改</h3><p class="mb-2">整改描述：立即组织岗位人员检修。</p><p class="mb-2">整改人：<span id="recordRectifier">李强</span></p><p class="mb-2">整改时间：2024-05-18 15:10:00</p><p class="mb-2">现场照片：</p><div class="w-24 h-20 rounded bg-slate-200 flex items-center justify-center text-textLight"><i class="fa fa-picture-o text-xl"></i></div></div><div class="relative"><i class="absolute -left-[27px] top-1 w-3 h-3 rounded-full border-2 border-slate-500 bg-white"></i><h3 class="font-medium mb-3">隐患接收</h3><p class="mb-2" id="recordDescription"></p><p class="mb-2" id="recordReportTime"></p><p class="mb-2">现场照片：</p><div class="w-24 h-20 rounded bg-slate-200 flex items-center justify-center text-textLight"><i class="fa fa-picture-o text-xl"></i></div></div></div></div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- 整改人选择弹窗 -->
+    <div id="personModal" class="hidden fixed inset-0 z-[60] bg-black/35 flex items-center justify-center p-6"><div class="bg-white w-[1050px] max-w-[96vw] h-[680px] max-h-[90vh] rounded shadow-2xl flex flex-col"><div class="h-16 px-6 border-b flex items-center justify-between"><h3 class="font-semibold"><i class="fa fa-forward text-blue-500 mr-2"></i>选择整改人员</h3><button type="button" data-person-close><i class="fa fa-times"></i></button></div><div class="px-6 py-4 text-sm">已选人员：<span id="selectedPerson" class="text-primary">未选择</span></div><div class="flex-1 px-6 pb-5 flex gap-4 overflow-hidden"><div class="w-[300px] border rounded p-4 overflow-y-auto"><input class="w-full border rounded px-3 py-2 mb-4" placeholder="搜索"><h4 class="font-semibold mb-3">组织架构</h4><div class="grid grid-cols-2 border-b"><button type="button" data-org-tab="org" class="org-tab text-primary border-b-2 border-primary py-2 text-sm">组织架构</button><button type="button" data-org-tab="partner" class="org-tab py-2 text-sm text-textSecondary">相关方</button></div><div id="orgTree"><div class="mt-4 text-primary"><i class="fa fa-sitemap mr-2"></i>鞍钢集团矿业有限公司</div><div class="pl-6 mt-4 space-y-5 text-sm"><p>鞍钢集团矿业有限公司机关</p><p>齐大山选矿厂</p><p>眼前山分公司</p><p>东鞍山分公司</p><p>能源管控中心</p></div></div><div id="partnerTree" class="hidden mt-4 space-y-5 text-sm"><p class="text-primary"><i class="fa fa-handshake-o mr-2"></i>合作单位</p><p class="pl-6">矿山建设工程公司</p><p class="pl-6">设备检修服务公司</p><p class="pl-6">安全技术服务公司</p></div></div><div class="flex-1 border rounded overflow-hidden"><div class="p-4 flex justify-end"><input id="personSearch" class="border rounded px-3 py-2 w-64" placeholder="请输入"></div><table class="w-full text-sm"><thead class="bg-slate-100"><tr><th class="p-3"></th><th class="text-left">姓名</th><th class="text-left">单位名称</th><th class="text-left">账号</th><th class="text-left">手机号</th><th class="text-left">岗位</th></tr></thead><tbody id="personRows"></tbody></table></div></div><div class="h-16 px-6 border-t flex justify-end items-center gap-3"><button type="button" data-person-close class="border rounded px-5 py-2">关闭</button><button id="confirmPerson" type="button" class="bg-primary text-white rounded px-5 py-2">确认</button></div></div></div>
+
+    <!-- GIS 地图标注弹窗 -->
+    <div id="gisModal" class="hidden fixed inset-0 z-[70] bg-black/45 flex items-center justify-center p-5"><div class="w-[720px] max-w-[95vw] bg-white rounded-xl shadow-2xl overflow-hidden"><div class="h-14 px-5 border-b flex items-center justify-between"><h3 class="font-semibold text-lg">XXXX楼栋-楼层（或者室外位置信息）</h3><button type="button" data-gis-close><i class="fa fa-times text-textLight"></i></button></div><div class="p-5"><p class="text-sm text-textSecondary mb-3">点击地图选择标注点位，选定后点击“保存标注”。</p><div id="gisMap" class="relative h-[360px] overflow-hidden rounded-lg cursor-crosshair bg-[#203b5a]" style="background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:32px 32px"><span class="absolute left-3 top-3 text-xs text-slate-400">矿区GIS底图 · 2.5D</span><div class="absolute left-0 top-[52%] w-full h-[2px] bg-slate-400/25 -rotate-[5deg]"></div><div class="absolute left-[30%] top-0 w-[2px] h-full bg-slate-400/20 rotate-[8deg]"></div><div id="gisMarker" class="hidden absolute -translate-x-1/2 -translate-y-full text-red-500 text-3xl drop-shadow"><i class="fa fa-map-marker"></i></div><span class="absolute right-3 bottom-3 text-xs text-slate-400">比例尺 1:500</span></div><p class="mt-3 text-sm text-textSecondary">坐标：<span id="gisCoordinate">未标注</span></p></div><div class="h-16 px-5 border-t flex justify-end items-center gap-3"><button type="button" data-gis-close class="border border-borderLine rounded px-5 py-2">取消</button><button id="saveGis" type="button" class="bg-primary text-white rounded px-5 py-2">保存标注</button></div></div></div>
+    <script src="navigation.js?v=20260819-2"></script>
+    <script>
+        (() => {
+            const drawer = document.getElementById('auditDrawer');
+            const form = document.getElementById('auditForm');
+            const editFields = document.getElementById('hazardEditFields');
+            const description = document.getElementById('auditDescription');
+            const category = document.getElementById('auditCategory');
+            const level = document.getElementById('auditLevel');
+            const location = document.getElementById('auditLocation');
+            const rectifier = document.getElementById('auditRectifier');
+            const rectifierText = document.getElementById('rectifierText');
+            let activeRow = null;
+            const cellText = (row, index) => row.cells[index]?.innerText.trim() || '';
+            const closeDrawer = () => { drawer.classList.add('audit-drawer-closed'); drawer.setAttribute('aria-hidden', 'true'); };
+            const updateFields = () => {
+                const isHazard = document.querySelector('input[name="isHazard"]:checked').value === 'yes';
+                editFields.classList.toggle('hidden', !isHazard);
+                [description, category, level, location, rectifier].forEach(field => field.required = isHazard);
+                document.querySelectorAll('.audit-result-option').forEach(label => {
+                    const selected = label.querySelector('input').checked;
+                    label.classList.toggle('border-primary', selected);
+                    label.classList.toggle('bg-blue-50', selected);
+                    label.classList.toggle('border-borderLine', !selected);
+                });
+            };
+            document.querySelector('tbody').addEventListener('click', event => {
+                const action = event.target.closest('a');
+                if (!action || action.textContent.trim() !== '核实审核') return;
+                activeRow = action.closest('tr');
+                description.value = cellText(activeRow, 8);
+                category.value = cellText(activeRow, 4);
+                level.value = cellText(activeRow, 5);
+                location.value = cellText(activeRow, 6);
+                rectifier.value = '';
+                rectifierText.textContent = '请选择整改人';
+                rectifierText.classList.add('text-textLight');
+                document.querySelector('input[name="isHazard"][value="yes"]').checked = true;
+                updateFields();
+                drawer.classList.remove('audit-drawer-closed');
+                drawer.setAttribute('aria-hidden', 'false');
+            });
+            document.querySelectorAll('input[name="isHazard"]').forEach(input => input.addEventListener('change', updateFields));
+            document.querySelectorAll('[data-audit-close]').forEach(button => button.addEventListener('click', closeDrawer));
+            document.addEventListener('keydown', event => { if (event.key === 'Escape') closeDrawer(); });
+            document.getElementById('submitAudit').addEventListener('click', () => {
+                if (!form.reportValidity()) return;
+                const isHazard = document.querySelector('input[name="isHazard"]:checked').value === 'yes';
+                if (isHazard) {
+                    activeRow.cells[4].textContent = category.value;
+                    activeRow.cells[5].innerHTML = `<span class="font-medium text-levelBig">${level.value}</span>`;
+                    activeRow.cells[6].textContent = location.value;
+                    activeRow.cells[8].textContent = description.value.trim();
+                    activeRow.cells[12].innerHTML = '<span class="bg-green-50 text-green-600 px-1.5 py-0.5 rounded text-xs">是隐患</span>';
+                    activeRow.cells[13].innerHTML = '<span class="bg-yellow-50 text-statusIng px-1.5 py-0.5 rounded text-xs">待整改</span>';
+                    activeRow.cells[15].textContent = rectifier.value;
+                    activeRow.cells[18].innerHTML = '<a class="text-primary cursor-pointer">整改记录</a><span class="mx-1">|</span><a class="text-primary cursor-pointer">详情</a>';
+                } else {
+                    activeRow.cells[12].innerHTML = '<span class="bg-gray-100 text-textSecondary px-1.5 py-0.5 rounded text-xs">否（非隐患）</span>';
+                    activeRow.cells[13].innerHTML = '<span class="bg-gray-100 text-textSecondary px-1.5 py-0.5 rounded text-xs">已关闭</span>';
+                    activeRow.cells[14].textContent = '-';
+                    activeRow.cells[15].textContent = '-';
+                    activeRow.cells[18].innerHTML = '<a class="text-primary cursor-pointer">详情</a>';
+                }
+                closeDrawer();
+            });
+
+            const detailDrawer = document.getElementById('detailDrawer');
+            const showDetailTab = name => {
+                document.getElementById('detailInfo').classList.toggle('hidden', name !== 'info');
+                document.getElementById('detailRecord').classList.toggle('hidden', name !== 'record');
+                document.querySelectorAll('.detail-tab').forEach(button => {
+                    const active = button.dataset.detailTab === name;
+                    button.classList.toggle('bg-primary', active);
+                    button.classList.toggle('text-white', active);
+                    button.classList.toggle('border-primary', active);
+                });
+            };
+            const openDetail = (row, tab = 'info') => {
+                activeRow = row;
+                const result = cellText(row, 12);
+                document.getElementById('detailVerifyResult').textContent = result;
+                document.getElementById('detailVerifyResult').className = result.includes('不是') || result.includes('待') ? 'text-orange-600' : 'text-green-600';
+                document.getElementById('detailVerifier').textContent = result.includes('待') ? '-' : cellText(row, 10);
+                document.getElementById('detailVerifierOrg').textContent = result.includes('待') ? '-' : cellText(row, 11);
+                document.getElementById('detailVerifyTime').textContent = result.includes('待') ? '-' : cellText(row, 2);
+                const recordNumber = Number(cellText(row, 1)) || 1;
+                const markerX = (28 + recordNumber * 9.37) % 82;
+                const markerY = (35 + recordNumber * 7.11) % 78;
+                document.getElementById('detailBasic').innerHTML = `<p>隐患单位：${cellText(row, 7)}</p><p>隐患整改人员：${cellText(row, 15)}</p><p>隐患来源：${cellText(row, 3)}</p><p class="flex items-center flex-wrap">隐患位置：${cellText(row, 6)}<button type="button" data-view-gis data-gis-x="${markerX.toFixed(2)}" data-gis-y="${markerY.toFixed(2)}" class="ml-3 border border-primary rounded px-2 py-1 text-primary hover:bg-blue-50">查看位置</button></p><p>隐患接收时间：${cellText(row, 2)}</p><p>检查人：${cellText(row, 10)}</p><p>检查单位：${cellText(row, 11)}</p><p>整改期限：2024-05-25</p>`;
+                document.getElementById('detailExtra').innerHTML = `<p>隐患描述：${cellText(row, 8) || '暂无描述'}</p><p>隐患分类：${cellText(row, 4)}</p><p>隐患等级：${cellText(row, 5)}</p><p>备注：无</p><p>隐患图片：</p><div class="w-32 h-24 rounded bg-slate-200 flex items-center justify-center text-textLight"><i class="fa fa-picture-o text-2xl"></i></div>`;
+                document.getElementById('recordRectifier').textContent = cellText(row, 15) === '-' ? '待指派' : cellText(row, 15);
+                document.getElementById('recordDescription').textContent = `隐患描述：${cellText(row, 8) || '暂无描述'}`;
+                document.getElementById('recordReportTime').textContent = `上报时间：${cellText(row, 2)}`;
+                showDetailTab(tab);
+                detailDrawer.classList.remove('audit-drawer-closed');
+                detailDrawer.setAttribute('aria-hidden', 'false');
+            };
+            document.querySelector('tbody').addEventListener('click', event => {
+                const action = event.target.closest('a');
+                if (!action) return;
+                const label = action.textContent.trim();
+                if (label === '详情') openDetail(action.closest('tr'), 'info');
+                if (label === '整改记录') openDetail(action.closest('tr'), 'record');
+            });
+            document.querySelectorAll('[data-detail-close]').forEach(button => button.addEventListener('click', () => detailDrawer.classList.add('audit-drawer-closed')));
+            document.querySelectorAll('[data-detail-tab]').forEach(button => button.addEventListener('click', () => showDetailTab(button.dataset.detailTab)));
+
+            const people = [['关海鹏','鞍钢集团矿业有限公司','00088680','5611184','安全员'],['林勇','齐大山选矿厂','00075179','6482089','班组长'],['杨希珞','眼前山分公司','02013614','13804201234','技术员'],['刘阳','东鞍山分公司','00099109','13942201111','安全员'],['张忠胜','能源管控中心','00130328','13898001234','工程师'],['陈明','鞍钢集团矿业有限公司','00078085','13700112233','检修工'],['王振利','齐大山选矿厂','00135616','5626271','检修工']];
+            const modal = document.getElementById('personModal');
+            const renderPeople = keyword => { document.getElementById('personRows').innerHTML = people.filter(p => p.join('').includes(keyword || '')).map((p,i) => `<tr class="border-t hover:bg-blue-50"><td class="p-3"><input type="radio" name="person" value="${p[0]}" data-index="${i}"></td>${p.map(v => `<td class="py-3 pr-3">${v}</td>`).join('')}</tr>`).join(''); };
+            document.getElementById('rectifierPicker').addEventListener('click', () => { renderPeople(''); modal.classList.remove('hidden'); });
+            document.getElementById('personSearch').addEventListener('input', event => renderPeople(event.target.value.trim()));
+            document.getElementById('personRows').addEventListener('change', event => { if (event.target.name === 'person') document.getElementById('selectedPerson').textContent = event.target.value; });
+            document.querySelectorAll('[data-person-close]').forEach(button => button.addEventListener('click', () => modal.classList.add('hidden')));
+            document.getElementById('confirmPerson').addEventListener('click', () => { const selected = document.querySelector('input[name="person"]:checked'); if (!selected) return; rectifier.value = selected.value; rectifierText.textContent = selected.value; rectifierText.classList.remove('text-textLight'); modal.classList.add('hidden'); });
+            document.querySelectorAll('[data-org-tab]').forEach(button => button.addEventListener('click', () => {
+                const partner = button.dataset.orgTab === 'partner';
+                document.getElementById('orgTree').classList.toggle('hidden', partner);
+                document.getElementById('partnerTree').classList.toggle('hidden', !partner);
+                document.querySelectorAll('.org-tab').forEach(tab => {
+                    const active = tab === button;
+                    tab.classList.toggle('text-primary', active);
+                    tab.classList.toggle('border-b-2', active);
+                    tab.classList.toggle('border-primary', active);
+                    tab.classList.toggle('text-textSecondary', !active);
+                });
+            }));
+
+            const gisModal = document.getElementById('gisModal');
+            const gisMap = document.getElementById('gisMap');
+            const gisMarker = document.getElementById('gisMarker');
+            const gisCoordinate = document.getElementById('gisCoordinate');
+            let selectedCoordinate = '';
+            document.getElementById('openGis').addEventListener('click', () => gisModal.classList.remove('hidden'));
+            document.getElementById('detailBasic').addEventListener('click', event => {
+                const link = event.target.closest('[data-view-gis]');
+                if (!link) return;
+                const x = link.dataset.gisX;
+                const y = link.dataset.gisY;
+                selectedCoordinate = `X ${x}, Y ${y}`;
+                gisCoordinate.textContent = selectedCoordinate;
+                gisMarker.style.left = `${x}%`;
+                gisMarker.style.top = `${y}%`;
+                gisMarker.classList.remove('hidden');
+                gisModal.classList.remove('hidden');
+            });
+            document.querySelectorAll('[data-gis-close]').forEach(button => button.addEventListener('click', () => gisModal.classList.add('hidden')));
+            gisMap.addEventListener('click', event => {
+                const box = gisMap.getBoundingClientRect();
+                const x = Math.max(0, Math.min(100, (event.clientX - box.left) / box.width * 100));
+                const y = Math.max(0, Math.min(100, (event.clientY - box.top) / box.height * 100));
+                gisMarker.style.left = `${x}%`;
+                gisMarker.style.top = `${y}%`;
+                gisMarker.classList.remove('hidden');
+                selectedCoordinate = `X ${x.toFixed(2)}, Y ${y.toFixed(2)}`;
+                gisCoordinate.textContent = selectedCoordinate;
+            });
+            document.getElementById('saveGis').addEventListener('click', () => {
+                if (!selectedCoordinate) return;
+                const hint = document.getElementById('gisCoordinateHint');
+                hint.textContent = `已标注：${selectedCoordinate}`;
+                hint.classList.remove('hidden');
+                gisModal.classList.add('hidden');
+            });
+        })();
+    </script>
+<script src="org-panel-toggle.js?v=20260822-2"></script>
+</body>
+</html>

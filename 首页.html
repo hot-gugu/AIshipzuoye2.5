@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>“三违”无视频不作业智慧管控系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        sidebarBg: '#0F244E',
+                        cardBg: '#ffffff',
+                        pageBg: '#F5F7FA',
+                        borderColor: '#E4E7ED',
+                        textPrimary: '#1D2129',
+                        textSecondary: '#6E7681',
+                        textLight: '#86909C',
+                        blueStat: '#3677FF',
+                        purpleStat: '#845EC2',
+                        greenStat: '#00B42A',
+                        orangeStat: '#FF7D00',
+                        dangerRed: '#F53F3F',
+                        yellowRing: '#FFC53D',
+                        redRing: '#F53F3F',
+                        greenRing: '#00B42A',
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'PingFang SC', 'Microsoft YaHei', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto { content-visibility: auto; }
+            .card-shadow { box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+            .scrollbar-hide::-webkit-scrollbar { display: none; }
+            .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+            .sidebar-item-active { @apply bg-primary/15 text-white border-l-4 border-primary; }
+            .tab-normal { @apply px-3 py-1 rounded-md text-sm text-textSecondary cursor-pointer hover:bg-gray-100; }
+            .tab-active { @apply px-3 py-1 rounded-md text-sm bg-primary/10 text-primary font-medium; }
+        }
+        body { overflow: hidden; }
+        .calendar-day {
+            position: relative;
+            font-size: 16px;
+        }
+        .calendar-day .job-count {
+            font-size: 12px;
+            color: #165DFF;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body class="font-inter bg-pageBg text-textPrimary h-screen flex">
+    <!-- 左侧侧边栏 -->
+    <aside class="w-[220px] bg-sidebarBg flex flex-col flex-shrink-0 text-slate-300">
+        <!-- Logo区域 -->
+        <div class="h-[70px] flex items-center px-4 gap-3 border-b border-slate-700/40">
+            <div class="w-9 h-9 rounded-lg bg-white flex items-center justify-center">
+                <i class="fa fa-cube text-primary text-xl"></i>
+            </div>
+            <span class="text-white font-semibold text-sm leading-tight">视频AI识别自进化能力平台</span>
+        </div>
+        <!-- 侧边菜单 -->
+        <nav class="flex-1 py-4 overflow-y-auto scrollbar-hide">
+            <div class="sidebar-item-active flex items-center gap-3 px-4 py-3 cursor-pointer text-sm">
+                <i class="fa fa-home w-5 text-center"></i>
+                <span>首页</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 hover:bg-slate-700/30 cursor-pointer text-sm">
+                <i class="fa fa-list-alt w-5 text-center"></i>
+                <span>作业计划管理</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 hover:bg-slate-700/30 cursor-pointer text-sm">
+                <i class="fa fa-video-camera w-5 text-center"></i>
+                <span>实时监控</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 hover:bg-slate-700/30 cursor-pointer text-sm">
+                <i class="fa fa-history w-5 text-center"></i>
+                <span>视频倒查</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 hover:bg-slate-700/30 cursor-pointer text-sm">
+                <i class="fa fa-search-plus w-5 text-center"></i>
+                <span>AI隐患核查</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 hover:bg-slate-700/30 cursor-pointer text-sm">
+                <i class="fa fa-tasks w-5 text-center"></i>
+                <span>隐患清单管理</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 hover:bg-slate-700/30 cursor-pointer text-sm">
+                <i class="fa fa-camera w-5 text-center"></i>
+                <span>设备管理</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 hover:bg-slate-700/30 cursor-pointer text-sm">
+                <i class="fa fa-book w-5 text-center"></i>
+                <span>准则管理</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 hover:bg-slate-700/30 cursor-pointer text-sm">
+                <i class="fa fa-bar-chart w-5 text-center"></i>
+                <span>统计分析</span>
+            </div>
+            <div class="mt-6 flex items-center gap-3 px-4 py-3 hover:bg-slate-700/30 cursor-pointer text-sm">
+                <i class="fa fa-angle-double-left w-5 text-center"></i>
+                <span>收起菜单</span>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- 主内容区域 -->
+    <main class="flex-1 flex flex-col overflow-hidden">
+        <!-- 顶部导航栏 -->
+        <header class="h-[64px] bg-white border-b border-borderColor flex items-center justify-between px-6 flex-shrink-0">
+            <div class="flex items-center gap-4">
+                <i class="fa fa-bars text-textSecondary text-lg cursor-pointer"></i>
+                <div class="flex items-center gap-2">
+                    <i class="fa fa-home text-primary"></i>
+                    <span class="font-medium">首页</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-6">
+                <i class="fa fa-search text-textSecondary cursor-pointer"></i>
+                <div class="relative cursor-pointer">
+                    <i class="fa fa-bell-o text-textSecondary text-lg"></i>
+                    <span class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-dangerRed text-white text-[10px] flex items-center justify-center">12</span>
+                </div>
+                <i class="fa fa-expand text-textSecondary cursor-pointer"></i>
+                <div class="flex items-center gap-2 cursor-pointer">
+                    <div class="w-8 h-8 rounded-full bg-blue-100 overflow-hidden">
+                        <img src="https://picsum.photos/id/1005/40/40" class="w-full h-full object-cover">
+                    </div>
+                    <div class="text-sm leading-tight">
+                        <div>李道正</div>
+                        <div class="text-xs text-textLight">安全管理员</div>
+                    </div>
+                    <i class="fa fa-angle-down text-textLight text-xs"></i>
+                </div>
+            </div>
+        </header>
+
+        <!-- 页面内容滚动区域 -->
+        <div class="flex-1 overflow-y-auto scrollbar-hide p-6">
+            <!-- 顶部一行统计卡片 -->
+            <div class="grid grid-cols-9 gap-4 mb-6">
+                <div class="bg-white rounded-lg p-4 card-shadow flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
+                        <i class="fa fa-video-camera text-blueStat text-xl"></i>
+                    </div>
+                    <div>
+                        <div class="text-sm text-textSecondary">监控总数</div>
+                        <div class="text-[22px] font-semibold">1,796</div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg p-4 card-shadow flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-lg bg-purple-50 flex items-center justify-center">
+                        <i class="fa fa-camera text-purpleStat text-xl"></i>
+                    </div>
+                    <div>
+                        <div class="text-sm text-textSecondary">固定监控</div>
+                        <div class="text-[22px] font-semibold">1,409</div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg p-4 card-shadow flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
+                        <i class="fa fa-mobile text-blueStat text-xl"></i>
+                    </div>
+                    <div>
+                        <div class="text-sm text-textSecondary">移动监控</div>
+                        <div class="text-[22px] font-semibold">387</div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg p-4 card-shadow flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center">
+                        <i class="fa fa-wifi text-greenStat text-xl"></i>
+                    </div>
+                    <div>
+                        <div class="text-sm text-textSecondary">在线总数</div>
+                        <div class="text-[22px] font-semibold">1,293</div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg p-4 card-shadow flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-lg bg-orange-50 flex items-center justify-center">
+                        <i class="fa fa-mobile text-orangeStat text-xl"></i>
+                    </div>
+                    <div>
+                        <div class="text-sm text-textSecondary">移动在线</div>
+                        <div class="text-[22px] font-semibold">125</div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg p-4 card-shadow flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
+                        <i class="fa fa-camera text-blueStat text-xl"></i>
+                    </div>
+                    <div>
+                        <div class="text-sm text-textSecondary">固定在线</div>
+                        <div class="text-[22px] font-semibold">1,168</div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg p-4 card-shadow flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center">
+                        <i class="fa fa-camera text-textLight text-xl"></i>
+                    </div>
+                    <div>
+                        <div class="text-sm text-textSecondary">固定离线</div>
+                        <div class="text-[22px] font-semibold">241</div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg p-4 card-shadow flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-lg bg-red-50 flex items-center justify-center">
+                        <i class="fa fa-mobile text-dangerRed text-xl"></i>
+                    </div>
+                    <div>
+                        <div class="text-sm text-textSecondary">移动长期未使用</div>
+                        <div class="text-[22px] font-semibold">92</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 四大主板块 4栏布局 -->
+            <div class="grid grid-cols-4 gap-6">
+                <!-- 板块1：作业计划视频回传统计【已改造：日历增加每日作业数量】 -->
+                <div class="bg-white rounded-lg p-5 card-shadow flex flex-col gap-5">
+                    <div class="text-base font-semibold">作业计划视频回传统计</div>
+                    <!-- 时间切换tab -->
+                    <div class="flex gap-2">
+                        <span class="tab-normal">上月</span>
+                        <span class="tab-normal">昨日</span>
+                        <span class="tab-active">当日</span>
+                        <span class="tab-normal">下月</span>
+                    </div>
+                    <!-- 日历，日期下方增加作业数量 -->
+                    <div class="flex items-center justify-between text-sm">
+                        <i class="fa fa-angle-left cursor-pointer"></i>
+                        <span>2025年6月</span>
+                        <i class="fa fa-angle-right cursor-pointer"></i>
+                    </div>
+                 <div class="grid grid-cols-7 gap-1 text-xs text-center text-textLight">
+                        <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
+                        <div class="calendar-day">25<br></div>
+                        <div class="calendar-day">26<br></div>
+                        <div class="calendar-day">27<br><span style="color: rgb(8, 182, 8);font-size:30px">·</span></div>
+                        <div class="calendar-day">28<br></div>
+                        <div class="calendar-day w-8 h-10 rounded bg-primary text-white flex flex-col items-center justify-center mx-auto">28<br><span style="color: rgb(8, 182, 8);font-size:30px">·</span></div>
+                        <div class="calendar-day">29<br><span style="color: rgb(8, 182, 8);font-size:30px">·</span></div>
+                        <div class="calendar-day">30<br><span style="color: rgb(8, 182, 8);font-size:30px">·</span></div>
+
+                        <div class="calendar-day">1<br></div>
+                        <div class="calendar-day">2<br><span style="color: rgb(8, 182, 8);font-size:30px">·</span></div>
+                        <div class="calendar-day">3<br><span style="color: rgb(8, 182, 8);font-size:30px">·</span></div>
+                        <div class="calendar-day">4<br></div>
+                        <div class="calendar-day">5<br></div>
+                        <div class="calendar-day">6<br></div>
+                        <div class="calendar-day">7<br><span style="color: rgb(8, 182, 8);font-size:30px">·</span></div>
+
+                        <div class="calendar-day">8<br><span style="color: rgb(8, 182, 8);font-size:30px">·</span></div>
+                        <div class="calendar-day">9<br><span style="color: rgb(8, 182, 8);font-size:30px">·</span></div>
+                        <div class="calendar-day">10<br><span style="color: rgb(8, 182, 8);font-size:30px">·</span></div>
+                        <div class="calendar-day">11<br><span style="color: rgb(8, 182, 8);font-size:30px">·</span></div>
+                        <div class="calendar-day">12<br><span style="color: rgb(8, 182, 8);font-size:30px">·</span></div>
+                        <div class="calendar-day">13<br><span style="color: rgb(8, 182, 8);font-size:30px">·</span></div>
+                        <div class="calendar-day">14<br><span style="color: rgb(8, 182, 8);font-size:30px">·</span></div>
+
+                        <div class="calendar-day">15<br></div>
+                        <div class="calendar-day">16<br><span style="color: rgb(8, 182, 8);font-size:30px">·</span></div>
+                        <div class="calendar-day">17<br><span style="color: rgb(8, 182, 8);font-size:30px">·</span></div>
+                        <div class="calendar-day">18<br><span style="color: rgb(8, 182, 8);font-size:30px">·</span></div>
+                        <div class="calendar-day">19<br></div>
+                        <div class="calendar-day">20<br><span style="color: rgb(8, 182, 8);font-size:30px">·</span></div>
+                        <div class="calendar-day">21<br></div>
+
+                        <div class="calendar-day">22<br><span style="color: rgb(8, 182, 8);font-size:30px">·</span></div>
+                        <div class="calendar-day">23<br><span style="color: rgb(8, 182, 8);font-size:30px">·</span></div>
+                        <div class="calendar-day">24<br><span style="color: rgb(8, 182, 8);font-size:30px">·</span></div>
+                        <div class="calendar-day">25<br></div>
+                        <div class="calendar-day">26<br><span style="color: rgb(8, 182, 8);font-size:30px">·</span></div>
+                        <div class="calendar-day">27<br><span style="color: rgb(8, 182, 8);font-size:30px">·</span></div>
+                        <div class="calendar-day">28<br></div>
+                    </div>
+                    <!-- 回传统计数字 -->
+                    <div class="grid grid-cols-3 gap-3">
+                        <div class="border rounded p-3 text-center">
+                            <div class="text-xs text-textSecondary">全部</div>
+                            <div class="text-lg font-semibold text-primary">144</div>
+                        </div>
+                        <div class="border rounded p-3 text-center">
+                            <div class="text-xs text-textSecondary">完成回传</div>
+                            <div class="text-lg font-semibold text-greenStat">137</div>
+                        </div>
+                        <div class="border rounded p-3 text-center">
+                            <div class="text-xs text-textSecondary">未完成回传</div>
+                            <div class="text-lg font-semibold text-dangerRed">+7</div>
+                        </div>
+                    </div>
+                    <!-- 厂矿单位回传完成情况 -->
+                    <div class="flex-1">
+                        <div class="text-sm font-medium mb-3">厂矿/单位回传完成情况</div>
+                        <div class="flex justify-between text-xs mb-2">
+                            <span></span>
+                            <span class="text-blueStat">作业完成</span>
+                            <span class="text-greenStat">回传完成</span>
+                        </div>
+                        <div class="space-y-3 text-sm">
+                            <div>
+                                <div class="flex justify-between mb-1 text-xs">
+                                    <span>采矿一部</span>
+                                    <span>92.1% / 84.6%</span>
+                                </div>
+                                <div class="w-full h-1.5 bg-gray-100 rounded-full relative">
+                                    <div class="absolute h-full bg-blueStat rounded-full" style="width:92.1%"></div>
+                                    <div class="absolute h-full bg-greenStat rounded-full" style="width:84.6%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between mb-1 text-xs">
+                                    <span>采矿二部</span>
+                                    <span>86.4% / 79.3%</span>
+                                </div>
+                                <div class="w-full h-1.5 bg-gray-100 rounded-full relative">
+                                    <div class="absolute h-full bg-blueStat rounded-full" style="width:86.4%"></div>
+                                    <div class="absolute h-full bg-greenStat rounded-full" style="width:79.3%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between mb-1 text-xs">
+                                    <span>机电部</span>
+                                    <span>71.3% / 62.6%</span>
+                                </div>
+                                <div class="w-full h-1.5 bg-gray-100 rounded-full relative">
+                                    <div class="absolute h-full bg-blueStat rounded-full" style="width:71.3%"></div>
+                                    <div class="absolute h-full bg-greenStat rounded-full" style="width:62.6%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between mb-1 text-xs">
+                                    <span>运输部</span>
+                                    <span>68.2% / 60.1%</span>
+                                </div>
+                                <div class="w-full h-1.5 bg-gray-100 rounded-full relative">
+                                    <div class="absolute h-full bg-blueStat rounded-full" style="width:68.2%"></div>
+                                    <div class="absolute h-full bg-greenStat rounded-full" style="width:60.1%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between mb-1 text-xs">
+                                    <span>安全环保部</span>
+                                    <span>53.6% / 47.2%</span>
+                                </div>
+                                <div class="w-full h-1.5 bg-gray-100 rounded-full relative">
+                                    <div class="absolute h-full bg-blueStat rounded-full" style="width:53.6%"></div>
+                                    <div class="absolute h-full bg-greenStat rounded-full" style="width:47.2%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between mb-1 text-xs">
+                                    <span>选矿部</span>
+                                    <span>37.6% / 32.4%</span>
+                                </div>
+                                <div class="w-full h-1.5 bg-gray-100 rounded-full relative">
+                                    <div class="absolute h-full bg-blueStat rounded-full" style="width:37.6%"></div>
+                                    <div class="absolute h-full bg-greenStat rounded-full" style="width:32.4%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 板块2：作业前【已改造：大类柱状图】 -->
+                <div class="bg-white rounded-lg p-5 card-shadow flex flex-col gap-5">
+                    <div class="flex justify-between items-center">
+                        <div class="text-base font-semibold">作业前</div>
+                        <div class="flex gap-2">
+                            <span class="tab-normal">当班</span>
+                            <span class="tab-active">当日</span>
+                        </div>
+                    </div>
+                    <!-- 环形图：作业计划 -->
+                    <div id="chart-before-ring" style="width:100%;height:200px;"></div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="py-3 bg-red-50 rounded text-center">
+                            <div class="text-sm text-textSecondary">高危作业计划</div>
+                            <div class="text-xl font-semibold text-dangerRed">24</div>
+                        </div>
+                        <div class="py-3 bg-gray-50 rounded text-center">
+                            <div class="text-sm text-textSecondary">其他作业计划</div>
+                            <div class="text-xl font-semibold text-textPrimary">96</div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="text-sm font-medium mb-3">作业类型占比（作业大类）</div>
+                        <div id="chart-bar-main-type" style="width:100%;height:160px;"></div>
+                    </div>
+                    <div>
+                        <div class="text-sm font-medium mb-3">不同作业类型（二级分类）</div>
+                        <div id="chart-pie-sub-type" style="width:100%;height:180px;"></div>
+                    </div>
+                </div>
+
+                <!-- 板块3：作业中【已改造：增加隐患整改率环形图】 -->
+                <div class="bg-white rounded-lg p-5 card-shadow flex flex-col gap-5">
+                    <div class="flex justify-between items-center">
+                        <div class="text-base font-semibold">作业中</div>
+                        <div class="flex gap-2">
+                            <span class="tab-normal">当班</span>
+                            <span class="tab-active">当日</span>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="border rounded p-3 flex items-center gap-3">
+                            <i class="fa fa-users text-blueStat text-xl"></i>
+                            <div>
+                                <div class="text-xs text-textSecondary">人员作业中数量</div>
+                                <div class="text-xl font-semibold">33 台</div>
+                            </div>
+                        </div>
+                        <div class="border rounded p-3 flex items-center gap-3">
+                            <i class="fa fa-exclamation-triangle text-dangerRed text-xl"></i>
+                            <div>
+                                <div class="text-xs text-textSecondary">高危作业中数量</div>
+                                <div class="text-xl font-semibold">9 台</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="text-sm font-medium mb-3">作业现场监控台数</div>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span><i class="fa fa-user mr-2 text-blueStat"></i>高处作业</span>
+                                <span>12 台</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span><i class="fa fa-fire mr-2 text-orangeStat"></i>动火作业</span>
+                                <span>7 台</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span><i class="fa fa-archive mr-2 text-purpleStat"></i>受限空间作业</span>
+                                <span>5 台</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span><i class="fa fa-anchor mr-2 text-greenStat"></i>吊装作业</span>
+                                <span>4 台</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span><i class="fa fa-bolt mr-2 text-yellow-600"></i>临时用电作业</span>
+                                <span>3 台</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span><i class="fa fa-cog mr-2 text-textLight"></i>其他作业</span>
+                                <span>2 台</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-sm font-medium">疑似违章统计</span>
+                            <div class="flex gap-2">
+                                <span class="tab-normal">上月</span>
+                                <span class="tab-active">本月</span>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2 text-center">
+                            <div class="py-2 bg-gray-50 rounded">
+                                <div class="text-xs text-textSecondary">疑似违章总数</div>
+                                <div class="text-lg font-semibold text-dangerRed">23</div>
+                            </div>
+                            <div class="py-2 bg-gray-50 rounded">
+                                <div class="text-xs text-textSecondary">人工识别疑似违章</div>
+                                <div class="text-lg font-semibold">8</div>
+                            </div>
+                            <div class="py-2 bg-gray-50 rounded">
+                                <div class="text-xs text-textSecondary">AI识别数量</div>
+                                <div class="text-lg font-semibold text-blueStat">15</div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 隐患统计分析（新增整改率环形图） -->
+                    <div>
+                        <div class="text-sm font-medium mb-3">隐患统计分析</div>
+                        <div class="grid grid-cols-2 gap-3 mb-3">
+                            <div class="border rounded p-3 flex items-center gap-3">
+                                <div class="w-8 h-8 rounded bg-blue-50 flex items-center justify-center">
+                                    <i class="fa fa-bolt text-blueStat"></i>
+                                </div>
+                                <div>
+                                    <div class="text-xs text-textSecondary">隐患总数量</div>
+                                    <div class="text-xl font-semibold">63</div>
+                                </div>
+                            </div>
+                            <div class="border rounded p-3 flex items-center gap-3">
+                                <div class="w-8 h-8 rounded bg-orange-50 flex items-center justify-center">
+                                    <i class="fa fa-refresh text-orangeStat"></i>
+                                </div>
+                                <div>
+                                    <div class="text-xs text-textSecondary">待处理数量</div>
+                                    <div class="text-xl font-semibold">22</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="danger-rate-ring" style="width:100%;height:140px;"></div>
+                    </div>
+                </div>
+
+                <!-- 板块4：作业后【已改造：违章等级环形图，替换违章类型】 -->
+                <div class="bg-white rounded-lg p-5 card-shadow flex flex-col gap-5">
+                    <div class="flex justify-between items-center">
+                        <div class="text-base font-semibold">作业后</div>
+                        <div class="flex gap-2">
+                            <span class="tab-normal">上月</span>
+                            <span class="tab-active">本月</span>
+                        </div>
+                    </div>
+                    <!-- 违章等级环形图 -->
+                    <div id="chart-violation-level-ring" style="width:100%;height:220px;"></div>
+                    <div>
+                        <div class="text-sm font-medium mb-3">高频违章等级TOP5</div>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between"><span>1 爆破作业未带安全帽</span><span>16 次</span></div>
+                            <div class="flex justify-between"><span>2 无人监护进行高空作业</span><span>14 次</span></div>
+                            <div class="flex justify-between"><span>3 吊装作业未办理作业票</span><span>13 次</span></div>
+                            <div class="flex justify-between"><span>4 作业人员无培训合格证</span><span>11 次</span></div>
+                            <div class="flex justify-between"><span>5 禁令违章/其他</span><span>9 次</span></div>
+                        </div>
+                    </div>
+                    <div class="flex-1">
+                        <div class="text-sm font-medium mb-3">违章人员TOP5</div>
+                        <div class="space-y-3 text-sm">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-6 h-6 rounded-full bg-blue-100 overflow-hidden"><img src="https://picsum.photos/id/1012/30/30" class="w-full h-full"></div>
+                                    <span>张海龙 <span class="text-textLight text-xs">采矿一部</span></span>
+                                </div>
+                                <span class="font-medium">11分</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-6 h-6 rounded-full bg-blue-100 overflow-hidden"><img src="https://picsum.photos/id/1025/30/30" class="w-full h-full"></div>
+                                    <span>李建国 <span class="text-textLight text-xs">机电部</span></span>
+                                </div>
+                                <span class="font-medium">10 分</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-6 h-6 rounded-full bg-blue-100 overflow-hidden"><img src="https://picsum.photos/id/1074/30/30" class="w-full h-full"></div>
+                                    <span>王强 <span class="text-textLight text-xs">安全环保部</span></span>
+                                </div>
+                                <span class="font-medium">8 分</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-6 h-6 rounded-full bg-blue-100 overflow-hidden"><img src="https://picsum.photos/id/1062/30/30" class="w-full h-full"></div>
+                                    <span>刘洋 <span class="text-textLight text-xs">选矿一部</span></span>
+                                </div>
+                                <span class="font-medium">7 分</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-6 h-6 rounded-full bg-blue-100 overflow-hidden"><img src="https://picsum.photos/id/1066/30/30" class="w-full h-full"></div>
+                                    <span>赵磊 <span class="text-textLight text-xs">运输部</span></span>
+                                </div>
+                                <span class="font-medium">6 分</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+<script>
+// ========== 作业前环形图 ==========
+const chartBeforeRing = echarts.init(document.getElementById('chart-before-ring'));
+chartBeforeRing.setOption({
+    tooltip: { trigger: 'item' },
+    series: [{
+        type: 'pie',
+        radius: ['65%', '82%'],
+        center: ['50%','50%'],
+        avoidLabelOverlap: false,
+        itemStyle: { borderRadius: 8 },
+        label: {
+            show: true,
+            position: 'center',
+            formatter: '{a|120}\n{b|作业计划（台/项）}',
+            rich: {
+                a: { fontSize: 26, fontWeight: 'bold', color: '#1D2129' },
+                b: { fontSize: 12, color: '#6E7681' }
+            }
+        },
+        data: [
+            { value:24, name:'高危作业计划', itemStyle:{color:'#F53F3F'} },
+            { value:96, name:'其他作业计划', itemStyle:{color:'#FFC53D'} }
+        ]
+    }]
+})
+
+// ========== 作业大类横向柱状图【改造：生产/检修/建设施工/其他】 ==========
+const chartBarMainType = echarts.init(document.getElementById('chart-bar-main-type'));
+chartBarMainType.setOption({
+    grid: { left: '3%', right: '4%', top: '8%', bottom: '3%', containLabel:true },
+    tooltip: { trigger:'axis', axisPointer:{type:'shadow'} },
+    xAxis: { type:'value', show:false },
+    yAxis: {
+        type:'category',
+        axisLine:{show:false},
+        axisTick:{show:false},
+        splitLine:{show:false},
+        data: ['生产作业类','检修作业类','建设施工类','其他类']
+    },
+    series: [{
+        type:'bar',
+        barWidth:12,
+        borderRadius:5,
+        data: [
+            {value:52, itemStyle:{color:'#3677FF'}},
+            {value:36, itemStyle:{color:'#00B42A'}},
+            {value:22, itemStyle:{color:'#FF7D00'}},
+            {value:10, itemStyle:{color:'#86909C'}}
+        ],
+        label:{show:true, position:'right', formatter:'{c}项'}
+    }]
+})
+
+// ========== 二级作业分类饼图【改造：动火、受限空间、提升、爆破等二级分类】 ==========
+const chartPieSubType = echarts.init(document.getElementById('chart-pie-sub-type'));
+chartPieSubType.setOption({
+    tooltip: { trigger:'item' },
+    series: [{
+        type:'pie',
+        radius: '70%',
+        center:['50%','50%'],
+        label: { show:false },
+        data: [
+            {value:24,name:'动火作业',itemStyle:{color:'#3677FF'}},
+            {value:20,name:'受限空间作业',itemStyle:{color:'#00B42A'}},
+            {value:18,name:'提升系统作业',itemStyle:{color:'#FF7D00'}},
+            {value:16,name:'爆破作业',itemStyle:{color:'#F53F3F'}},
+            {value:14,name:'吊装作业',itemStyle:{color:'#845EC2'}},
+            {value:8,name:'临时用电作业',itemStyle:{color:'#4096ff'}},
+            {value:10,name:'其他作业',itemStyle:{color:'#86909C'}}
+        ]
+    }]
+})
+
+// ========== 隐患整改率环形进度图【新增】 ==========
+const dangerRateRing = echarts.init(document.getElementById('danger-rate-ring'));
+dangerRateRing.setOption({
+    tooltip: { trigger: 'item' },
+    series: [{
+        type: 'pie',
+        radius: ['60%', '78%'],
+        center: ['50%','50%'],
+        avoidLabelOverlap: false,
+        itemStyle: { borderRadius: 6 },
+        label: {
+            show: true,
+            position: 'center',
+            formatter: '{a|65.1%}\n{b|隐患整改率}',
+            rich: {
+                a: { fontSize: 22, fontWeight: 'bold', color: '#1D2129' },
+                b: { fontSize: 11, color: '#6E7681' }
+            }
+        },
+        data: [
+            { value:41, name:'已整改', itemStyle:{color:'#00B42A'} },
+            { value:22, name:'待处理', itemStyle:{color:'#E5E6EB'} }
+        ],
+        labelLine: { show: false }
+    }]
+})
+
+// ========== 违章等级环形图【改造：A/B/C/D/禁令违章】 ==========
+const chartViolationLevelRing = echarts.init(document.getElementById('chart-violation-level-ring'));
+chartViolationLevelRing.setOption({
+    tooltip: { trigger:'item' },
+    legend: {
+        top:0, left:0, orient:'vertical',
+        textStyle:{fontSize:11},
+        itemWidth:10, itemHeight:10
+    },
+    series: [{
+        type:'pie',
+        radius:['50%','72%'],
+        center:['65%','55%'],
+        itemStyle:{borderWidth:2, borderColor:'#fff', borderRadius:4},
+        data: [
+            {value:16,name:'A类严重违章',itemStyle:{color:'#F53F3F'}},
+            {value:14,name:'B类较大违章',itemStyle:{color:'#FF7D00'}},
+            {value:13,name:'C类一般违章',itemStyle:{color:'#FFC53D'}},
+            {value:11,name:'D类轻微违章',itemStyle:{color:'#3677FF'}},
+            {value:9,name:'禁令违章/其他',itemStyle:{color:'#845EC2'}}
+        ],
+        label: { show:true, position:'center', formatter:'{a|63}\n{b|违章总数\n次}',
+            rich:{a:{fontSize:24,fontWeight:'bold'},b:{fontSize:12,color:'#6E7681'}}
+        }
+    }]
+})
+
+// 窗口自适应重绘图表
+window.addEventListener('resize', ()=>{
+    chartBeforeRing.resize();
+    chartBarMainType.resize();
+    chartPieSubType.resize();
+    dangerRateRing.resize();
+    chartViolationLevelRing.resize();
+})
+</script>
+    <script src="navigation.js?v=20260819-2"></script>
+</body>
+</html>

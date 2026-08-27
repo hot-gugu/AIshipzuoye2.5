@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>三违无视频不作业智慧管控平台 - 无视频作业</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#1677ff',
+            sidebarBg: '#0F172A',
+            cardBg: '#ffffff',
+            grayText: '#64748B',
+            lightBorder: '#E2E8F0',
+            tagBlue: '#E6F0FF',
+            tagOrange: '#FFF7E6',
+            tagGreen: '#E6FFEA',
+            tagRed: '#FFECEC',
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto { content-visibility: auto; }
+      .scrollbar-hide::-webkit-scrollbar { display: none; }
+      .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+      .tab-active { @apply border-b-2 border-primary text-primary font-medium; }
+      .tree-item-active { @apply bg-primary/10 text-primary rounded-md; }
+      .cam-tag-fixed { @apply bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded text-xs ml-1; }
+      .badge-danger-job { @apply bg-red-50 text-red-600 px-1.5 py-0.5 rounded text-xs; }
+      .table-cell { @apply py-3 px-4 text-sm text-slate-700 whitespace-nowrap; }
+    }
+    body {
+      background-color: #F8FAFC;
+    }
+  </style>
+</head>
+<body class="font-sans antialiased text-slate-800 overflow-hidden">
+<div class="flex h-screen w-full">
+  <!-- 全局左侧侧边导航栏 -->
+  <aside class="w-[220px] bg-sidebarBg text-white flex flex-col">
+    <!-- Logo区域【修改平台名称】 -->
+    <div class="px-5 py-4 border-b border-slate-700">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
+          <i class="fa fa-cube text-xl"></i>
+        </div>
+        <div>
+          <h2 class="text-sm font-bold">视频AI识别自进化能力平台</h2>
+          <p class="text-xs text-slate-400">智慧管控平台</p>
+        </div>
+      </div>
+    </div>
+    <!-- 菜单列表 -->
+    <nav class="flex-1 py-4 overflow-y-auto scrollbar-hide">
+      <ul class="space-y-1 px-3">
+        <li>
+          <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-slate-700/50">
+            <i class="fa fa-home w-5 text-center"></i>
+            <span>首页</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-md bg-primary/20 text-primary">
+            <i class="fa fa-list-alt w-5 text-center"></i>
+            <span>作业计划管理</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-slate-700/50">
+            <i class="fa fa-video-camera w-5 text-center"></i>
+            <span>实时监控</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-slate-700/50">
+            <i class="fa fa-history w-5 text-center"></i>
+            <span>视频倒查</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-slate-700/50">
+            <i class="fa fa-eye w-5 text-center"></i>
+            <span>AI隐患核查</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-slate-700/50">
+            <i class="fa fa-exclamation-triangle w-5 text-center"></i>
+            <span>隐患违章管理</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-slate-700/50">
+            <i class="fa fa-desktop w-5 text-center"></i>
+            <span>设备管理</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-slate-700/50">
+            <i class="fa fa-book w-5 text-center"></i>
+            <span>准则管理</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-slate-700/50">
+            <i class="fa fa-bar-chart w-5 text-center"></i>
+            <span>统计分析</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+    <div class="px-4 py-3 border-t border-slate-700">
+      <button class="text-slate-400 text-sm flex items-center gap-2">
+        <i class="fa fa-angle-left"></i> 收起菜单
+      </button>
+    </div>
+  </aside>
+
+  <!-- 主内容区域 -->
+  <div class="flex-1 flex flex-col overflow-hidden">
+    <!-- 顶部Header -->
+    <header class="h-[60px] bg-white border-b border-lightBorder flex items-center justify-between px-6">
+      <h1 class="text-lg font-semibold">作业计划管理</h1>
+      <div class="flex items-center gap-6">
+        <div class="flex items-center gap-2">
+          <span></span>
+          <i class="fa text-grayText"></i>
+        </div>
+        <i class="fa fa-bell-o text-lg cursor-pointer"></i>
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center">
+            <i class="fa fa-user"></i>
+          </div>
+          <span>管理员</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- 页面主体【左组织架构树 + 右侧业务内容】 -->
+    <div class="flex flex-1 overflow-hidden p-5 gap-5">
+      <!-- 内容区左侧【组织架构树形面板】更新二级单位 -->
+      <div class="w-[260px] bg-white rounded-xl border border-lightBorder flex flex-col overflow-hidden">
+        <div class="px-4 py-3 border-b border-lightBorder font-medium">组织架构</div>
+        <div class="flex-1 overflow-y-auto p-3 scrollbar-hide">
+          <ul class="org-tree space-y-1 text-sm">
+            <li class="tree-parent">
+              <div class="tree-label flex items-center gap-2 px-2 py-1.5 cursor-pointer tree-item-active">
+                <i class="fa fa-minus-square-o text-primary"></i>
+                <span>鞍钢矿业公司</span>
+              </div>
+              <ul class="pl-5 mt-1 space-y-1">
+                <li>
+                  <div class="tree-label flex items-center gap-2 px-2 py-1.5 cursor-pointer hover:bg-slate-100 rounded">
+                    <i class="fa fa-square-o text-grayText"></i>
+                    <span>齐大山选矿厂</span>
+                  </div>
+                </li>
+                <li>
+                  <div class="tree-label flex items-center gap-2 px-2 py-1.5 cursor-pointer hover:bg-slate-100 rounded">
+                    <i class="fa fa-square-o text-grayText"></i>
+                    <span>眼前山分公司</span>
+                  </div>
+                </li>
+                <li>
+                  <div class="tree-label flex items-center gap-2 px-2 py-1.5 cursor-pointer hover:bg-slate-100 rounded">
+                    <i class="fa fa-square-o text-grayText"></i>
+                    <span>东鞍山铁矿</span>
+                  </div>
+                </li>
+                <li>
+                  <div class="tree-label flex items-center gap-2 px-2 py-1.5 cursor-pointer hover:bg-slate-100 rounded">
+                    <i class="fa fa-square-o text-grayText"></i>
+                    <span>弓长岭铁矿</span>
+                  </div>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 右侧业务主区域 -->
+      <div class="flex-1 flex flex-col overflow-hidden">
+         <!-- 时间快捷选择器 -->
+                    <div class="bg-white rounded-xl shadow-card p-5 mb-4">
+                        <div class="flex gap-4 items-center flex-wrap">
+                            <div class="flex items-center gap-3">
+                                <button
+                                    class="px-3 py-1.5 bg-primary text-white rounded  flex items-center gap-1">
+                                    <i class="fa "></i> 今日作业
+                                </button>
+                                <button
+                                    class="px-3 py-1.5  rounded  flex items-center gap-1"
+                                    style="background-color: rgb(235, 235, 235);">
+                                    <i class="fa "></i> 昨日
+                                </button>
+                                       <button
+                                    class="px-3 py-1.5 bg-primary  rounded  flex items-center gap-1"
+                                    style="background-color: rgb(235, 235, 235);"
+                                    >
+                                    <i class="fa " ></i> 近3天
+                                </button>
+                                      <button
+                                    class="px-3 py-1.5 bg-primary  rounded  flex items-center gap-1"
+                                    style="background-color: rgb(235, 235, 235);"
+                                    >
+                                    <i class="fa " ></i> 近7天
+                                </button>
+                                       <button
+                                    class="px-3 py-1.5 bg-primary  rounded  flex items-center gap-1"
+                                    style="background-color: rgb(235, 235, 235);">
+                                    <i class="fa "></i> 自定义时间
+                                </button>
+                            </div>
+                            <!-- <select class="filter-select">
+                                <option>请选择作业类型</option>
+                            </select>
+                            <select class="filter-select">
+                                <option>请选择二级分类</option>
+                            </select>
+                            <select class="filter-select">
+                                <option>请选择作业水平</option>
+                            </select>
+                            <select class="filter-select">
+                                <option>请选择作业区域</option>
+                            </select>
+                            <select class="filter-select">
+                                <option>请选择回传状态</option>
+                            </select> -->
+                        </div>
+                    </div>
+        <!-- 顶部统计卡片 -->
+        <div class="grid grid-cols-6 gap-4 mb-5">
+          <div class="bg-white rounded-xl border border-lightBorder p-4 flex items-center gap-4">
+            <div class="w-11 h-11 rounded-lg bg-blue-50 flex items-center justify-center">
+              <i class="fa fa-calendar text-primary text-xl"></i>
+            </div>
+            <div>
+              <p class="text-grayText text-sm">作业计划</p>
+              <p class="text-[24px] font-bold">128 <span class="text-sm font-normal">项</span></p>
+            </div>
+          </div>
+          <div class="bg-white rounded-xl border border-lightBorder p-4 flex items-center gap-4">
+            <div class="w-11 h-11 rounded-lg bg-amber-50 flex items-center justify-center">
+              <i class="fa fa-exclamation-triangle text-amber-500 text-xl"></i>
+            </div>
+            <div>
+              <p class="text-grayText text-sm">危险作业</p>
+              <p class="text-[24px] font-bold">46 <span class="text-sm font-normal">项</span></p>
+            </div>
+          </div>
+          <div class="bg-white rounded-xl border border-lightBorder p-4 flex items-center gap-4">
+            <div class="w-11 h-11 rounded-lg bg-red-50 flex items-center justify-center">
+              <i class="fa fa-video-camera text-red-500 text-xl"></i>
+            </div>
+            <div>
+              <p class="text-grayText text-sm">无视频作业</p>
+              <p class="text-[24px] font-bold">8 <span class="text-sm font-normal">项</span></p>
+            </div>
+          </div>
+          <div class="bg-white rounded-xl border border-lightBorder p-4 flex items-center gap-4">
+            <div class="w-11 h-11 rounded-lg bg-orange-50 flex items-center justify-center">
+              <i class="fa fa-refresh text-orange-500 text-xl"></i>
+            </div>
+            <div>
+              <p class="text-grayText text-sm">未回传作业</p>
+              <p class="text-[24px] font-bold">15 <span class="text-sm font-normal">项</span></p>
+            </div>
+          </div>
+          <div class="bg-white rounded-xl border border-lightBorder p-4 flex items-center gap-4">
+            <div class="w-11 h-11 rounded-lg bg-green-50 flex items-center justify-center">
+              <i class="fa fa-check text-green-500 text-xl"></i>
+            </div>
+            <div>
+              <p class="text-grayText text-sm">已回传作业</p>
+              <p class="text-[24px] font-bold">105 <span class="text-sm font-normal">项</span></p>
+            </div>
+          </div>
+          <div class="bg-white rounded-xl border border-lightBorder p-4 flex items-center gap-4">
+            <div class="w-11 h-11 rounded-lg bg-violet-50 flex items-center justify-center">
+              <i class="fa fa-exchange text-violet-500 text-xl"></i>
+            </div>
+            <div>
+              <p class="text-grayText text-sm">部分回传作业</p>
+              <p class="text-[24px] font-bold">8 <span class="text-sm font-normal">项</span></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 筛选区域 -->
+        <div class="bg-white rounded-xl border border-lightBorder p-4 mb-4">
+          <div class="flex items-center gap-3 flex-wrap">
+            <div class="flex items-center gap-2">
+              <label class="text-sm text-grayText">作业类型</label>
+              <select class="border border-lightBorder rounded px-2 py-1.5 text-sm w-[140px]">
+                <option>请选择</option>
+              </select>
+            </div>
+            <div class="flex items-center gap-2">
+              <label class="text-sm text-grayText">二级分类</label>
+              <select class="border border-lightBorder rounded px-2 py-1.5 text-sm w-[140px]">
+                <option>请选择</option>
+              </select>
+            </div>
+            <div class="flex items-center gap-2">
+              <label class="text-sm text-grayText">作业位置</label>
+              <select class="border border-lightBorder rounded px-2 py-1.5 text-sm w-[140px]">
+                <option>请选择</option>
+              </select>
+            </div>
+            <div class="flex items-center gap-2">
+              <label class="text-sm text-grayText">作业区域</label>
+              <select class="border border-lightBorder rounded px-2 py-1.5 text-sm w-[140px]">
+                <option>请选择</option>
+              </select>
+            </div>
+            <div class="flex items-center gap-2">
+              <label class="text-sm text-grayText">视频回传状态</label>
+              <select class="border border-lightBorder rounded px-2 py-1.5 text-sm w-[140px]">
+                <option>请选择</option>
+              </select>
+            </div>
+         
+          </div>
+        </div>
+
+        <!-- Tab + 表格容器 -->
+        <div class="bg-white rounded-xl border border-lightBorder flex-1 flex flex-col overflow-hidden">
+          <!-- Tab头部 -->
+          <div class="flex items-center justify-between px-5 border-b border-lightBorder">
+            <div class="flex">
+              <a class="tab-item py-3 px-4 cursor-pointer" href="作业计划管理.html">作业管理 (128)</a>
+              <a class="tab-item py-3 px-4 cursor-pointer tab-active" data-tab="noVideo"  href="无视频作业.html">无视频作业 (8)</a>
+            </div>
+            <div class="flex items-center gap-3">
+              <button class="px-3 py-1.5 border border-lightBorder rounded text-sm flex items-center gap-1">
+                <i class="fa fa-download"></i> 导出
+              </button>
+              <a class="px-3 py-1.5 bg-primary text-white rounded text-sm flex items-center gap-1" href="新增作业计划.html">
+               新增作业计划
+              </a>
+            </div>
+          </div>
+
+          <div class="mx-5 mt-4 px-4 py-3 rounded-lg border border-blue-100 bg-blue-50 flex items-start gap-3 text-sm text-blue-800">
+            <i class="fa fa-info-circle text-primary mt-0.5"></i>
+            <p><span class="font-medium">温馨提示：</span>当前列表中的作业数据来源于外部系统同步过来。请完善作业信息并关联摄像设备，完成后系统将自动移入“作业管理”列表。</p>
+          </div>
+
+          <!-- 表格区域 -->
+          <div class="flex-1 overflow-auto">
+            <!-- 作业管理表格（仅占位，不实现业务） -->
+            <div class="table-wrap hidden" id="table-workManage">
+              <div class="p-10 text-center text-grayText">作业管理页面，此处省略页面内容</div>
+            </div>
+
+            <!-- ==========【重点：无视频作业表格】========== -->
+            <!-- 表头顺序：序号 → 状态（第二列）→ 作业内容 → 关联摄像头 → 作业类型 → 二级分类 → 作业水平 → 作业区域 → 作业班次 → 作业日期 → 所属单位 → 操作 -->
+            <div class="table-wrap" id="table-noVideo">
+              <table class="w-full text-sm">
+                <thead class="bg-slate-50 sticky top-0">
+                  <tr>
+                    <th class="px-3 py-3 text-left font-medium text-grayText border-b">序号</th>
+                    <th class="px-3 py-3 text-left font-medium text-grayText border-b">状态</th>
+                    <th class="px-3 py-3 text-left font-medium text-grayText border-b">作业内容</th>
+                    <th class="px-3 py-3 text-left font-medium text-grayText border-b">摄像头</th>
+                    <th class="px-3 py-3 text-left font-medium text-grayText border-b">作业类型</th>
+                    <th class="px-3 py-3 text-left font-medium text-grayText border-b">二级分类</th>
+                    <th class="px-3 py-3 text-left font-medium text-grayText border-b">作业区域</th>
+                    <th class="px-3 py-3 text-left font-medium text-grayText border-b">作业位置</th>
+                    <th class="px-3 py-3 text-left font-medium text-grayText border-b">作业班次</th>
+                    <th class="px-3 py-3 text-left font-medium text-grayText border-b">作业日期</th>
+                    <th class="px-3 py-3 text-left font-medium text-grayText border-b">作业单位</th>
+                    <th class="px-3 py-3 text-left font-medium text-grayText border-b">所属单位</th>
+                    <th class="px-3 py-3 text-left font-medium text-grayText border-b">是否危险作业</th>
+                    <th class="px-3 py-3 text-left font-medium text-grayText border-b">操作</th>
+                  </tr>
+                </thead>
+                <tbody id="noVideoTbody">
+                  <tr class="border-b hover:bg-slate-50">
+                    <td class="px-3 py-3">1</td>
+                    <td class="px-3 py-3"><span class="px-1.5 py-0.5 rounded bg-tagBlue text-primary text-xs">待关联摄像头</span></td>
+                    <td class="px-3 py-3">东帮658段采矿作业</td>
+                    <td class="px-3 py-3"><div class="text-truncate-3 cam-content">东帮658采矿工作面 <span
+                                                    class="cam-tag-fixed">固定</span></div>
+                                                    <div class="text-truncate-3 cam-content">东帮658采矿工作面 <span
+                                                    class="cam-tag-fixed">移动</span></div>
+                                            <span class="text-primary text-xs cursor-pointer show-more">更多(3)</span></td>
+                    <td class="px-3 py-3"><span class="px-1.5 py-0.5 rounded bg-tagBlue text-primary text-xs">生产作业</span></td>
+                    <td class="px-3 py-3"><span class="px-1.5 py-0.5 rounded bg-purple-50 text-purple-600 text-xs">顶板管理</span></td>
+                    <td class="px-3 py-3">-362水平面</td>
+                    <td class="px-3 py-3">东帮采区</td>
+                    <td class="px-3 py-3">白班<br> <span
+                                                class="text-xs text-slate-400">(08:00-16:00)</span></td>
+                    <td class="px-3 py-3">2026-07-01</td>
+                    <td class="px-3 py-3">齐大山选矿</td>
+                    <td class="px-3 py-3">鞍钢矿业公司</td>
+                    <td class="px-3 py-3"><span class="badge-danger-job">是</span></td>
+                    <td class="px-3 py-3">
+                      <a href="javascript:void(0)" onclick="confirmIgnore(this)" class="text-primary">忽略</a>
+                      <a href="新增作业计划.html" class="text-primary">完善信息</a>
+                      <a href="选择摄像头.html" class="text-primary ml-2">关联摄像头</a>
+                    </td>
+                  </tr>
+                  <tr class="border-b hover:bg-slate-50">
+                    <td class="px-3 py-3">2</td>
+                    <td class="px-3 py-3"><span class="px-1.5 py-0.5 rounded bg-tagOrange text-amber-600 text-xs">待完善信息</span></td>
+                    <td class="px-3 py-3">主运输巷设备检修</td>
+                    <td class="px-3 py-3"><div class="text-truncate-3 cam-content">东帮658采矿工作面 <span
+                                                    class="cam-tag-fixed">固定</span></div>
+                                                
+                                            </td>
+                    <td class="px-3 py-3"><span class="px-1.5 py-0.5 rounded bg-amber-50 text-amber-600 text-xs">检修类</span></td>
+                    <td class="px-3 py-3"><span class="px-1.5 py-0.5 rounded bg-green-50 text-green-600 text-xs">设备检修</span></td>
+                    <td class="px-3 py-3">-123水平面</td>
+                    <td class="px-3 py-3">主运输巷</td>
+                    <td class="px-3 py-3">夜班<br> <span
+                                                class="text-xs text-slate-400">(08:00-16:00)</span></td>
+                    <td class="px-3 py-3"> 2026-07-02</td>
+                     <td class="px-3 py-3">齐大山选矿</td>
+                    <td class="px-3 py-3">鞍钢矿业公司</td>
+                    <td class="px-3 py-3"><span class="badge-danger-job">是</span></td>
+                    <td class="px-3 py-3">
+                      <a href="javascript:void(0)" onclick="confirmIgnore(this)" class="text-primary">忽略</a>
+                      <a href="新增作业计划.html" class="text-primary">完善信息</a>
+                      <a href="选择摄像头.html" class="text-primary ml-2">关联摄像头</a>
+                    </td>
+                  </tr>
+                  <tr class="border-b hover:bg-slate-50">
+                    <td class="px-3 py-3">3</td>
+                    <td class="px-3 py-3"><span class="px-1.5 py-0.5 rounded bg-tagOrange text-amber-600 text-xs">待完善信息，待关联摄像头</span></td>
+                    <td class="px-3 py-3">破碎站设备更换</td>
+                    <td class="px-3 py-3">—</td>
+                    <td class="px-3 py-3"><span class="px-1.5 py-0.5 rounded bg-amber-50 text-amber-600 text-xs">检修类</span></td>
+                    <td class="px-3 py-3"><span class="px-1.5 py-0.5 rounded bg-green-50 text-green-600 text-xs">设备检修</span></td>
+                    <td class="px-3 py-3">—</td>
+                    <td class="px-3 py-3">破碎站区域</td>
+                    <td class="px-3 py-3">白班<br> <span
+                                                class="text-xs text-slate-400">(08:00-16:00)</span></td>
+                    <td class="px-3 py-3">2026-07-03</td>
+                     <td class="px-3 py-3">齐大山选矿</td>
+                    <td class="px-3 py-3">鞍钢矿业公司</td>
+                    <td class="px-3 py-3"><span class="badge-danger-job">是</span></td>
+                    <td class="px-3 py-3">
+                      <a href="javascript:void(0)" onclick="confirmIgnore(this)" class="text-primary">忽略</a>
+                      <a href="新增作业计划.html" class="text-primary">完善信息</a>
+                      <a href="选择摄像头.html" class="text-primary ml-2">关联摄像头</a>
+                    </td>
+                  </tr>
+                   <tr class="border-b hover:bg-slate-50">
+                    <td class="px-3 py-3">4</td>
+                    <td class="px-3 py-3"><span class="px-1.5 py-0.5 rounded bg-tagOrange text-amber-600 text-xs">待完善信息，待关联摄像头</span></td>
+                    <td class="px-3 py-3">破碎站设备更换</td>
+                    <td class="px-3 py-3">—</td>
+                    <td class="px-3 py-3"><span class="px-1.5 py-0.5 rounded bg-amber-50 text-amber-600 text-xs">检修类</span></td>
+                    <td class="px-3 py-3"><span class="px-1.5 py-0.5 rounded bg-green-50 text-green-600 text-xs">设备检修</span></td>
+                    <td class="px-3 py-3">—</td>
+                    <td class="px-3 py-3">破碎站区域</td>
+                    <td class="px-3 py-3">白班<br> <span
+                                                class="text-xs text-slate-400">(08:00-16:00)</span></td>
+                    <td class="px-3 py-3">2026-07-03</td>
+                    <td class="px-3 py-3">齐大山选矿</td>
+                    <td class="px-3 py-3">鞍钢矿业公司</td>
+                    <td class="px-3 py-3"><span class="badge-danger-job">是</span></td>
+                    <td class="px-3 py-3">
+                      <a href="javascript:void(0)" onclick="confirmIgnore(this)" class="text-primary">忽略</a>
+                      <a href="新增作业计划.html" class="text-primary">完善信息</a>
+                      <a href="选择摄像头.html" class="text-primary ml-2">关联摄像头</a>
+                    </td>
+                  </tr>
+                   <tr class="border-b hover:bg-slate-50">
+                    <td class="px-3 py-3">5</td>
+                    <td class="px-3 py-3"><span class="px-1.5 py-0.5 rounded bg-tagOrange text-amber-600 text-xs">待完善信息，待关联摄像头</span></td>
+                    <td class="px-3 py-3">破碎站设备更换</td>
+                    <td class="px-3 py-3">—</td>
+                    <td class="px-3 py-3"><span class="px-1.5 py-0.5 rounded bg-amber-50 text-amber-600 text-xs">检修类</span></td>
+                    <td class="px-3 py-3"><span class="px-1.5 py-0.5 rounded bg-green-50 text-green-600 text-xs">设备检修</span></td>
+                    <td class="px-3 py-3">—</td>
+                    <td class="px-3 py-3">破碎站区域</td>
+                    <td class="px-3 py-3">白班<br> <span
+                                                class="text-xs text-slate-400">(08:00-16:00)</span></td>
+                    <td class="px-3 py-3">2026-07-03</td>
+                     <td class="px-3 py-3">齐大山选矿</td>
+                    <td class="px-3 py-3">鞍钢矿业公司</td>
+                    <td class="px-3 py-3"><span class="badge-danger-job">是</span></td>
+                    <td class="px-3 py-3">
+                      <a href="javascript:void(0)" onclick="confirmIgnore(this)" class="text-primary">忽略</a>
+                      <a href="新增作业计划.html" class="text-primary">完善信息</a>
+                      <a href="选择摄像头.html" class="text-primary ml-2">关联摄像头</a>
+                    </td>
+                  </tr>
+                   <tr class="border-b hover:bg-slate-50">
+                    <td class="px-3 py-3">6</td>
+                    <td class="px-3 py-3"><span class="px-1.5 py-0.5 rounded bg-tagOrange text-amber-600 text-xs">待完善信息，待关联摄像头</span></td>
+                    <td class="px-3 py-3">破碎站设备更换</td>
+                    <td class="px-3 py-3">—</td>
+                    <td class="px-3 py-3"><span class="px-1.5 py-0.5 rounded bg-amber-50 text-amber-600 text-xs">检修类</span></td>
+                    <td class="px-3 py-3"><span class="px-1.5 py-0.5 rounded bg-green-50 text-green-600 text-xs">设备检修</span></td>
+                    <td class="px-3 py-3">—</td>
+                    <td class="px-3 py-3">破碎站区域</td>
+                    <td class="px-3 py-3">白班<br> <span
+                                                class="text-xs text-slate-400">(08:00-16:00)</span></td>
+                    <td class="px-3 py-3">2026-07-03</td>
+                     <td class="px-3 py-3">齐大山选矿</td>
+                    <td class="px-3 py-3">鞍钢矿业公司</td>
+                    <td class="px-3 py-3"><span class="badge-danger-job">是</span></td>
+                    <td class="px-3 py-3">
+                      <a href="javascript:void(0)" onclick="confirmIgnore(this)" class="text-primary">忽略</a>
+                      <a href="新增作业计划.html" class="text-primary">完善信息</a>
+                      <a href="选择摄像头.html" class="text-primary ml-2">关联摄像头</a>
+                    </td>
+                  </tr>
+                   <tr class="border-b hover:bg-slate-50">
+                    <td class="px-3 py-3">7</td>
+                    <td class="px-3 py-3"><span class="px-1.5 py-0.5 rounded bg-tagOrange text-amber-600 text-xs">待完善信息，待关联摄像头</span></td>
+                    <td class="px-3 py-3">破碎站设备更换</td>
+                    <td class="px-3 py-3">—</td>
+                    <td class="px-3 py-3"><span class="px-1.5 py-0.5 rounded bg-amber-50 text-amber-600 text-xs">检修类</span></td>
+                    <td class="px-3 py-3"><span class="px-1.5 py-0.5 rounded bg-green-50 text-green-600 text-xs">设备检修</span></td>
+                    <td class="px-3 py-3">—</td>
+                    <td class="px-3 py-3">破碎站区域</td>
+                    <td class="px-3 py-3">白班<br> <span
+                                                class="text-xs text-slate-400">(08:00-16:00)</span></td>
+                    <td class="px-3 py-3">2026-07-03</td>
+                    <td class="px-3 py-3">齐大山选矿</td>
+                    <td class="px-3 py-3">鞍钢矿业公司</td>
+                    <td class="px-3 py-3"><span class="badge-danger-job">是</span></td>
+                    <td class="px-3 py-3">
+                      <a href="javascript:void(0)" onclick="confirmIgnore(this)" class="text-primary">忽略</a>
+                      <a href="新增作业计划.html" class="text-primary">完善信息</a>
+                      <a href="选择摄像头.html" class="text-primary ml-2">关联摄像头</a>
+                    </td>
+                  </tr>
+                   <tr class="border-b hover:bg-slate-50">
+                    <td class="px-3 py-3">8</td>
+                    <td class="px-3 py-3"><span class="px-1.5 py-0.5 rounded bg-tagOrange text-amber-600 text-xs">待完善信息，待关联摄像头</span></td>
+                    <td class="px-3 py-3">破碎站设备更换</td>
+                    <td class="px-3 py-3">—</td>
+                    <td class="px-3 py-3"><span class="px-1.5 py-0.5 rounded bg-amber-50 text-amber-600 text-xs">检修类</span></td>
+                    <td class="px-3 py-3"><span class="px-1.5 py-0.5 rounded bg-green-50 text-green-600 text-xs">设备检修</span></td>
+                    <td class="px-3 py-3">—</td>
+                    <td class="px-3 py-3">破碎站区域</td>
+                    <td class="px-3 py-3">白班<br> <span
+                                                class="text-xs text-slate-400">(08:00-16:00)</span></td>
+                    <td class="px-3 py-3">2026-07-03</td>
+                    <td class="px-3 py-3">齐大山选矿</td>
+                    <td class="px-3 py-3">鞍钢矿业公司</td>
+                    <td class="px-3 py-3"><span class="badge-danger-job">是</span></td>
+                    <td class="px-3 py-3">
+                      <a href="javascript:void(0)" onclick="confirmIgnore(this)" class="text-primary">忽略</a>
+                      <a href="新增作业计划.html" class="text-primary">完善信息</a>
+                      <a href="选择摄像头.html" class="text-primary ml-2">关联摄像头</a>
+                    </td>
+                  </tr>
+                   <tr class="border-b hover:bg-slate-50">
+                    <td class="px-3 py-3">9</td>
+                    <td class="px-3 py-3"><span class="px-1.5 py-0.5 rounded bg-tagOrange text-amber-600 text-xs">待完善信息，待关联摄像头</span></td>
+                    <td class="px-3 py-3">破碎站设备更换</td>
+                    <td class="px-3 py-3">—</td>
+                    <td class="px-3 py-3"><span class="px-1.5 py-0.5 rounded bg-amber-50 text-amber-600 text-xs">检修类</span></td>
+                    <td class="px-3 py-3"><span class="px-1.5 py-0.5 rounded bg-green-50 text-green-600 text-xs">设备检修</span></td>
+                    <td class="px-3 py-3">—</td>
+                    <td class="px-3 py-3">破碎站区域</td>
+                    <td class="px-3 py-3">白班<br> <span
+                                                class="text-xs text-slate-400">(08:00-16:00)</span></td>
+                    <td class="px-3 py-3">2026-07-03</td>
+                    <td class="px-3 py-3">齐大山选矿</td>
+                    <td class="px-3 py-3">鞍钢矿业公司</td>
+                    <td class="px-3 py-3"><span class="badge-danger-job">是</span></td>
+                    <td class="px-3 py-3">
+                      <a href="javascript:void(0)" onclick="confirmIgnore(this)" class="text-primary">忽略</a>
+                      <a href="新增作业计划.html" class="text-primary">完善信息</a>
+                      <a href="选择摄像头.html" class="text-primary ml-2">关联摄像头</a>
+                    </td>
+                  </tr>
+                   <tr class="border-b hover:bg-slate-50">
+                    <td class="px-3 py-3">10</td>
+                    <td class="px-3 py-3"><span class="px-1.5 py-0.5 rounded bg-tagOrange text-amber-600 text-xs">待完善信息，待关联摄像头</span></td>
+                    <td class="px-3 py-3">破碎站设备更换</td>
+                    <td class="px-3 py-3">—</td>
+                    <td class="px-3 py-3"><span class="px-1.5 py-0.5 rounded bg-amber-50 text-amber-600 text-xs">检修类</span></td>
+                    <td class="px-3 py-3"><span class="px-1.5 py-0.5 rounded bg-green-50 text-green-600 text-xs">设备检修</span></td>
+                    <td class="px-3 py-3">—</td>
+                    <td class="px-3 py-3">破碎站区域</td>
+                    <td class="px-3 py-3">白班<br> <span
+                                                class="text-xs text-slate-400">(08:00-16:00)</span></td>
+                    <td class="px-3 py-3">2026-07-03</td>
+                     <td class="px-3 py-3">齐大山选矿</td>
+                    <td class="px-3 py-3">鞍钢矿业公司</td>
+                    <td class="px-3 py-3"><span class="badge-danger-job">是</span></td>
+                    <td class="px-3 py-3">
+                      <a href="javascript:void(0)" onclick="confirmIgnore(this)" class="text-primary">忽略</a>
+                      <a href="新增作业计划.html" class="text-primary">完善信息</a>
+                      <a href="选择摄像头.html" class="text-primary ml-2">关联摄像头</a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <!-- 分页 -->
+          <div class="px-5 py-3 border-t border-lightBorder flex items-center justify-between">
+            <span class="text-sm text-grayText">共8条</span>
+            <div class="flex items-center gap-2 text-sm">
+              <button class="px-2 py-1 border rounded">上一页</button>
+              <button class="px-2 py-1 bg-primary text-white border rounded">1</button>
+              <button class="px-2 py-1 border rounded">下一页</button>
+              <select class="border rounded px-2 py-1">
+                <option>20条/页</option>
+              </select>
+              <span>前往 <input class="w-10 border rounded px-1 py-1 text-center" value="1"> 页</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====================== 忽略确认弹窗 ====================== -->
+<div id="ignoreConfirmModal" class="fixed inset-0 bg-black/50 z-[100] hidden items-center justify-center">
+  <div class="bg-white rounded-lg w-[420px] shadow-xl overflow-hidden">
+    <div class="px-6 py-4 border-b border-lightBorder">
+      <h3 class="text-base font-medium text-slate-800">确认忽略</h3>
+    </div>
+    <div class="px-6 py-5">
+      <div class="flex items-start gap-3">
+        <i class="fa fa-exclamation-circle text-amber-500 text-2xl mt-0.5"></i>
+        <div>
+          <p class="text-sm text-slate-700 mb-1">确定要忽略该条无视频作业记录吗？</p>
+          <p class="text-xs text-slate-400">忽略后该条数据将被删除，不可恢复。请谨慎操作。</p>
+        </div>
+      </div>
+    </div>
+    <div class="px-6 py-4 border-t border-lightBorder flex justify-end gap-3">
+      <button onclick="closeIgnoreModal()" class="px-4 py-1.5 border border-lightBorder rounded text-sm text-slate-600 hover:bg-slate-50">取消</button>
+      <button onclick="confirmDeleteRow()" class="px-4 py-1.5 bg-primary text-white rounded text-sm hover:bg-primary/90">确认忽略</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== 忽略确认弹窗逻辑 =====
+let pendingIgnoreRow = null;
+
+function confirmIgnore(linkEl) {
+  pendingIgnoreRow = linkEl.closest('tr');
+  const modal = document.getElementById('ignoreConfirmModal');
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+}
+
+function closeIgnoreModal() {
+  const modal = document.getElementById('ignoreConfirmModal');
+  modal.classList.add('hidden');
+  modal.classList.remove('flex');
+  pendingIgnoreRow = null;
+}
+
+function confirmDeleteRow() {
+  if (pendingIgnoreRow) {
+    pendingIgnoreRow.remove();
+    // 更新序号
+    renumberRows();
+    // 更新统计
+    updateRowCount();
+  }
+  closeIgnoreModal();
+}
+
+function renumberRows() {
+  const rows = document.querySelectorAll('#noVideoTbody tr');
+  rows.forEach((row, idx) => {
+    row.querySelector('td:first-child').textContent = idx + 1;
+  });
+}
+
+function updateRowCount() {
+  const rowCount = document.querySelectorAll('#noVideoTbody tr').length;
+  const countSpan = document.querySelector('.text-sm.text-grayText');
+  if (countSpan) {
+    countSpan.textContent = '共' + rowCount + '条';
+  }
+}
+
+// Tab切换逻辑
+const tabItems = document.querySelectorAll('.tab-item');
+tabItems.forEach(item=>{
+  item.addEventListener('click', function(){
+    tabItems.forEach(ti=>ti.classList.remove('tab-active'));
+    this.classList.add('tab-active');
+    const tabKey = this.dataset.tab;
+    document.querySelectorAll('.table-wrap').forEach(wrap=>wrap.classList.add('hidden'));
+    document.getElementById('table-' + tabKey).classList.remove('hidden');
+  })
+})
+
+// 通用空值处理函数（动态渲染表格时调用）
+function emptyFill(val){
+  if(val === null || val === undefined || val === '') return '—';
+  return val;
+}
+
+// 组织架构树展开收起交互
+$('.tree-parent > .tree-label').click(function(){
+  let icon = $(this).find('i');
+  let childUl = $(this).next('ul');
+  if(childUl.is(':visible')){
+    childUl.hide();
+    icon.removeClass('fa-minus-square-o').addClass('fa-plus-square-o');
+  }else{
+    childUl.show();
+    icon.removeClass('fa-plus-square-o').addClass('fa-minus-square-o');
+  }
+})
+</script>
+    <script src="navigation.js?v=20260819-2"></script>
+<script src="org-panel-toggle.js?v=20260822-2"></script>
+</body>
+</html>

@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>人工标注工作台 | 三维无线矿山智慧管控系统</title>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --navy: #0c2448;
+      --blue: #0e7490;
+      --teal: #14b8a6;
+      --amber: #f59e0b;
+      --line: #dbe4ef;
+      --paper: #f8fafc;
+      --ink: #162a45
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font: 14px "Microsoft YaHei", sans-serif;
+      overflow: hidden
+    }
+
+    .top {
+      height: 62px;
+      background: #fff;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      padding: 0 26px;
+      gap: 18px
+    }
+
+    .back {
+      color: var(--blue);
+      text-decoration: none
+    }
+
+    .title {
+      font-size: 18px;
+      font-weight: bold;
+      border-left: 1px solid var(--line);
+      padding-left: 18px
+    }
+
+    .task {
+      margin-left: auto;
+      color: #6b7d94
+    }
+
+    .task b {
+      color: var(--amber)
+    }
+
+    .progress {
+      width: 150px;
+      height: 7px;
+      background: #e8eef5;
+      border-radius: 8px;
+      overflow: hidden
+    }
+
+    .progress i {
+      display: block;
+      width: 33%;
+      height: 100%;
+      background: var(--teal)
+    }
+
+    .shell {
+      height: calc(100vh - 62px);
+      display: grid;
+      grid-template-columns: 250px minmax(500px, 1fr) 320px
+    }
+
+    .left,
+    .right {
+      background: #fff;
+      overflow: auto
+    }
+
+    .left {
+      border-right: 1px solid var(--line);
+      padding: 18px 14px
+    }
+
+    .section-title {
+      font-size: 13px;
+      color: #52657d;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin: 4px 8px 14px
+    }
+
+    .image-item {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      margin-bottom: 13px;
+      padding: 8px;
+      cursor: pointer;
+      position: relative;
+      transition: .15s
+    }
+
+    .image-item.active {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px #0e749018
+    }
+
+    .image-item img {
+      display: block;
+      width: 100%;
+      height: 112px;
+      object-fit: cover;
+      border-radius: 5px
+    }
+
+    .image-item .num {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      background: #0c2448e6;
+      color: white;
+      border-radius: 4px;
+      padding: 3px 7px;
+      font-size: 12px
+    }
+
+    .status {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 8px 1px 1px;
+      font-size: 12px
+    }
+
+    .pending {
+      color: #b76500
+    }
+
+    .done {
+      color: #07816e
+    }
+
+    .canvas-area {
+      min-width: 0;
+      display: flex;
+      flex-direction: column
+    }
+
+    .toolbar {
+      height: 62px;
+      background: #fff;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      gap: 8px
+    }
+
+    .tool {
+      height: 34px;
+      min-width: 60px;
+      border: 1px solid var(--line);
+      background: white;
+      border-radius: 5px;
+      color: #53667d;
+      cursor: pointer
+    }
+
+    .tool.active,
+    .tool:hover {
+      color: var(--blue);
+      border-color: var(--blue);
+      background: #effafa
+    }
+
+    .divider {
+      height: 24px;
+      width: 1px;
+      background: var(--line);
+      margin: 0 6px
+    }
+
+    .zoom {
+      margin-left: auto;
+      color: #61738a
+    }
+
+    .tool-hint {
+      font-size: 12px;
+      color: #74869a;
+      margin-left: 5px
+    }
+
+    .board-wrap {
+      flex: 1;
+      padding: 28px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(45deg, #edf2f7 25%, transparent 25%), linear-gradient(-45deg, #edf2f7 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #edf2f7 75%), linear-gradient(-45deg, transparent 75%, #edf2f7 75%);
+      background-size: 20px 20px;
+      background-position: 0 0, 0 10px, 10px -10px, -10px 0
+    }
+
+    .board {
+      position: relative;
+      height: min(100%, calc(100vh - 190px));
+      max-width: 100%;
+      aspect-ratio: 16/9;
+      background: #172033;
+      box-shadow: 0 16px 32px #0c24482c;
+      user-select: none
+    }
+
+    .board img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block
+    }
+
+    .layer {
+      position: absolute;
+      inset: 0;
+      overflow: visible;
+      cursor: crosshair
+    }
+
+    .shape {
+      position: absolute;
+      border: 2px solid #f59e0b;
+      pointer-events: none
+    }
+
+    .shape.ellipse {
+      border-radius: 50%
+    }
+
+    .shape.poly {
+      border: 0
+    }
+
+    .shape-label {
+      position: absolute;
+      top: -25px;
+      left: -2px;
+      background: #f59e0b;
+      color: #382300;
+      font-size: 12px;
+      line-height: 20px;
+      height: 20px;
+      white-space: nowrap;
+      padding: 0 6px;
+      border-radius: 3px
+    }
+
+    .empty-hint {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      background: #0c24487a;
+      pointer-events: none;
+      font-size: 15px
+    }
+
+    .right {
+      border-left: 1px solid var(--line);
+      padding: 20px 16px
+    }
+
+    .right h3 {
+      margin: 0 0 16px;
+      font-size: 15px
+    }
+
+    .label-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 20px
+    }
+
+    .label {
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      padding: 7px 10px;
+      cursor: pointer;
+      background: #fff
+    }
+
+    .label.active {
+      border-color: var(--blue);
+      background: #eaf8f8;
+      color: #08616e
+    }
+
+    .field-label {
+      font-weight: bold;
+      font-size: 13px;
+      margin: 16px 0 8px
+    }
+
+    .select {
+      width: 100%;
+      padding: 9px;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      color: var(--ink);
+      background: #fff
+    }
+
+    .anno-list {
+      border-top: 1px solid var(--line);
+      margin-top: 18px;
+      padding-top: 15px
+    }
+
+    .anno {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 3px;
+      border-bottom: 1px solid #edf1f5;
+      font-size: 13px
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #f59e0b
+    }
+
+    .del {
+      margin-left: auto;
+      border: 0;
+      background: transparent;
+      color: #90a0b3;
+      cursor: pointer
+    }
+
+    .example {
+      margin-top: 18px;
+      border: 1px solid #cce5e5;
+      border-radius: 6px;
+      background: #f0fafa;
+      padding: 10px
+    }
+
+    .example-head {
+      font-size: 12px;
+      font-weight: bold;
+      color: #08616e;
+      margin-bottom: 8px
+    }
+
+    .example figure {
+      position: relative;
+      margin: 0
+    }
+
+    .example img {
+      width: 100%;
+      height: 106px;
+      object-fit: cover;
+      display: block;
+      border-radius: 4px
+    }
+
+    .example-box {
+      position: absolute;
+      left: 24%;
+      top: 18%;
+      width: 30%;
+      height: 57%;
+      border: 2px solid #f59e0b;
+      border-radius: 3px
+    }
+
+    .example-box span {
+      position: absolute;
+      top: -20px;
+      left: -2px;
+      background: #f59e0b;
+      padding: 2px 5px;
+      color: #382300;
+      font-size: 11px;
+      white-space: nowrap
+    }
+
+    .example-note {
+      font-size: 11px;
+      color: #5c7380;
+      line-height: 1.55;
+      margin: 8px 0 0
+    }
+
+    .bottom {
+      position: absolute;
+      bottom: 0;
+      left: 250px;
+      right: 320px;
+      height: 58px;
+      background: #fff;
+      border-top: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 0 24px;
+      gap: 10px
+    }
+
+    .btn {
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      padding: 9px 16px;
+      background: #fff;
+      cursor: pointer;
+      font-weight: bold
+    }
+
+    .btn.success {
+      background: var(--teal);
+      border-color: var(--teal);
+      color: #fff
+    }
+
+    .btn.complete {
+      background: var(--navy);
+      border-color: var(--navy);
+      color: #fff
+    }
+
+    .btn:disabled {
+      opacity: .45;
+      cursor: not-allowed
+    }
+
+    .toast {
+      position: fixed;
+      top: 74px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #083b46;
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: 5px;
+      display: none;
+      z-index: 8
+    }
+  </style>
+</head>
+
+<body>
+  <header class="top"><a class="back" href="AI识别的违章复核.html"><i class="fa fa-angle-left"></i> 返回复核</a><span
+      class="title">人工标注工作台</span><span class="task">任务编号：AI-20240518-102436　<b id="count">0 / 3 已标注</b></span><span
+      class="progress"><i id="bar"></i></span></header>
+  <main class="shell">
+    <aside class="left">
+      <div class="section-title">抓拍图片 · 3</div>
+      <div id="imageList"></div>
+    </aside>
+    <section class="canvas-area">
+      <div class="toolbar"><button class="tool active" data-tool="rect"><i class="fa fa-square-o"></i>
+          矩形</button><button class="tool" data-tool="ellipse"><i class="fa fa-circle-o"></i> 椭圆</button><button
+          class="tool" data-tool="poly"><i class="fa fa-share-alt"></i> 多边形</button><span class="tool-hint"
+          id="toolHint">拖拽绘制矩形区域</span><span class="divider"></span><button class="tool" id="undo" title="撤销"><i
+            class="fa fa-undo"></i></button><button class="tool" id="clear" title="清空当前图"><i
+            class="fa fa-trash-o"></i></button><span class="zoom"><i class="fa fa-search"></i> 100%</span></div>
+      <div class="board-wrap">
+        <div class="board" id="board"><img id="photo" alt="违章抓拍图">
+          <div class="layer" id="layer"></div>
+          <div class="empty-hint" id="hint">选择标签和工具后，在图片上完成标注</div>
+        </div>
+      </div>
+    </section>
+    <aside class="right">
+      <h3>标注属性</h3>
+      <div class="field-label">标注标签 <span style="color:#d94841">*</span></div>
+      <div class="label-grid" id="labels"><button class="label active">未佩戴安全帽</button><button
+          class="label">未系安全带</button><button class="label">人员</button><button class="label">车辆</button><button
+          class="label">危险区域</button><button class="label">其他违章</button></div>
+      <div class="field-label">样本判定</div><select class="select">
+        <option>存在违章/隐患（正样本）</option>
+        <option>不是违章/隐患（负样本）</option>
+        <option>无效样本（无法判定）</option>
+      </select>
+      <!-- <div class="field-label">画面质量</div><select class="select">
+        <option>画面清晰</option>
+        <option>部分遮挡</option>
+        <option>画面模糊 / 过暗</option>
+      </select> -->
+      <div class="anno-list">
+        <div class="field-label" style="margin-top:0">当前图片标注 <span id="annCount">0</span></div>
+        <div id="annoList">
+          <div style="color:#98a6b8;font-size:13px;padding:14px 2px">尚未添加标注</div>
+        </div>
+      </div>
+      <div class="example">
+        <div class="example-head"><i class="fa fa-lightbulb-o"></i> 标注示例 · <span id="exampleLabel">未佩戴安全帽</span></div>
+        <figure><img id="exampleImage" src="sample-no-helmet.jpg" alt="标注示例"><span class="example-box"><span
+              id="exampleBoxLabel">未佩戴安全帽</span></span></figure>
+        <p class="example-note" id="exampleNote">框选未佩戴安全帽的人员头部及安全帽应出现的区域，不要包含过多背景。</p>
+      </div>
+    </aside>
+  </main>
+  <div class="bottom"><button class="btn" id="prev"><i class="fa fa-angle-left"></i> 上一张</button><button class="btn"
+      id="next">下一张 <i class="fa fa-angle-right"></i></button><button class="btn success" id="save"><i
+        class="fa fa-check"></i> 保存当前标注</button><button class="btn complete" id="complete" disabled><i
+        class="fa fa-check-circle"></i> 确认完成并返回复核</button></div>
+  <div class="toast" id="toast"></div>
+  <script>
+    const photos = [['sample-no-helmet.jpg', '井下运输大巷 · 10:24:36'], ['sample-normal-scene.jpg', '井下运输大巷 · 10:24:39'], ['sample-safety-belt.jpg', '井下运输大巷 · 10:24:42']]; const query = new URLSearchParams(location.search), returnPage = query.get('return') || 'AI识别的违章复核.html', annotationStatusKey = returnPage.includes('视频倒查') ? 'annotationReviewCompletedBackcheck' : returnPage.includes('AI预警实时') ? 'annotationReviewCompletedRealtime' : 'annotationReviewCompleted'; let current = Math.max(0, (+query.get('image') || 1) - 1), tool = 'rect', label = '未佩戴安全帽', marks = [[], [], []], start = null, preview = null, poly = []; const $ = id => document.getElementById(id);
+    function renderList() { $('imageList').innerHTML = photos.map((p, i) => `<div class="image-item ${i === current ? 'active' : ''}" onclick="choose(${i})"><img src="${p[0]}"><span class="num">${String(i + 1).padStart(2, '0')}</span><div class="status"><span>${p[1]}</span><b class="${marks[i].saved ? 'done' : 'pending'}">${marks[i].saved ? '已标注' : '待标注'}</b></div></div>`).join(''); const n = marks.filter(x => x.saved).length; $('count').textContent = `${n} / 3 已标注`; $('bar').style.width = (n / 3 * 100) + '%'; $('complete').disabled = n !== 3 }
+    function choose(i) { current = i; poly = []; $('photo').src = photos[i][0]; renderList(); renderMarks() } window.choose = choose;
+    function renderMarks() { const a = marks[current] || []; $('layer').innerHTML = ''; a.forEach((m, i) => { let el; if (m.type === 'poly') { el = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); el.classList.add('shape', 'poly'); el.style.cssText = 'inset:0;width:100%;height:100%;position:absolute'; el.innerHTML = `<polygon points="${m.points.map(p => p.join(',')).join(' ')}" fill="#f59e0b28" stroke="#f59e0b" stroke-width="2"/><text x="${m.points[0][0]}" y="${m.points[0][1] - 6}" fill="#fff" font-size="12">${m.label}</text>` } else { el = document.createElement('div'); el.className = 'shape ' + (m.type === 'ellipse' ? 'ellipse' : ''); el.style.left = m.x + '%'; el.style.top = m.y + '%'; el.style.width = m.w + '%'; el.style.height = m.h + '%'; el.innerHTML = `<span class="shape-label">${m.label}</span>` } $('layer').append(el) }); $('annCount').textContent = a.length; $('annoList').innerHTML = a.length ? a.map((m, i) => `<div class="anno"><i class="dot"></i>${m.label}<span style="color:#8b9aae">${m.type === 'rect' ? '矩形' : m.type === 'ellipse' ? '椭圆' : '多边形'}</span><button class="del" onclick="removeMark(${i})"><i class="fa fa-times"></i></button></div>`).join('') : '<div style="color:#98a6b8;font-size:13px;padding:14px 2px">尚未添加标注</div>'; $('hint').style.display = a.length ? 'none' : 'flex' }
+    function pos(e) { let r = $('board').getBoundingClientRect(); return { x: (e.clientX - r.left) / r.width * 100, y: (e.clientY - r.top) / r.height * 100 } }
+    function newBox(p, q) { return { x: Math.min(p.x, q.x), y: Math.min(p.y, q.y), w: Math.abs(q.x - p.x), h: Math.abs(q.y - p.y), type: tool, label } }
+    $('layer').addEventListener('pointerdown', e => { let p = pos(e); if (tool === 'poly') { poly.push([p.x, p.y]); if (poly.length > 2 && e.detail === 2) { marks[current].push({ type: 'poly', points: poly, label }); poly = []; renderMarks() } else renderPoly(); return } start = p; $('layer').setPointerCapture(e.pointerId) }); $('layer').addEventListener('pointermove', e => { if (!start) return; let m = newBox(start, pos(e)); preview && preview.remove(); preview = document.createElement('div'); preview.className = 'shape ' + (tool === 'ellipse' ? 'ellipse' : ''); preview.style.cssText = `left:${m.x}%;top:${m.y}%;width:${m.w}%;height:${m.h}%`; $('layer').append(preview) }); $('layer').addEventListener('pointerup', e => { if (!start) return; let m = newBox(start, pos(e)); preview && preview.remove(); preview = null; start = null; if (m.w > 1 && m.h > 1) { marks[current].push(m); renderMarks() } });
+    function renderPoly() { $('layer').querySelectorAll('.draft').forEach(x => x.remove()); let s = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); s.classList.add('draft'); s.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none'; s.innerHTML = `<polyline points="${poly.map(p => p.join(',')).join(' ')}" fill="none" stroke="#f59e0b" stroke-width="2"/>`; $('layer').append(s) }
+    function removeMark(i) { marks[current].splice(i, 1); renderMarks() } window.removeMark = removeMark; document.querySelectorAll('[data-tool]').forEach(b => b.onclick = () => { tool = b.dataset.tool; poly = []; document.querySelectorAll('[data-tool]').forEach(x => x.classList.remove('active')); b.classList.add('active'); $('toolHint').textContent = tool === 'poly' ? '逐点点击描边，双击最后一点闭合' : '按住鼠标拖拽绘制' + (tool === 'ellipse' ? '椭圆' : '矩形') + '区域' }); $('labels').onclick = e => { if (e.target.tagName !== 'BUTTON') return; document.querySelectorAll('.label').forEach(x => x.classList.remove('active')); e.target.classList.add('active'); label = e.target.textContent; $('exampleLabel').textContent = label; $('exampleBoxLabel').textContent = label; $('exampleImage').src = label === '未系安全带' ? 'sample-safety-belt.jpg' : 'sample-no-helmet.jpg'; $('exampleNote').textContent = label === '未佩戴安全帽' ? '框选人员头部及安全帽应出现的区域，不要包含过多背景。' : label === '未系安全带' ? '框选安全带及与人员身体接触的关键区域，确保违规特征可见。' : '框选与当前标签直接对应的目标区域，尽量贴合目标边界。' }; $('undo').onclick = () => { marks[current].pop(); renderMarks() }; $('clear').onclick = () => { marks[current] = []; renderMarks() }; $('prev').onclick = () => choose(Math.max(0, current - 1)); $('next').onclick = () => choose(Math.min(2, current + 1)); $('save').onclick = () => { marks[current].saved = true; renderList(); toast('当前图片已保存为“已标注”'); }; $('complete').onclick = () => { localStorage.setItem(annotationStatusKey, 'true'); location.href = returnPage }; function toast(t) { $('toast').textContent = t; $('toast').style.display = 'block'; setTimeout(() => $('toast').style.display = 'none', 1800) } choose(current);
+  </script>
+</body>
+
+</html>

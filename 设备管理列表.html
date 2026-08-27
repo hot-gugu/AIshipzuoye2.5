@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>设备管理 / 摄像头列表</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#2563EB',
+            primaryLight: '#EFF6FF',
+            sidebarBg: '#0F172A',
+            sidebarHover: '#1E293B',
+            pageBg: '#F8FAFC',
+            borderLine: '#E2E8F0',
+            textMain: '#1E293B',
+            textSub: '#64748B',
+            textLight: '#94A3B8',
+            onlineBg: '#ECFDF5',
+            onlineText: '#10B981',
+            offlineBg: '#F1F5F9',
+            offlineText: '#64748B',
+            normalBg: '#ECFDF5',
+            normalText: '#10B981',
+            faultBg: '#FEF2F2',
+            faultText: '#EF4444',
+            supportBg: '#ECFDF5',
+            supportText: '#10B981',
+            unsupportBg: '#F1F5F9',
+            unsupportText: '#64748B',
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto { content-visibility: auto; }
+      .scrollbar-thin::-webkit-scrollbar { width:4px;height:4px; }
+      .scrollbar-thin::-webkit-scrollbar-thumb { background:#CBD5E1; border-radius:4px; }
+      .scrollbar-thin::-webkit-scrollbar-track { background:transparent; }
+      .tree-item:hover { background-color: #F1F5F9; }
+      .tree-item.active { color: #2563EB; background-color: #EFF6FF; }
+      .status-dot { width:6px; height:6px; border-radius:50%; display:inline-block; }
+      .cam-thumb { width:80px; height:48px; object-fit:cover; border-radius:4px; }
+    }
+  </style>
+</head>
+<body class="bg-pageBg font-sans h-screen overflow-hidden text-textMain">
+<div class="flex h-full w-full">
+  <!-- 左侧侧边栏 -->
+  <aside></aside>
+
+  <!-- 主内容区域 -->
+  <div class="flex-1 flex flex-col overflow-hidden">
+    <!-- 顶部导航栏 -->
+    <header class="h-14 bg-white border-b border-borderLine flex items-center justify-between px-5 shrink-0">
+      <div class="flex items-center gap-4">
+        <button class="text-textSub hover:text-textMain"><i class="fa fa-bars"></i></button>
+        <div class="text-sm">
+          <span class="text-textSub">设备管理</span>
+          <span class="mx-2 text-textLight">/</span>
+          <span class="font-medium text-textMain">摄像头列表</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-5">
+        <button class="relative text-textSub hover:text-textMain">
+          <i class="fa fa-bell-o text-lg"></i>
+          <span class="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center">11</span>
+        </button>
+        <button class="text-textSub hover:text-textMain">
+          <i class="fa fa-question-circle-o text-lg"></i>
+        </button>
+        <div class="flex items-center gap-2 cursor-pointer">
+          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-sm font-medium">张</div>
+          <div class="text-sm leading-tight">
+            <div class="font-medium text-textMain">张安全</div>
+            <div class="text-[11px] text-textSub">安全环保部·管理员</div>
+          </div>
+          <i class="fa fa-angle-down text-textLight text-xs"></i>
+        </div>
+      </div>
+    </header>
+
+    <!-- 主内容滚动区 -->
+    <main class="flex-1 overflow-y-auto scrollbar-thin p-4">
+      <!-- 筛选栏 -->
+      <div class="bg-white rounded-lg border border-borderLine p-3 mb-4 flex items-center gap-4 flex-wrap">
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-textSub">摄像头类型：</span>
+          <div class="relative">
+            <select class="w-36 border border-borderLine rounded-md px-3 py-1.5 text-xs bg-white appearance-none focus:outline-none focus:border-primary">
+              <option>请选择摄像头类型</option>
+            </select>
+            <i class="fa fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-textLight text-[10px] pointer-events-none"></i>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-textSub">摄像头品牌：</span>
+          <div class="relative">
+            <select class="w-32 border border-borderLine rounded-md px-3 py-1.5 text-xs bg-white appearance-none focus:outline-none focus:border-primary">
+              <option>请选择品牌</option>
+              <option>海康威视</option>
+              <option>大华</option>
+              <option>宇视</option>
+              <option>华为</option>
+              <option>天地伟业</option>
+            </select>
+            <i class="fa fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-textLight text-[10px] pointer-events-none"></i>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-textSub">摄像头场景：</span>
+          <div class="relative">
+            <select class="w-36 border border-borderLine rounded-md px-3 py-1.5 text-xs bg-white appearance-none focus:outline-none focus:border-primary">
+              <option>请选择摄像头场景</option>
+              <option>动火作业</option>
+              <option>受限空间作业</option>
+              <option>装卸作业</option>
+              <option>危化品库房</option>
+              <option>井下作业</option>
+              <option>周界防范</option>
+              <option>道路监控</option>
+              <option>皮带运输</option>
+              <option>选矿作业</option>
+              <option>排土作业</option>
+              <option>办公区域</option>
+              <option>生活区域</option>
+            </select>
+            <i class="fa fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-textLight text-[10px] pointer-events-none"></i>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-textSub">在线状态：</span>
+          <div class="relative">
+            <select class="w-32 border border-borderLine rounded-md px-3 py-1.5 text-xs bg-white appearance-none focus:outline-none focus:border-primary">
+              <option>请选择在线状态</option>
+            </select>
+            <i class="fa fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-textLight text-[10px] pointer-events-none"></i>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-textSub">设备状态：</span>
+          <div class="relative">
+            <select class="w-32 border border-borderLine rounded-md px-3 py-1.5 text-xs bg-white appearance-none focus:outline-none focus:border-primary">
+              <option>请选择设备状态</option>
+            </select>
+            <i class="fa fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-textLight text-[10px] pointer-events-none"></i>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-textSub">是否支持AI分析：</span>
+          <div class="relative">
+            <select class="w-28 border border-borderLine rounded-md px-3 py-1.5 text-xs bg-white appearance-none focus:outline-none focus:border-primary">
+              <option>请选择</option>
+            </select>
+            <i class="fa fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-textLight text-[10px] pointer-events-none"></i>
+          </div>
+        </div>
+        <div class="relative flex-1 max-w-xs ml-2">
+          <i class="fa fa-search absolute left-3 top-1/2 -translate-y-1/2 text-textLight text-xs pointer-events-none"></i>
+          <input class="w-full border border-borderLine rounded-md pl-8 pr-3 py-1.5 text-xs focus:outline-none focus:border-primary" placeholder="请输入摄像头名称或编码"/>
+        </div>
+        <div class="ml-auto">
+          <button class="px-3 py-1.5 text-xs rounded-md border border-borderLine text-textSub hover:border-primary hover:text-primary">重置</button>
+        </div>
+      </div>
+
+      <div class="flex gap-4">
+        <!-- 左侧组织架构树 -->
+        <div class="w-56 bg-white rounded-lg border border-borderLine flex flex-col shrink-0">
+          <div class="p-3 border-b border-borderLine">
+            <div class="font-medium text-sm mb-3">组织架构</div>
+            <div class="relative mb-2">
+              <select class="w-full border border-borderLine rounded-md px-3 py-1.5 text-xs bg-white appearance-none focus:outline-none focus:border-primary">
+                <option>请选择单位</option>
+                <option>齐大山铁矿</option>
+                <option>大孤山铁矿</option>
+                <option>眼前山铁矿</option>
+                <option>弓长岭露天矿</option>
+              </select>
+              <i class="fa fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-textLight text-[10px] pointer-events-none"></i>
+            </div>
+            <div class="relative">
+              <i class="fa fa-search absolute left-2.5 top-1/2 -translate-y-1/2 text-textLight text-[10px]"></i>
+              <input class="w-full border border-borderLine rounded-md pl-7 pr-3 py-1.5 text-xs focus:outline-none focus:border-primary" placeholder="搜索区域名称"/>
+            </div>
+          </div>
+          <div class="flex-1 overflow-y-auto scrollbar-thin p-2 text-xs">
+            <div class="mb-0.5">
+              <div class="flex items-center gap-1 px-2 py-1.5 rounded cursor-pointer hover:bg-slate-50">
+                <i class="fa fa-chevron-down text-[10px] text-textLight w-3"></i>
+                <i class="fa fa-folder-open text-amber-500 w-4"></i>
+                <span>齐大山铁矿集团</span>
+              </div>
+              <div class="pl-4">
+                <div class="mb-0.5">
+                  <div class="flex items-center gap-1 px-2 py-1.5 rounded cursor-pointer hover:bg-slate-50">
+                    <i class="fa fa-chevron-down text-[10px] text-textLight w-3"></i>
+                    <i class="fa fa-folder text-textLight w-4"></i>
+                    <span class="text-textSub">齐大山铁矿（总部）</span>
+                  </div>
+                  <div class="pl-4">
+                    <div class="mb-0.5">
+                      <div class="flex items-center gap-1 px-2 py-1.5 rounded cursor-pointer hover:bg-slate-50">
+                        <i class="fa fa-chevron-down text-[10px] text-textLight w-3"></i>
+                        <i class="fa fa-folder text-textLight w-4"></i>
+                        <span class="text-textSub">高危作业区</span>
+                      </div>
+                      <div class="pl-4">
+                        <div class="flex items-center gap-1 px-2 py-1.5 rounded cursor-pointer tree-item">
+                          <i class="fa fa-file-o text-[10px] text-textLight w-3"></i>
+                          <span class="text-textSub">动火区域</span>
+                        </div>
+                        <div class="flex items-center gap-1 px-2 py-1.5 rounded cursor-pointer tree-item">
+                          <i class="fa fa-file-o text-[10px] text-textLight w-3"></i>
+                          <span class="text-textSub">受限空间</span>
+                        </div>
+                        <div class="flex items-center gap-1 px-2 py-1.5 rounded cursor-pointer tree-item">
+                          <i class="fa fa-file-o text-[10px] text-textLight w-3"></i>
+                          <span class="text-textSub">装卸区域</span>
+                        </div>
+                        <div class="flex items-center gap-1 px-2 py-1.5 rounded cursor-pointer tree-item">
+                          <i class="fa fa-file-o text-[10px] text-textLight w-3"></i>
+                          <span class="text-textSub">危化品库房</span>
+                        </div>
+                        <div class="flex items-center gap-1 px-2 py-1.5 rounded cursor-pointer tree-item">
+                          <i class="fa fa-file-o text-[10px] text-textLight w-3"></i>
+                          <span class="text-textSub">井下作业面</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="mb-0.5">
+                      <div class="flex items-center gap-1 px-2 py-1.5 rounded cursor-pointer hover:bg-slate-50">
+                        <i class="fa fa-chevron-down text-[10px] text-textLight w-3"></i>
+                        <i class="fa fa-folder text-textLight w-4"></i>
+                        <span class="text-textSub">一般作业区</span>
+                      </div>
+                      <div class="pl-4">
+                        <div class="flex items-center gap-1 px-2 py-1.5 rounded cursor-pointer tree-item">
+                          <i class="fa fa-file-o text-[10px] text-textLight w-3"></i>
+                          <span class="text-textSub">办公区域</span>
+                        </div>
+                        <div class="flex items-center gap-1 px-2 py-1.5 rounded cursor-pointer tree-item">
+                          <i class="fa fa-file-o text-[10px] text-textLight w-3"></i>
+                          <span class="text-textSub">道路区域</span>
+                        </div>
+                        <div class="flex items-center gap-1 px-2 py-1.5 rounded cursor-pointer tree-item">
+                          <i class="fa fa-file-o text-[10px] text-textLight w-3"></i>
+                          <span class="text-textSub">生活区域</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="mb-0.5">
+                  <div class="flex items-center gap-1 px-2 py-1.5 rounded cursor-pointer hover:bg-slate-50">
+                    <i class="fa fa-chevron-down text-[10px] text-textLight w-3"></i>
+                    <i class="fa fa-folder text-textLight w-4"></i>
+                    <span class="text-textSub">大孤山铁矿</span>
+                  </div>
+                  <div class="pl-4">
+                    <div class="flex items-center gap-1 px-2 py-1.5 rounded cursor-pointer tree-item">
+                      <i class="fa fa-file-o text-[10px] text-textLight w-3"></i>
+                      <span class="text-textSub">采矿区域</span>
+                    </div>
+                    <div class="flex items-center gap-1 px-2 py-1.5 rounded cursor-pointer tree-item">
+                      <i class="fa fa-file-o text-[10px] text-textLight w-3"></i>
+                      <span class="text-textSub">选矿区域</span>
+                    </div>
+                    <div class="flex items-center gap-1 px-2 py-1.5 rounded cursor-pointer tree-item">
+                      <i class="fa fa-file-o text-[10px] text-textLight w-3"></i>
+                      <span class="text-textSub">皮带区域</span>
+                    </div>
+                    <div class="flex items-center gap-1 px-2 py-1.5 rounded cursor-pointer tree-item">
+                      <i class="fa fa-file-o text-[10px] text-textLight w-3"></i>
+                      <span class="text-textSub">办公区域</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="mb-0.5">
+                  <div class="flex items-center gap-1 px-2 py-1.5 rounded cursor-pointer hover:bg-slate-50">
+                    <i class="fa fa-chevron-down text-[10px] text-textLight w-3"></i>
+                    <i class="fa fa-folder text-textLight w-4"></i>
+                    <span class="text-textSub">眼前山铁矿</span>
+                  </div>
+                  <div class="pl-4">
+                    <div class="flex items-center gap-1 px-2 py-1.5 rounded cursor-pointer tree-item">
+                      <i class="fa fa-file-o text-[10px] text-textLight w-3"></i>
+                      <span class="text-textSub">井下区域</span>
+                    </div>
+                    <div class="flex items-center gap-1 px-2 py-1.5 rounded cursor-pointer tree-item">
+                      <i class="fa fa-file-o text-[10px] text-textLight w-3"></i>
+                      <span class="text-textSub">地面区域</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="mb-0.5">
+                  <div class="flex items-center gap-1 px-2 py-1.5 rounded cursor-pointer hover:bg-slate-50">
+                    <i class="fa fa-chevron-down text-[10px] text-textLight w-3"></i>
+                    <i class="fa fa-folder text-textLight w-4"></i>
+                    <span class="text-textSub">弓长岭露天矿</span>
+                  </div>
+                  <div class="pl-4">
+                    <div class="flex items-center gap-1 px-2 py-1.5 rounded cursor-pointer tree-item">
+                      <i class="fa fa-file-o text-[10px] text-textLight w-3"></i>
+                      <span class="text-textSub">采区</span>
+                    </div>
+                    <div class="flex items-center gap-1 px-2 py-1.5 rounded cursor-pointer tree-item">
+                      <i class="fa fa-file-o text-[10px] text-textLight w-3"></i>
+                      <span class="text-textSub">排土区</span>
+                    </div>
+                    <div class="flex items-center gap-1 px-2 py-1.5 rounded cursor-pointer tree-item">
+                      <i class="fa fa-file-o text-[10px] text-textLight w-3"></i>
+                      <span class="text-textSub">运输道路</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="mb-0.5">
+              <div class="flex items-center gap-1 px-2 py-1.5 rounded cursor-pointer tree-item">
+                <i class="fa fa-chevron-right text-[10px] text-textLight w-3"></i>
+                <i class="fa fa-folder text-textLight w-4"></i>
+                <span class="text-textSub">其他单位</span>
+              </div>
+            </div>
+          </div>
+          <div class="p-2.5 border-t border-borderLine text-xs text-textSub flex justify-between items-center">
+            <span>共 5 个单位</span>
+            <button class="text-textLight hover:text-primary">
+              <i class="fa fa-cog"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- 右侧摄像头列表 -->
+        <div class="flex-1 flex flex-col">
+          <!-- 操作按钮栏 -->
+          <div class="flex items-center gap-3 mb-4">
+            <button data-camera-action="add" class="hidden px-4 py-2 text-xs rounded-md bg-primary text-white font-medium hover:bg-primary/90 transition-colors items-center gap-1.5">
+              <i class="fa fa-plus"></i>添加摄像头
+            </button>
+            <button data-camera-action="group" class="px-4 py-2 text-xs rounded-md border border-borderLine bg-white text-textSub hover:border-primary hover:text-primary flex items-center gap-1.5">
+              <i class="fa fa-object-group"></i>批量分组
+            </button>
+            <button data-camera-action="delete" class="hidden px-4 py-2 text-xs rounded-md border border-red-200 bg-white text-red-500 hover:bg-red-50 items-center gap-1.5">
+              <i class="fa fa-trash-o"></i>批量删除
+            </button>
+            <div class="ml-auto flex items-center gap-2">
+              <button class="px-3 py-1.5 text-xs rounded-md border border-primary bg-primaryLight text-primary flex items-center gap-1.5">
+                <i class="fa fa-th-large"></i>列表视图
+              </button>
+              <button class="px-3 py-1.5 text-xs rounded-md border border-borderLine bg-white text-textSub hover:border-primary hover:text-primary flex items-center gap-1.5">
+                <i class="fa fa-sitemap"></i>树状预览
+              </button>
+            </div>
+          </div>
+
+          <!-- 摄像头列表表格 -->
+          <div class="bg-white rounded-lg border border-borderLine p-4 flex-1 flex flex-col">
+            <div class="overflow-x-auto flex-1">
+              <table class="w-full text-xs min-w-max">
+                <thead>
+                  <tr class="text-textSub bg-slate-50/50">
+                    <th class="text-center px-3 py-3 font-medium w-10">
+                      <input type="checkbox" class="rounded border-borderLine text-primary focus:ring-primary"/>
+                    </th>
+                    <th class="text-center px-3 py-3 font-medium w-12">序号</th>
+                    <th class="text-left px-3 py-3 font-medium">摄像头名称</th>
+                    <th class="text-left px-3 py-3 font-medium">设备编码</th>
+                    <th class="text-center px-3 py-3 font-medium">摄像头类型</th>
+                    <th class="text-center px-3 py-3 font-medium">摄像头品牌</th>
+                    <th class="text-center px-3 py-3 font-medium">摄像头场景</th>
+                    <th class="text-left px-3 py-3 font-medium">所属单位</th>
+                    <th class="text-left px-3 py-3 font-medium">所属区域</th>
+                    <th class="text-center px-3 py-3 font-medium">覆盖区域示例</th>
+                    <th class="text-left px-3 py-3 font-medium">直播流地址</th>
+                    <th class="text-center px-3 py-3 font-medium">是否支持AI分析</th>
+                    <th class="text-center px-3 py-3 font-medium">在线状态</th>
+                    <th class="text-center px-3 py-3 font-medium">设备状态</th>
+                    <th class="text-center px-3 py-3 font-medium w-44">操作</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="border-t border-borderLine hover:bg-slate-50/50">
+                    <td class="px-3 py-3 text-center"><input type="checkbox" class="rounded border-borderLine text-primary focus:ring-primary"/></td>
+                    <td class="px-3 py-3 text-center text-textSub">1</td>
+                    <td class="px-3 py-3 text-textMain font-medium">生产区入口固定摄像头</td>
+                    <td class="px-3 py-3 text-textSub font-mono">CAM-00001</td>
+                    <td class="px-3 py-3 text-center text-textSub">固定摄像头</td>
+                    <td class="px-3 py-3 text-center text-textSub">海康威视</td>
+                    <td class="px-3 py-3 text-center text-textSub">周界防范</td>
+                    <td class="px-3 py-3 text-textSub">齐大山铁矿</td>
+                    <td class="px-3 py-3 text-textSub">高危作业区 &gt; 动火区域 &gt; 动火作业区01</td>
+                    <td class="px-3 py-3 text-center">
+                      <img src="https://aka.doubaocdn.com/s/OSiAsA8hUf" class="cam-thumb mx-auto" alt="覆盖区域"/>
+                    </td>
+                    <td class="px-3 py-3 text-textSub font-mono text-[11px]">rtsp://192.168.1.101/live/1</td>
+                    <td class="px-3 py-3 text-center">
+                      <span class="bg-supportBg text-supportText text-[11px] px-2 py-0.5 rounded-md font-medium">支持</span>
+                    </td>
+                    <td class="px-3 py-3 text-center">
+                      <span class="inline-flex items-center gap-1.5 text-onlineText">
+                        <span class="status-dot bg-onlineText"></span>在线
+                      </span>
+                    </td>
+                    <td class="px-3 py-3 text-center">
+                      <span class="bg-normalBg text-normalText text-[11px] px-2 py-0.5 rounded-md font-medium">正常</span>
+                    </td>
+                    <td class="px-3 py-3 text-center">
+                      <a href="#" class="text-primary hover:underline mr-3">预览</a>
+                      <a href="#" class="text-primary hover:underline mr-3">编辑</a>
+                      <a href="#" class="text-primary hover:underline inline-flex items-center gap-1">
+                        更多<i class="fa fa-angle-down text-[10px]"></i>
+                      </a>
+                    </td>
+                  </tr>
+                  <tr class="border-t border-borderLine hover:bg-slate-50/50">
+                    <td class="px-3 py-3 text-center"><input type="checkbox" class="rounded border-borderLine text-primary focus:ring-primary"/></td>
+                    <td class="px-3 py-3 text-center text-textSub">2</td>
+                    <td class="px-3 py-3 text-textMain font-medium">动火作业监控移动摄像头</td>
+                    <td class="px-3 py-3 text-textSub font-mono">CAM-00002</td>
+                    <td class="px-3 py-3 text-center text-textSub">移动摄像头</td>
+                    <td class="px-3 py-3 text-center text-textSub">大华</td>
+                    <td class="px-3 py-3 text-center text-textSub">动火作业</td>
+                    <td class="px-3 py-3 text-textSub">齐大山铁矿</td>
+                    <td class="px-3 py-3 text-textSub">高危作业区 &gt; 动火区域 &gt; 动火作业区01</td>
+                    <td class="px-3 py-3 text-center">
+                      <img src="https://aka.doubaocdn.com/s/JVwM9CZIRf" class="cam-thumb mx-auto" alt="覆盖区域"/>
+                    </td>
+                    <td class="px-3 py-3 text-textSub font-mono text-[11px]">rtsp://192.168.1.102/live/1</td>
+                    <td class="px-3 py-3 text-center">
+                      <span class="bg-supportBg text-supportText text-[11px] px-2 py-0.5 rounded-md font-medium">支持</span>
+                    </td>
+                    <td class="px-3 py-3 text-center">
+                      <span class="inline-flex items-center gap-1.5 text-onlineText">
+                        <span class="status-dot bg-onlineText"></span>在线
+                      </span>
+                    </td>
+                    <td class="px-3 py-3 text-center">
+                      <span class="bg-normalBg text-normalText text-[11px] px-2 py-0.5 rounded-md font-medium">正常</span>
+                    </td>
+                    <td class="px-3 py-3 text-center">
+                      <a href="#" class="text-primary hover:underline mr-3">点位选择</a>
+                      <a href="#" class="text-primary hover:underline mr-3">预览</a>
+                      <a href="#" class="text-primary hover:underline mr-3">编辑</a>
+                      <a href="#" class="text-primary hover:underline inline-flex items-center gap-1">
+                        更多<i class="fa fa-angle-down text-[10px]"></i>
+                      </a>
+                    </td> 
+                  </tr>
+                  <tr class="border-t border-borderLine hover:bg-slate-50/50">
+                    <td class="px-3 py-3 text-center"><input type="checkbox" class="rounded border-borderLine text-primary focus:ring-primary"/></td>
+                    <td class="px-3 py-3 text-center text-textSub">3</td>
+                    <td class="px-3 py-3 text-textMain font-medium">皮带机头固定摄像头</td>
+                    <td class="px-3 py-3 text-textSub font-mono">CAM-00003</td>
+                    <td class="px-3 py-3 text-center text-textSub">固定摄像头</td>
+                    <td class="px-3 py-3 text-center text-textSub">海康威视</td>
+                    <td class="px-3 py-3 text-center text-textSub">皮带运输</td>
+                    <td class="px-3 py-3 text-textSub">齐大山铁矿</td>
+                    <td class="px-3 py-3 text-textSub">一般作业区 &gt; 皮带区域 &gt; 皮带机头区01</td>
+                    <td class="px-3 py-3 text-center">
+                      <img src="https://aka.doubaocdn.com/s/fMa2VZQCcS" class="cam-thumb mx-auto" alt="覆盖区域"/>
+                    </td>
+                    <td class="px-3 py-3 text-textSub font-mono text-[11px]">rtsp://192.168.1.103/live/1</td>
+                    <td class="px-3 py-3 text-center">
+                      <span class="bg-supportBg text-supportText text-[11px] px-2 py-0.5 rounded-md font-medium">支持</span>
+                    </td>
+                    <td class="px-3 py-3 text-center">
+                      <span class="inline-flex items-center gap-1.5 text-onlineText">
+                        <span class="status-dot bg-onlineText"></span>在线
+                      </span>
+                    </td>
+                    <td class="px-3 py-3 text-center">
+                      <span class="bg-normalBg text-normalText text-[11px] px-2 py-0.5 rounded-md font-medium">正常</span>
+                    </td>
+                    <td class="px-3 py-3 text-center">
+                      <a href="#" class="text-primary hover:underline mr-3">预览</a>
+                      <a href="#" class="text-primary hover:underline mr-3">编辑</a>
+                      <a href="#" class="text-primary hover:underline inline-flex items-center gap-1">
+                        更多<i class="fa fa-angle-down text-[10px]"></i>
+                      </a>
+                    </td>
+                  </tr>
+                  <tr class="border-t border-borderLine hover:bg-slate-50/50">
+                    <td class="px-3 py-3 text-center"><input type="checkbox" class="rounded border-borderLine text-primary focus:ring-primary"/></td>
+                    <td class="px-3 py-3 text-center text-textSub">4</td>
+                    <td class="px-3 py-3 text-textMain font-medium">危化品库房移动摄像头</td>
+                    <td class="px-3 py-3 text-textSub font-mono">CAM-00004</td>
+                    <td class="px-3 py-3 text-center text-textSub">移动摄像头</td>
+                    <td class="px-3 py-3 text-center text-textSub">宇视</td>
+                    <td class="px-3 py-3 text-center text-textSub">危化品库房</td>
+                    <td class="px-3 py-3 text-textSub">齐大山铁矿</td>
+                    <td class="px-3 py-3 text-textSub">高危作业区 &gt; 危化品库房 &gt; 危化品存储区01</td>
+                    <td class="px-3 py-3 text-center">
+                      <img src="https://aka.doubaocdn.com/s/UYcEVIsZYz" class="cam-thumb mx-auto" alt="覆盖区域"/>
+                    </td>
+                    <td class="px-3 py-3 text-textSub font-mono text-[11px]">rtsp://192.168.1.104/live/1</td>
+                    <td class="px-3 py-3 text-center">
+                      <span class="bg-supportBg text-supportText text-[11px] px-2 py-0.5 rounded-md font-medium">支持</span>
+                    </td>
+                    <td class="px-3 py-3 text-center">
+                      <span class="inline-flex items-center gap-1.5 text-onlineText">
+                        <span class="status-dot bg-onlineText"></span>在线
+                      </span>
+                    </td>
+                    <td class="px-3 py-3 text-center">
+                      <span class="bg-normalBg text-normalText text-[11px] px-2 py-0.5 rounded-md font-medium">正常</span>
+                    </td>
+                    <td class="px-3 py-3 text-center">
+                      <a href="#" class="text-primary hover:underline mr-3">预览</a>
+                      <a href="#" class="text-primary hover:underline mr-3">编辑</a>
+                      <a href="#" class="text-primary hover:underline inline-flex items-center gap-1">
+                        更多<i class="fa fa-angle-down text-[10px]"></i>
+                      </a>
+                    </td>
+                  </tr>
+                  <tr class="border-t border-borderLine hover:bg-slate-50/50">
+                    <td class="px-3 py-3 text-center"><input type="checkbox" class="rounded border-borderLine text-primary focus:ring-primary"/></td>
+                    <td class="px-3 py-3 text-center text-textSub">5</td>
+                    <td class="px-3 py-3 text-textMain font-medium">井下作业面执法仪</td>
+                    <td class="px-3 py-3 text-textSub font-mono">CAM-00005</td>
+                    <td class="px-3 py-3 text-center text-textSub">执法仪</td>
+                    <td class="px-3 py-3 text-center text-textSub">海康威视</td>
+                    <td class="px-3 py-3 text-center text-textSub">井下作业</td>
+                    <td class="px-3 py-3 text-textSub">齐大山铁矿</td>
+                    <td class="px-3 py-3 text-textSub">高危作业区 &gt; 井下作业面 &gt; 采掘作业区01</td>
+                    <td class="px-3 py-3 text-center">
+                      <img src="https://aka.doubaocdn.com/s/uBtAFnoXOs" class="cam-thumb mx-auto" alt="覆盖区域"/>
+                    </td>
+                    <td class="px-3 py-3 text-textSub font-mono text-[11px]">rtsp://192.168.1.105/live/1</td>
+                    <td class="px-3 py-3 text-center">
+                      <span class="bg-supportBg text-supportText text-[11px] px-2 py-0.5 rounded-md font-medium">支持</span>
+                    </td>
+                    <td class="px-3 py-3 text-center">
+                      <span class="inline-flex items-center gap-1.5 text-onlineText">
+                        <span class="status-dot bg-onlineText"></span>在线
+                      </span>
+                    </td>
+                    <td class="px-3 py-3 text-center">
+                      <span class="bg-normalBg text-normalText text-[11px] px-2 py-0.5 rounded-md font-medium">正常</span>
+                    </td>
+                    <td class="px-3 py-3 text-center">
+                      <a href="#" class="text-primary hover:underline mr-3">预览</a>
+                      <a href="#" class="text-primary hover:underline mr-3">编辑</a>
+                      <a href="#" class="text-primary hover:underline inline-flex items-center gap-1">
+                        更多<i class="fa fa-angle-down text-[10px]"></i>
+                      </a>
+                    </td>
+                  </tr>
+                  <tr class="border-t border-borderLine hover:bg-slate-50/50">
+                    <td class="px-3 py-3 text-center"><input type="checkbox" class="rounded border-borderLine text-primary focus:ring-primary"/></td>
+                    <td class="px-3 py-3 text-center text-textSub">6</td>
+                    <td class="px-3 py-3 text-textMain font-medium">主运输巷道固定摄像头</td>
+                    <td class="px-3 py-3 text-textSub font-mono">CAM-00006</td>
+                    <td class="px-3 py-3 text-center text-textSub">固定摄像头</td>
+                    <td class="px-3 py-3 text-center text-textSub">大华</td>
+                    <td class="px-3 py-3 text-center text-textSub">井下作业</td>
+                    <td class="px-3 py-3 text-textSub">齐大山铁矿</td>
+                    <td class="px-3 py-3 text-textSub">高危作业区 &gt; 井下作业面 &gt; 采掘作业区01</td>
+                    <td class="px-3 py-3 text-center">
+                      <img src="https://aka.doubaocdn.com/s/EWi0XUIEiJ" class="cam-thumb mx-auto" alt="覆盖区域"/>
+                    </td>
+                    <td class="px-3 py-3 text-textSub font-mono text-[11px]">rtsp://192.168.1.106/live/1</td>
+                    <td class="px-3 py-3 text-center">
+                      <span class="bg-supportBg text-supportText text-[11px] px-2 py-0.5 rounded-md font-medium">支持</span>
+                    </td>
+                    <td class="px-3 py-3 text-center">
+                      <span class="inline-flex items-center gap-1.5 text-onlineText">
+                        <span class="status-dot bg-onlineText"></span>在线
+                      </span>
+                    </td>
+                    <td class="px-3 py-3 text-center">
+                      <span class="bg-normalBg text-normalText text-[11px] px-2 py-0.5 rounded-md font-medium">正常</span>
+                    </td>
+                    <td class="px-3 py-3 text-center">
+                      <a href="#" class="text-primary hover:underline mr-3">预览</a>
+                      <a href="#" class="text-primary hover:underline mr-3">编辑</a>
+                      <a href="#" class="text-primary hover:underline inline-flex items-center gap-1">
+                        更多<i class="fa fa-angle-down text-[10px]"></i>
+                      </a>
+                    </td>
+                  </tr>
+                  <tr class="border-t border-borderLine hover:bg-slate-50/50">
+                    <td class="px-3 py-3 text-center"><input type="checkbox" class="rounded border-borderLine text-primary focus:ring-primary"/></td>
+                    <td class="px-3 py-3 text-center text-textSub">7</td>
+                    <td class="px-3 py-3 text-textMain font-medium">办公室走廊执法仪</td>
+                    <td class="px-3 py-3 text-textSub font-mono">CAM-00007</td>
+                    <td class="px-3 py-3 text-center text-textSub">执法仪</td>
+                    <td class="px-3 py-3 text-center text-textSub">宇视</td>
+                    <td class="px-3 py-3 text-center text-textSub">办公区域</td>
+                    <td class="px-3 py-3 text-textSub">大孤山铁矿</td>
+                    <td class="px-3 py-3 text-textSub">一般作业区 &gt; 办公区域 &gt; 综合办公室01</td>
+                    <td class="px-3 py-3 text-center">
+                      <img src="https://aka.doubaocdn.com/s/fMa2VZQCcS" class="cam-thumb mx-auto" alt="覆盖区域"/>
+                    </td>
+                    <td class="px-3 py-3 text-textSub font-mono text-[11px]">rtsp://192.168.2.101/live/1</td>
+                    <td class="px-3 py-3 text-center">
+                      <span class="bg-unsupportBg text-unsupportText text-[11px] px-2 py-0.5 rounded-md font-medium">不支持</span>
+                    </td>
+                    <td class="px-3 py-3 text-center">
+                      <span class="inline-flex items-center gap-1.5 text-onlineText">
+                        <span class="status-dot bg-onlineText"></span>在线
+                      </span>
+                    </td>
+                    <td class="px-3 py-3 text-center">
+                      <span class="bg-normalBg text-normalText text-[11px] px-2 py-0.5 rounded-md font-medium">正常</span>
+                    </td>
+                    <td class="px-3 py-3 text-center">
+                      <a href="#" class="text-primary hover:underline mr-3">预览</a>
+                      <a href="#" class="text-primary hover:underline mr-3">编辑</a>
+                      <a href="#" class="text-primary hover:underline inline-flex items-center gap-1">
+                        更多<i class="fa fa-angle-down text-[10px]"></i>
+                      </a>
+                    </td>
+                  </tr>
+                  <tr class="border-t border-borderLine hover:bg-slate-50/50">
+                    <td class="px-3 py-3 text-center"><input type="checkbox" class="rounded border-borderLine text-primary focus:ring-primary"/></td>
+                    <td class="px-3 py-3 text-center text-textSub">8</td>
+                    <td class="px-3 py-3 text-textMain font-medium">选矿车间固定摄像头</td>
+                    <td class="px-3 py-3 text-textSub font-mono">CAM-00008</td>
+                    <td class="px-3 py-3 text-center text-textSub">固定摄像头</td>
+                    <td class="px-3 py-3 text-center text-textSub">海康威视</td>
+                    <td class="px-3 py-3 text-center text-textSub">选矿作业</td>
+                    <td class="px-3 py-3 text-textSub">大孤山铁矿</td>
+                    <td class="px-3 py-3 text-textSub">一般作业区 &gt; 选矿区域 &gt; 选矿车间01</td>
+                    <td class="px-3 py-3 text-center">
+                      <img src="https://aka.doubaocdn.com/s/OSiAsA8hUf" class="cam-thumb mx-auto" alt="覆盖区域"/>
+                    </td>
+                    <td class="px-3 py-3 text-textSub font-mono text-[11px]">rtsp://192.168.2.102/live/1</td>
+                    <td class="px-3 py-3 text-center">
+                      <span class="bg-supportBg text-supportText text-[11px] px-2 py-0.5 rounded-md font-medium">支持</span>
+                    </td>
+                    <td class="px-3 py-3 text-center">
+                      <span class="inline-flex items-center gap-1.5 text-onlineText">
+                        <span class="status-dot bg-onlineText"></span>在线
+                      </span>
+                    </td>
+                    <td class="px-3 py-3 text-center">
+                      <span class="bg-normalBg text-normalText text-[11px] px-2 py-0.5 rounded-md font-medium">正常</span>
+                    </td>
+                    <td class="px-3 py-3 text-center">
+                      <a href="#" class="text-primary hover:underline mr-3">预览</a>
+                      <a href="#" class="text-primary hover:underline mr-3">编辑</a>
+                      <a href="#" class="text-primary hover:underline inline-flex items-center gap-1">
+                        更多<i class="fa fa-angle-down text-[10px]"></i>
+                      </a>
+                    </td>
+                  </tr>
+                  <tr class="border-t border-borderLine hover:bg-slate-50/50">
+                    <td class="px-3 py-3 text-center"><input type="checkbox" class="rounded border-borderLine text-primary focus:ring-primary"/></td>
+                    <td class="px-3 py-3 text-center text-textSub">9</td>
+                    <td class="px-3 py-3 text-textMain font-medium">尾矿库周界移动摄像头</td>
+                    <td class="px-3 py-3 text-textSub font-mono">CAM-00009</td>
+                    <td class="px-3 py-3 text-center text-textSub">移动摄像头</td>
+                    <td class="px-3 py-3 text-center text-textSub">大华</td>
+                    <td class="px-3 py-3 text-center text-textSub">周界防范</td>
+                    <td class="px-3 py-3 text-textSub">眼前山铁矿</td>
+                    <td class="px-3 py-3 text-textSub">一般作业区 &gt; 地面区域 &gt; 地表作业区01</td>
+                    <td class="px-3 py-3 text-center">
+                      <img src="https://aka.doubaocdn.com/s/UYcEVIsZYz" class="cam-thumb mx-auto" alt="覆盖区域"/>
+                    </td>
+                    <td class="px-3 py-3 text-textSub font-mono text-[11px]">rtsp://192.168.2.103/live/1</td>
+                    <td class="px-3 py-3 text-center">
+                      <span class="bg-supportBg text-supportText text-[11px] px-2 py-0.5 rounded-md font-medium">支持</span>
+                    </td>
+                    <td class="px-3 py-3 text-center">
+                      <span class="inline-flex items-center gap-1.5 text-offlineText">
+                        <span class="status-dot bg-offlineText"></span>离线
+                      </span>
+                    </td>
+                    <td class="px-3 py-3 text-center">
+                      <span class="bg-offlineBg text-offlineText text-[11px] px-2 py-0.5 rounded-md font-medium">故障</span>
+                    </td>
+                    <td class="px-3 py-3 text-center">
+                      <a href="#" class="text-primary hover:underline mr-3">预览</a>
+                      <a href="#" class="text-primary hover:underline mr-3">编辑</a>
+                      <a href="#" class="text-primary hover:underline inline-flex items-center gap-1">
+                        更多<i class="fa fa-angle-down text-[10px]"></i>
+                      </a>
+                    </td>
+                  </tr>
+                  <tr class="border-t border-borderLine hover:bg-slate-50/50">
+                    <td class="px-3 py-3 text-center"><input type="checkbox" class="rounded border-borderLine text-primary focus:ring-primary"/></td>
+                    <td class="px-3 py-3 text-center text-textSub">10</td>
+                    <td class="px-3 py-3 text-textMain font-medium">提升机房固定摄像头</td>
+                    <td class="px-3 py-3 text-textSub font-mono">CAM-00010</td>
+                    <td class="px-3 py-3 text-center text-textSub">固定摄像头</td>
+                    <td class="px-3 py-3 text-center text-textSub">海康威视</td>
+                    <td class="px-3 py-3 text-center text-textSub">井下作业</td>
+                    <td class="px-3 py-3 text-textSub">眼前山铁矿</td>
+                    <td class="px-3 py-3 text-textSub">高危作业区 &gt; 井下区域 &gt; 井下巡检区01</td>
+                    <td class="px-3 py-3 text-center">
+                      <img src="https://aka.doubaocdn.com/s/JVwM9CZIRf" class="cam-thumb mx-auto" alt="覆盖区域"/>
+                    </td>
+                    <td class="px-3 py-3 text-textSub font-mono text-[11px]">rtsp://192.168.2.104/live/1</td>
+                    <td class="px-3 py-3 text-center">
+                      <span class="bg-supportBg text-supportText text-[11px] px-2 py-0.5 rounded-md font-medium">支持</span>
+                    </td>
+                    <td class="px-3 py-3 text-center">
+                      <span class="inline-flex items-center gap-1.5 text-onlineText">
+                        <span class="status-dot bg-onlineText"></span>在线
+                      </span>
+                    </td>
+                    <td class="px-3 py-3 text-center">
+                      <span class="bg-normalBg text-normalText text-[11px] px-2 py-0.5 rounded-md font-medium">正常</span>
+                    </td>
+                    <td class="px-3 py-3 text-center">
+                      <a href="#" class="text-primary hover:underline mr-3">预览</a>
+                      <a href="#" class="text-primary hover:underline mr-3">编辑</a>
+                      <a href="#" class="text-primary hover:underline inline-flex items-center gap-1">
+                        更多<i class="fa fa-angle-down text-[10px]"></i>
+                      </a>
+                    </td>
+                  </tr>
+                  <tr class="border-t border-borderLine hover:bg-slate-50/50">
+                    <td class="px-3 py-3 text-center"><input type="checkbox" class="rounded border-borderLine text-primary focus:ring-primary"/></td>
+                    <td class="px-3 py-3 text-center text-textSub">11</td>
+                    <td class="px-3 py-3 text-textMain font-medium">排土场全景固定摄像头</td>
+                    <td class="px-3 py-3 text-textSub font-mono">CAM-00011</td>
+                    <td class="px-3 py-3 text-center text-textSub">固定摄像头</td>
+                    <td class="px-3 py-3 text-center text-textSub">宇视</td>
+                    <td class="px-3 py-3 text-center text-textSub">排土作业</td>
+                    <td class="px-3 py-3 text-textSub">弓长岭露天矿</td>
+                    <td class="px-3 py-3 text-textSub">一般作业区 &gt; 排土区 &gt; 排土作业区01</td>
+                    <td class="px-3 py-3 text-center">
+                      <img src="https://aka.doubaocdn.com/s/fMa2VZQCcS" class="cam-thumb mx-auto" alt="覆盖区域"/>
+                    </td>
+                    <td class="px-3 py-3 text-textSub font-mono text-[11px]">rtsp://192.168.3.101/live/1</td>
+                    <td class="px-3 py-3 text-center">
+                      <span class="bg-supportBg text-supportText text-[11px] px-2 py-0.5 rounded-md font-medium">支持</span>
+                    </td>
+                    <td class="px-3 py-3 text-center">
+                      <span class="inline-flex items-center gap-1.5 text-onlineText">
+                        <span class="status-dot bg-onlineText"></span>在线
+                      </span>
+                    </td>
+                    <td class="px-3 py-3 text-center">
+                      <span class="bg-normalBg text-normalText text-[11px] px-2 py-0.5 rounded-md font-medium">正常</span>
+                    </td>
+                    <td class="px-3 py-3 text-center">
+                      <a href="#" class="text-primary hover:underline mr-3">预览</a>
+                      <a href="#" class="text-primary hover:underline mr-3">编辑</a>
+                      <a href="#" class="text-primary hover:underline inline-flex items-center gap-1">
+                        更多<i class="fa fa-angle-down text-[10px]"></i>
+                      </a>
+                    </td>
+                  </tr>
+                  <tr class="border-t border-borderLine hover:bg-slate-50/50">
+                    <td class="px-3 py-3 text-center"><input type="checkbox" class="rounded border-borderLine text-primary focus:ring-primary"/></td>
+                    <td class="px-3 py-3 text-center text-textSub">12</td>
+                    <td class="px-3 py-3 text-textMain font-medium">装载机作业移动摄像头</td>
+                    <td class="px-3 py-3 text-textSub font-mono">CAM-00012</td>
+                    <td class="px-3 py-3 text-center text-textSub">移动摄像头</td>
+                    <td class="px-3 py-3 text-center text-textSub">大华</td>
+                    <td class="px-3 py-3 text-center text-textSub">装卸作业</td>
+                    <td class="px-3 py-3 text-textSub">弓长岭露天矿</td>
+                    <td class="px-3 py-3 text-textSub">一般作业区 &gt; 采区 &gt; 东部采区01</td>
+                    <td class="px-3 py-3 text-center">
+                      <img src="https://aka.doubaocdn.com/s/OSiAsA8hUf" class="cam-thumb mx-auto" alt="覆盖区域"/>
+                    </td>
+                    <td class="px-3 py-3 text-textSub font-mono text-[11px]">rtsp://192.168.3.102/live/1</td>
+                    <td class="px-3 py-3 text-center">
+                      <span class="bg-supportBg text-supportText text-[11px] px-2 py-0.5 rounded-md font-medium">支持</span>
+                    </td>
+                    <td class="px-3 py-3 text-center">
+                      <span class="inline-flex items-center gap-1.5 text-onlineText">
+                        <span class="status-dot bg-onlineText"></span>在线
+                      </span>
+                    </td>
+                    <td class="px-3 py-3 text-center">
+                      <span class="bg-normalBg text-normalText text-[11px] px-2 py-0.5 rounded-md font-medium">正常</span>
+                    </td>
+                    <td class="px-3 py-3 text-center">
+                      <a href="#" class="text-primary hover:underline mr-3">预览</a>
+                      <a href="#" class="text-primary hover:underline mr-3">编辑</a>
+                      <a href="#" class="text-primary hover:underline inline-flex items-center gap-1">
+                        更多<i class="fa fa-angle-down text-[10px]"></i>
+                      </a>
+                    </td>
+                  </tr>
+                  <tr class="border-t border-borderLine hover:bg-slate-50/50">
+                    <td class="px-3 py-3 text-center"><input type="checkbox" class="rounded border-borderLine text-primary focus:ring-primary"/></td>
+                    <td class="px-3 py-3 text-center text-textSub">13</td>
+                    <td class="px-3 py-3 text-textMain font-medium">运输道路卡口固定摄像头</td>
+                    <td class="px-3 py-3 text-textSub font-mono">CAM-00013</td>
+                    <td class="px-3 py-3 text-center text-textSub">固定摄像头</td>
+                    <td class="px-3 py-3 text-center text-textSub">海康威视</td>
+                    <td class="px-3 py-3 text-center text-textSub">道路监控</td>
+                    <td class="px-3 py-3 text-textSub">弓长岭露天矿</td>
+                    <td class="px-3 py-3 text-textSub">一般作业区 &gt; 运输道路 &gt; 主运输通道01</td>
+                    <td class="px-3 py-3 text-center">
+                      <img src="https://aka.doubaocdn.com/s/UYcEVIsZYz" class="cam-thumb mx-auto" alt="覆盖区域"/>
+                    </td>
+                    <td class="px-3 py-3 text-textSub font-mono text-[11px]">rtsp://192.168.3.103/live/1</td>
+                    <td class="px-3 py-3 text-center">
+                      <span class="bg-supportBg text-supportText text-[11px] px-2 py-0.5 rounded-md font-medium">支持</span>
+                    </td>
+                    <td class="px-3 py-3 text-center">
+                      <span class="inline-flex items-center gap-1.5 text-onlineText">
+                        <span class="status-dot bg-onlineText"></span>在线
+                      </span>
+                    </td>
+                    <td class="px-3 py-3 text-center">
+                      <span class="bg-normalBg text-normalText text-[11px] px-2 py-0.5 rounded-md font-medium">正常</span>
+                    </td>
+                    <td class="px-3 py-3 text-center">
+                      <a href="#" class="text-primary hover:underline mr-3">预览</a>
+                      <a href="#" class="text-primary hover:underline mr-3">编辑</a>
+                      <a href="#" class="text-primary hover:underline inline-flex items-center gap-1">
+                        更多<i class="fa fa-angle-down text-[10px]"></i>
+                      </a>
+                    </td>
+                  </tr>
+                  <tr class="border-t border-borderLine hover:bg-slate-50/50">
+                    <td class="px-3 py-3 text-center"><input type="checkbox" class="rounded border-borderLine text-primary focus:ring-primary"/></td>
+                    <td class="px-3 py-3 text-center text-textSub">14</td>
+                    <td class="px-3 py-3 text-textMain font-medium">门卫出入口移动摄像头</td>
+                    <td class="px-3 py-3 text-textSub font-mono">CAM-00014</td>
+                    <td class="px-3 py-3 text-center text-textSub">移动摄像头</td>
+                    <td class="px-3 py-3 text-center text-textSub">宇视</td>
+                    <td class="px-3 py-3 text-center text-textSub">周界防范</td>
+                    <td class="px-3 py-3 text-textSub">齐大山铁矿</td>
+                    <td class="px-3 py-3 text-textSub">一般作业区 &gt; 办公区域 &gt; 综合办公室01</td>
+                    <td class="px-3 py-3 text-center">
+                      <img src="https://aka.doubaocdn.com/s/EWi0XUIEiJ" class="cam-thumb mx-auto" alt="覆盖区域"/>
+                    </td>
+                    <td class="px-3 py-3 text-textSub font-mono text-[11px]">rtsp://192.168.1.201/live/1</td>
+                    <td class="px-3 py-3 text-center">
+                      <span class="bg-unsupportBg text-unsupportText text-[11px] px-2 py-0.5 rounded-md font-medium">不支持</span>
+                    </td>
+                    <td class="px-3 py-3 text-center">
+                      <span class="inline-flex items-center gap-1.5 text-onlineText">
+                        <span class="status-dot bg-onlineText"></span>在线
+                      </span>
+                    </td>
+                    <td class="px-3 py-3 text-center">
+                      <span class="bg-normalBg text-normalText text-[11px] px-2 py-0.5 rounded-md font-medium">正常</span>
+                    </td>
+                    <td class="px-3 py-3 text-center">
+                      <a href="#" class="text-primary hover:underline mr-3">预览</a>
+                      <a href="#" class="text-primary hover:underline mr-3">编辑</a>
+                      <a href="#" class="text-primary hover:underline inline-flex items-center gap-1">
+                        更多<i class="fa fa-angle-down text-[10px]"></i>
+                      </a>
+                    </td>
+                  </tr>
+                  <tr class="border-t border-borderLine hover:bg-slate-50/50">
+                    <td class="px-3 py-3 text-center"><input type="checkbox" class="rounded border-borderLine text-primary focus:ring-primary"/></td>
+                    <td class="px-3 py-3 text-center text-textSub">15</td>
+                    <td class="px-3 py-3 text-textMain font-medium">生活区食堂执法仪</td>
+                    <td class="px-3 py-3 text-textSub font-mono">CAM-00015</td>
+                    <td class="px-3 py-3 text-center text-textSub">执法仪</td>
+                    <td class="px-3 py-3 text-center text-textSub">海康威视</td>
+                    <td class="px-3 py-3 text-center text-textSub">生活区域</td>
+                    <td class="px-3 py-3 text-textSub">齐大山铁矿</td>
+                    <td class="px-3 py-3 text-textSub">一般作业区 &gt; 生活区域 &gt; 生活服务区01</td>
+                    <td class="px-3 py-3 text-center">
+                      <img src="https://aka.doubaocdn.com/s/fMa2VZQCcS" class="cam-thumb mx-auto" alt="覆盖区域"/>
+                    </td>
+                    <td class="px-3 py-3 text-textSub font-mono text-[11px]">rtsp://192.168.1.202/live/1</td>
+                    <td class="px-3 py-3 text-center">
+                      <span class="bg-unsupportBg text-unsupportText text-[11px] px-2 py-0.5 rounded-md font-medium">不支持</span>
+                    </td>
+                    <td class="px-3 py-3 text-center">
+                      <span class="inline-flex items-center gap-1.5 text-onlineText">
+                        <span class="status-dot bg-onlineText"></span>在线
+                      </span>
+                    </td>
+                    <td class="px-3 py-3 text-center">
+                      <span class="bg-normalBg text-normalText text-[11px] px-2 py-0.5 rounded-md font-medium">正常</span>
+                    </td>
+                    <td class="px-3 py-3 text-center">
+                      <a href="#" class="text-primary hover:underline mr-3">预览</a>
+                      <a href="#" class="text-primary hover:underline mr-3">编辑</a>
+                      <a href="#" class="text-primary hover:underline inline-flex items-center gap-1">
+                        更多<i class="fa fa-angle-down text-[10px]"></i>
+                      </a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- 分页 -->
+            <div class="flex justify-center items-center gap-2 text-sm mt-6">
+              <span class="text-textSub">共 120 条</span>
+              <button class="w-8 h-8 border border-primary bg-primary text-white rounded-md flex items-center justify-center font-medium">1</button>
+              <button class="w-8 h-8 border border-borderLine rounded-md flex items-center justify-center text-textSub hover:border-primary hover:text-primary">2</button>
+              <button class="w-8 h-8 border border-borderLine rounded-md flex items-center justify-center text-textSub hover:border-primary hover:text-primary">3</button>
+              <button class="w-8 h-8 border border-borderLine rounded-md flex items-center justify-center text-textSub hover:border-primary hover:text-primary">4</button>
+              <button class="w-8 h-8 border border-borderLine rounded-md flex items-center justify-center text-textSub hover:border-primary hover:text-primary">5</button>
+              <span class="text-textLight">...</span>
+              <button class="w-8 h-8 border border-borderLine rounded-md flex items-center justify-center text-textSub hover:border-primary hover:text-primary">8</button>
+              <div class="relative ml-2">
+                <select class="border border-borderLine rounded-md px-2 py-1 text-sm bg-white appearance-none pr-7 focus:outline-none">
+                  <option>15 条/页</option>
+                </select>
+                <i class="fa fa-chevron-down absolute right-2 top-1/2 -translate-y-1/2 text-textLight text-[10px] pointer-events-none"></i>
+              </div>
+              <span class="text-textSub ml-2">跳至</span>
+              <input class="w-12 border border-borderLine rounded-md py-1 text-center text-sm focus:outline-none focus:border-primary" value="1"/>
+              <span class="text-textSub">页</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<div id="cameraDrawer" class="hidden fixed inset-0 z-50"><div class="absolute inset-0 bg-black/30" data-drawer-close></div><aside class="absolute right-0 top-0 h-full w-[560px] max-w-[94vw] bg-white shadow-2xl flex flex-col"><header class="h-16 px-6 border-b flex items-center justify-between"><div><h2 id="drawerTitle" class="text-lg font-semibold"></h2><p id="drawerSub" class="text-xs text-textLight"></p></div><button data-drawer-close><i class="fa fa-times"></i></button></header><div id="drawerBody" class="flex-1 overflow-y-auto p-6"></div><footer class="h-16 px-6 border-t flex justify-end items-center gap-3"><button data-drawer-close class="border rounded px-5 py-2">取消</button><button id="drawerOk" class="bg-primary text-white rounded px-5 py-2">确认</button></footer></aside></div>
+<div id="centerModal" class="hidden fixed inset-0 z-[60] bg-black/40 flex items-center justify-center p-5"><div class="w-[760px] max-w-[95vw] bg-white rounded-xl shadow-2xl overflow-hidden"><header class="h-14 px-5 border-b flex items-center justify-between"><h3 id="modalTitle" class="font-semibold"></h3><button data-modal-close><i class="fa fa-times"></i></button></header><div id="modalBody" class="p-5"></div><footer class="h-16 px-5 border-t flex justify-end items-center gap-3"><button data-modal-close class="border rounded px-5 py-2">取消</button><button id="modalOk" class="bg-primary text-white rounded px-5 py-2">确认</button></footer></div></div>
+<script src="navigation.js?v=20260819-2"></script>
+<style>
+  table thead th:nth-child(11), table tbody td:nth-child(11),
+  table thead th:nth-child(14), table tbody td:nth-child(14) { display: none; }
+</style>
+<script>
+  (() => {
+    const treeButton = [...document.querySelectorAll('button')].find(button => button.textContent.trim().includes('树状预览'));
+    if (treeButton) treeButton.classList.add('hidden');
+  })();
+</script>
+<script>
+(()=>{
+ const drawer=document.getElementById('cameraDrawer'),body=document.getElementById('drawerBody'),ok=document.getElementById('drawerOk'),modal=document.getElementById('centerModal'),modalBody=document.getElementById('modalBody'),modalOk=document.getElementById('modalOk');let activeRow=null,action='';
+ const rows=()=>[...document.querySelectorAll('tbody tr')],selected=()=>rows().filter(r=>r.querySelector('input[type=checkbox]')?.checked);
+ rows().forEach(row=>{const cell=row.cells[14];if(!cell)return;cell.innerHTML=`<a href="#" class="text-primary hover:underline mr-3">预览</a><a href="#" class="text-primary hover:underline mr-3">编辑</a><a href="#" class="text-primary hover:underline mr-3">已选点</a><a href="#" class="text-primary hover:underline">删除</a>`;});
+ const field=(n,c)=>`<div><label class="block text-sm font-medium mb-2">${n} <b class="text-red-500">*</b></label>${c}</div>`,inp=(v='',p='请输入')=>`<input required value="${v}" placeholder="${p}" class="w-full border rounded px-3 py-2 text-sm">`,sel=a=>`<select required class="w-full border rounded px-3 py-2 text-sm"><option value="">请选择</option>${a.map(x=>`<option>${x}</option>`).join('')}</select>`;
+ const form=(r)=>`<form id="cameraForm" class="space-y-5">${field('摄像头名称',inp(r?.cells[2].innerText.trim()||''))}${field('设备编码',inp(r?.cells[3].innerText.trim()||''))}<div class="grid grid-cols-2 gap-4">${field('摄像头类型',sel(['固定摄像头','移动摄像头','执法仪']))}${field('摄像头品牌',sel(['海康威视','大华','宇视','华为','天地伟业']))}</div>${field('摄像头场景',sel(['动火作业','皮带运输','井下作业','办公区域']))}${field('所属单位',sel(['齐大山铁矿','大孤山铁矿','眼前山铁矿','弓长岭露天矿']))}${field('所属区域',inp(r?.cells[8].innerText.trim()||''))}${field('覆盖区域示例','<label class="h-28 border border-dashed rounded flex flex-col items-center justify-center text-textLight"><i class="fa fa-image text-xl"></i><span>点击上传覆盖区域图片</span><input type="file" accept="image/*" class="hidden"></label>')}${field('是否支持AI分析','<div class="flex gap-6"><label><input type="radio" name="ai" checked> 是</label><label><input type="radio" name="ai"> 否</label></div>')}${field('接入地址',inp('','请输入IP地址'))}${field('直播流地址',inp(r?.cells[10].innerText.trim()||'','请输入直播流地址'))}</form>`;
+ function openDrawer(type,r){action=type;activeRow=r;ok.classList.remove('hidden');ok.textContent='确认';document.getElementById('drawerTitle').textContent={add:'添加摄像头',edit:'编辑摄像头',preview:'摄像头预览',import:'批量导入',group:'批量分组'}[type];document.getElementById('drawerSub').textContent=type==='preview'?`${r.cells[2].innerText.trim()} · ${r.cells[3].innerText.trim()}`:'填写并确认相关信息';if(type==='add'||type==='edit')body.innerHTML=form(r);if(type==='preview'){ok.classList.add('hidden');body.innerHTML=`<div class="aspect-video bg-slate-900 rounded flex flex-col items-center justify-center text-white/70"><i class="fa fa-play-circle text-5xl mb-3"></i>点击播放实时画面</div><div class="mt-5 text-sm">直播流地址：${r.cells[10].innerText.trim()}</div>`;}if(type==='import')body.innerHTML='<div class="bg-blue-50 p-4 rounded mb-4 flex items-center justify-between"><span>请下载模板填写后上传。</span><a href="#" class="text-primary hover:underline whitespace-nowrap" onclick="event.preventDefault()"><i class="fa fa-download mr-1"></i>下载导入模板</a></div><div class="text-xs text-textLight mb-5">模板文件占位：摄像头批量导入模板.xlsx</div><label class="h-52 border-2 border-dashed rounded flex flex-col items-center justify-center text-textLight"><i class="fa fa-cloud-upload text-4xl mb-3"></i>点击上传 Excel 文件<input type="file" accept=".xlsx,.xls" class="hidden"></label>';if(type==='group')body.innerHTML=`<div class="bg-blue-50 p-4 rounded mb-5">已选择 ${selected().length} 个摄像头</div>${field('目标单位',sel(['齐大山铁矿','大孤山铁矿','眼前山铁矿']))}${field('目标区域',sel(['高危作业区','一般作业区','办公区域']))}`;drawer.classList.remove('hidden');}
+ function openCenter(type,r){
+  action=type;activeRow=r;
+  modalOk.className=type==='delete'?'bg-red-500 text-white rounded px-5 py-2':'bg-primary text-white rounded px-5 py-2';
+  document.getElementById('modalTitle').textContent=type==='map'?'地图选点':'确认删除';
+  if(type==='delete'){
+   modalBody.innerHTML=`<div class="bg-red-50 border border-red-100 rounded p-5"><b>确定删除“${r?r.cells[2].innerText.trim():selected().length+' 个摄像头'}”吗？</b><p class="text-sm text-textSub mt-2">删除后数据无法恢复。</p></div>`;
+  }else{
+   modalBody.innerHTML=`
+   
+    <div class="grid grid-cols-2 gap-4 mb-4">
+     <label class="text-sm text-textSub">楼栋
+      <select id="mapBuilding" class="mt-1 w-full border border-borderLine rounded px-3 py-2 text-textMain bg-white outline-none focus:border-primary">
+       <option value="">请选择楼栋</option><option>生产综合楼</option><option>选矿主厂房</option><option>智能调度中心</option><option>设备检修楼</option>
+      </select>
+     </label>
+     <label class="text-sm text-textSub">楼层
+      <select id="mapFloor" class="mt-1 w-full border border-borderLine rounded px-3 py-2 text-textMain bg-white outline-none focus:border-primary">
+       <option value="">请选择楼层</option><option>负一层</option><option>一层</option><option>二层</option><option>三层</option><option>四层</option>
+      </select>
+     </label>
+      <p class="text-sm mb-3">点击地图选择摄像头点位。</p>
+    </div>
+    <div id="map" class="relative h-[360px] bg-[#203b5a] rounded cursor-crosshair" style="background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:32px 32px"><i id="marker" class="fa fa-map-marker hidden absolute text-red-500 text-3xl -translate-x-1/2 -translate-y-full"></i></div>
+    <p class="mt-3">坐标：<span id="coord">未标注</span></p>`;
+  }
+  modal.classList.remove('hidden');
+  if(type==='map')document.getElementById('map').onclick=e=>{let b=e.currentTarget.getBoundingClientRect(),x=((e.clientX-b.left)/b.width*100).toFixed(2),y=((e.clientY-b.top)/b.height*100).toFixed(2),m=document.getElementById('marker');m.style.left=x+'%';m.style.top=y+'%';m.classList.remove('hidden');document.getElementById('coord').textContent=`X ${x}, Y ${y}`;};
+ }
+ document.querySelectorAll('[data-camera-action]').forEach(b=>b.onclick=()=>{let t=b.dataset.cameraAction;if(t==='delete'){if(selected().length){openCenter('delete',null);}else{action='notice';activeRow=null;document.getElementById('modalTitle').textContent='批量删除提示';modalBody.innerHTML='<div class="bg-orange-50 border border-orange-100 rounded p-5"><b>请先选择需要删除的摄像头</b><p class="text-sm text-textSub mt-2">勾选列表数据后，再执行批量删除操作。</p></div>';modalOk.textContent='知道了';modalOk.className='bg-primary text-white rounded px-5 py-2';modal.classList.remove('hidden');}return;}openDrawer(t);});document.querySelector('tbody').onclick=e=>{let a=e.target.closest('a');if(!a)return;e.preventDefault();let r=a.closest('tr'),t=a.textContent.trim();if(t==='预览')openDrawer('preview',r);if(t==='编辑')openDrawer('edit',r);if(t==='地图选点'||t==='已选点')openCenter('map',r);if(t==='删除')openCenter('delete',r);};
+ document.querySelectorAll('[data-drawer-close]').forEach(x=>x.onclick=()=>drawer.classList.add('hidden'));document.querySelectorAll('[data-modal-close]').forEach(x=>x.onclick=()=>modal.classList.add('hidden'));ok.onclick=()=>{let f=document.getElementById('cameraForm');if(f&&!f.reportValidity())return;drawer.classList.add('hidden');};modalOk.onclick=()=>{if(action==='delete'){if(activeRow)activeRow.remove();else selected().forEach(r=>r.remove());}else if(action==='map'&&activeRow&&document.getElementById('coord')?.textContent!=='未标注'){const links=[...activeRow.cells[14].querySelectorAll('a')],mapLink=links.find(a=>a.textContent.trim()==='地图选点'||a.textContent.trim()==='已选点');if(mapLink)mapLink.textContent='已选点';}modal.classList.add('hidden');};let all=document.querySelector('thead input[type=checkbox]');if(all)all.onchange=()=>rows().forEach(r=>r.querySelector('input[type=checkbox]').checked=all.checked);
+})();
+</script>
+<script src="org-panel-toggle.js?v=20260822-2"></script>
+</body>
+</html>

@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>无视频不作业智慧管控平台 - 视频倒查列表</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        danger: '#F53F3F',
+                        success: '#00B42A',
+                        warning: '#FF7D00',
+                        grayBg: '#F7F8FA',
+                        borderColor: '#E5E6EB',
+                        textMain: '#1D2129',
+                        textSecondary: '#6B7785',
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+            }
+            .scrollbar-hide {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+            .tag-danger {
+                @apply bg-red-50 text-danger border border-red-200 px-2 py-0.5 rounded text-xs;
+            }
+            .tag-normal {
+                @apply bg-blue-50 text-primary border border-blue-200 px-2 py-0.5 rounded text-xs;
+            }
+            .tag-returned {
+                @apply bg-green-50 text-success border border-green-200 px-2 py-0.5 rounded text-xs;
+            }
+            .tag-no-return {
+                @apply bg-red-50 text-danger border border-red-200 px-2 py-0.5 rounded text-xs;
+            }
+            .camera-fixed { @apply inline-block bg-blue-50 text-primary px-1.5 py-0.5 rounded text-xs mr-1; }
+            .camera-mobile { @apply inline-block bg-green-50 text-success px-1.5 py-0.5 rounded text-xs mr-1; }
+            .camera-law { @apply inline-block bg-orange-50 text-orange-500 px-1.5 py-0.5 rounded text-xs mr-1; }
+            .card-shadow {
+                box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+            }
+            .org-panel {
+                width: 44px;
+                transition: width .2s ease;
+            }
+            .org-panel.is-open {
+                width: 260px;
+            }
+            .org-panel .org-panel-content {
+                opacity: 0;
+                visibility: hidden;
+                transition: opacity .15s ease;
+            }
+            .org-panel.is-open .org-panel-content {
+                opacity: 1;
+                visibility: visible;
+            }
+            .org-panel.is-open .org-panel-toggle i {
+                transform: rotate(180deg);
+            }
+        }
+    </style>
+</head>
+<body class="font-inter bg-grayBg text-textMain h-screen flex flex-col overflow-hidden">
+    <!-- 顶部导航栏 -->
+    <header class="h-[60px] bg-white border-b border-borderColor flex items-center justify-between px-6 flex-shrink-0">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded bg-primary flex items-center justify-center text-white">
+                <i class="fa fa-video-camera"></i>
+            </div>
+            <!-- <span class="text-lg font-semibold">无视频不作业智慧管控平台</span> -->
+            <span class="text-textSecondary ml-4">&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp视频倒查列表</span>
+        </div>
+        <div class="flex items-center gap-5">
+            <div class="relative cursor-pointer">
+                <i class="fa fa-bell-o text-lg"></i>
+                <span class="absolute -top-1 -right-2 w-4 h-4 rounded-full bg-danger text-white text-[10px] flex items-center justify-center">12</span>
+            </div>
+            <div class="flex items-center gap-2 cursor-pointer">
+                <div class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center">
+                    <i class="fa fa-user"></i>
+                </div>
+                <span>张三</span>
+                <i class="fa fa-angle-down text-textSecondary"></i>
+            </div>
+        </div>
+    </header>
+
+    <!-- 左侧侧边栏 -->
+    <aside class="w-[220px] bg-sidebarBg flex flex-col flex-shrink-0 text-slate-300">
+        <!-- Logo区域 -->
+        <div class="h-[70px] flex items-center px-4 gap-3 border-b border-slate-700/40">
+            <div class="w-9 h-9 rounded-lg bg-white flex items-center justify-center">
+                <i class="fa fa-cube text-primary text-xl"></i>
+            </div>
+            <span class="text-white font-semibold text-sm leading-tight">视频AI识别自进化能力平台</span>
+        </div>
+        <!-- 侧边菜单 -->
+        <nav class="flex-1 py-4 overflow-y-auto scrollbar-hide">
+            <div class="sidebar-item-active flex items-center gap-3 px-4 py-3 cursor-pointer text-sm">
+                <i class="fa fa-home w-5 text-center"></i>
+                <span>首页</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 hover:bg-slate-700/30 cursor-pointer text-sm">
+                <i class="fa fa-list-alt w-5 text-center"></i>
+                <span>作业计划管理</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 hover:bg-slate-700/30 cursor-pointer text-sm">
+                <i class="fa fa-video-camera w-5 text-center"></i>
+                <span>实时监控</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 hover:bg-slate-700/30 cursor-pointer text-sm">
+                <i class="fa fa-history w-5 text-center"></i>
+                <span>视频倒查</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 hover:bg-slate-700/30 cursor-pointer text-sm">
+                <i class="fa fa-search-plus w-5 text-center"></i>
+                <span>AI隐患核查</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 hover:bg-slate-700/30 cursor-pointer text-sm">
+                <i class="fa fa-tasks w-5 text-center"></i>
+                <span>隐患清单管理</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 hover:bg-slate-700/30 cursor-pointer text-sm">
+                <i class="fa fa-camera w-5 text-center"></i>
+                <span>设备管理</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 hover:bg-slate-700/30 cursor-pointer text-sm">
+                <i class="fa fa-book w-5 text-center"></i>
+                <span>准则管理</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 hover:bg-slate-700/30 cursor-pointer text-sm">
+                <i class="fa fa-bar-chart w-5 text-center"></i>
+                <span>统计分析</span>
+            </div>
+            <div class="mt-6 flex items-center gap-3 px-4 py-3 hover:bg-slate-700/30 cursor-pointer text-sm">
+                <i class="fa fa-angle-double-left w-5 text-center"></i>
+                <span>收起菜单</span>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- 主体内容区域 -->
+    <main class="flex-1 overflow-hidden p-5 flex gap-5">
+        <!-- 默认收起的组织架构树 -->
+        <aside id="orgPanel" class="org-panel bg-white rounded-lg card-shadow flex-shrink-0 overflow-hidden relative" aria-expanded="false">
+            <button id="orgPanelToggle" type="button" class="org-panel-toggle absolute right-1 top-1/2 -translate-y-1/2 w-9 py-2 rounded border border-borderColor bg-white text-primary flex flex-col items-center justify-center gap-1 hover:bg-blue-50 z-10" aria-label="展开组织架构" title="展开组织架构">
+                <i class="fa fa-angle-right transition-transform"></i>
+                <span id="orgPanelToggleText" class="text-xs leading-tight" style="writing-mode: vertical-rl;">展开</span>
+            </button>
+            <div class="org-panel-content w-[260px] h-full overflow-y-auto p-5 pr-12">
+                <h3 class="font-semibold text-textMain mb-5">组织架构</h3>
+                <div class="font-medium text-primary mb-4 flex items-center gap-2">
+                    <i class="fa fa-building"></i><span>鞍钢矿业公司</span>
+                </div>
+                <div class="pl-6 flex flex-col gap-4 text-sm text-textSecondary">
+                    <button type="button" class="text-left hover:text-primary flex items-center gap-2"><i class="fa fa-folder text-primary"></i>齐大山铁矿</button>
+                    <button type="button" class="text-left hover:text-primary flex items-center gap-2"><i class="fa fa-folder text-primary"></i>弓长岭铁矿</button>
+                    <button type="button" class="text-left hover:text-primary flex items-center gap-2"><i class="fa fa-folder text-primary"></i>眼前山铁矿</button>
+                    <button type="button" class="text-left hover:text-primary flex items-center gap-2"><i class="fa fa-folder text-primary"></i>东鞍山分公司</button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 左侧区域 -->
+
+
+        
+        <div class="w-[300px] flex flex-col gap-5 flex-shrink-0">
+            <!-- 作业日历卡片 -->
+            <div class="bg-white rounded-lg p-4 card-shadow">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="font-medium">作业日历</span>
+                    <div class="flex gap-2 text-sm">
+                        <span class="px-2 py-1 rounded bg-grayBg cursor-pointer">上月</span>
+                        <span class="px-2 py-1 rounded bg-grayBg cursor-pointer">昨日</span>
+                        <span class="px-2 py-1 rounded bg-primary text-white cursor-pointer">今日</span>
+                        <span class="px-2 py-1 rounded bg-grayBg cursor-pointer">下月</span>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex gap-2">
+                        <i class="fa fa-angle-left cursor-pointer text-textSecondary"></i>
+                        <i class="fa fa-angle-left cursor-pointer text-textSecondary"></i>
+                    </div>
+                    <span class="text-base font-medium">2025年05月</span>
+                    <div class="flex gap-2">
+                        <i class="fa fa-angle-right cursor-pointer text-textSecondary"></i>
+                        <i class="fa fa-angle-right cursor-pointer text-textSecondary"></i>
+                    </div>
+                </div>
+                <!-- 日历表头 -->
+                <div class="grid grid-cols-7 text-center text-xs text-textSecondary mb-2">
+                    <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
+                </div>
+                <!-- 日历日期 -->
+                <div class="grid grid-cols-7 gap-1 text-center text-xs">
+                    <div class="text-textSecondary">27<br/> <span style="color: rgb(8, 182, 8);font-size:30px">·</span> </div>
+                    <div class="text-textSecondary">28<br/> <span style="color: rgb(8, 182, 8);font-size:30px">·</span></div>
+                    <div class="text-textSecondary">29<br/> <span style="color: rgb(8, 182, 8);font-size:30px">·</span></div>
+                    <div class="text-textSecondary">30<br/> <span style="color: rgb(8, 182, 8);font-size:30px">·</span></div>
+                    <div>1<br/> <span style="color: rgb(8, 182, 8);font-size:30px">·</span></div>
+                    <div>2<br/><span style="color: rgb(8, 182, 8);font-size:30px">·</span></div>
+                    <div>3<br/></div>
+                    <div>4<br/><span class="text-[10px]"></span></div>
+                    <div>5<br/><span class="text-[10px]"></span></div>
+                    <div>6<br/><span class="text-[10px]"><span style="color: rgb(8, 182, 8);font-size:30px">·</span></span></div>
+                    <div>7<br/><span class="text-[10px]"></span></div>
+                    <div>8<br/><span class="text-[10px]"><span style="color: rgb(8, 182, 8);font-size:30px">·</span></span></div>
+                    <div>9<br/><span style="color: rgb(8, 182, 8);font-size:30px">·</span></div>
+                    <div>10<br/></div>
+
+                    <div>11<br/><span style="color: rgb(8, 182, 8);font-size:30px">·</span></div>
+                    <div>12<br/><span style="color: rgb(8, 182, 8);font-size:30px">·</span></div>
+                    <div>13<br/></div>
+                    <div>14<br/></div>
+                    <div>15<br/></div>
+                    <div>16<br/></div>
+                    <div>17<br/><span style="color: rgb(8, 182, 8);font-size:30px">·</span></div>
+
+                    <div>18<br/><span style="color: rgb(8, 182, 8);font-size:30px">·</span></div>
+                    <div>19<br/><span style="color: rgb(8, 182, 8);font-size:30px">·</span></div>
+                    <div class="bg-primary text-white rounded py-1">20<br/><span style="color: rgb(8, 182, 8);font-size:30px">·</span></div>
+                    <div>21<br/></div>
+                    <div>22<br/></div>
+                    <div>23<br/></div>
+                    <div>24<br/></div>
+                    <div>25<br/></div>
+                    <div>26<br/></div>
+                    <div>27<br/></div>
+                    <div>28<br/></div>
+                    <div>29<br/></div>
+                    <div>30<br/></div>
+                    <div>31<br/></div>
+
+                  
+                </div>
+            </div>
+
+            <!-- 2025-05-20作业统计 -->
+            <div class="bg-white rounded-lg p-4 card-shadow">
+                <div class="text-sm mb-3">2025-05-20 作业统计</div>
+                <div class="grid grid-cols-3 gap-2">
+                    <div class="bg-grayBg rounded p-2">
+                        <div class="text-xs text-textSecondary">全部作业总数</div>
+                        <div class="text-xl font-semibold mt-1 flex justify-between items-center">
+                            128
+                            <i class="fa fa-list-alt text-primary text-base"></i>
+                        </div>
+                        <div class="text-xs mt-0.5">项</div>
+                    </div>
+                    <div class="bg-green-50 rounded p-2">
+                        <div class="text-xs text-textSecondary">已回传数量</div>
+                        <div class="text-xl font-semibold mt-1 flex justify-between items-center">
+                            96
+                            <i class="fa fa-check-circle text-success text-base"></i>
+                        </div>
+                        <div class="text-xs mt-0.5">项</div>
+                    </div>
+                    <div class="bg-red-50 rounded p-2">
+                        <div class="text-xs text-textSecondary">未回传数量</div>
+                        <div class="text-xl font-semibold mt-1 flex justify-between items-center">
+                            32
+                            <i class="fa fa-exclamation-circle text-danger text-base"></i>
+                        </div>
+                        <div class="text-xs mt-0.5">项</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 各厂矿视频回传进度排名 -->
+            <div class="bg-white rounded-lg p-4 card-shadow flex-1 overflow-y-auto scrollbar-hide">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-sm font-medium">各厂矿视频回传进度排名</span>
+                    <div class="flex gap-3 text-xs">
+                        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-success"></span>已回传</span>
+                        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-danger"></span>未回传</span>
+                    </div>
+                </div>
+                <div class="space-y-4">
+                    <!-- 条目1 -->
+                    <div>
+                        <div class="flex justify-between text-xs mb-1.5">
+                            <span>1 齐大山选矿</span>
+                            <span>96 / 120 &nbsp; 80.0%</span>
+                        </div>
+                        <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden flex">
+                            <div class="bg-success h-full" style="width:80%"></div>
+                            <div class="bg-danger h-full" style="width:20%"></div>
+                        </div>
+                    </div>
+                    <!-- 条目2 -->
+                    <div>
+                        <div class="flex justify-between text-xs mb-1.5">
+                            <span>2 眼前山分公司</span>
+                            <span>88 / 120 &nbsp; 73.3%</span>
+                        </div>
+                        <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden flex">
+                            <div class="bg-success h-full" style="width:73.3%"></div>
+                            <div class="bg-danger h-full" style="width:26.7%"></div>
+                        </div>
+                    </div>
+                    <!-- 条目3 -->
+                    <div>
+                        <div class="flex justify-between text-xs mb-1.5">
+                            <span>3 东鞍山分公司</span>
+                            <span>76 / 120 &nbsp; 63.3%</span>
+                        </div>
+                        <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden flex">
+                            <div class="bg-success h-full" style="width:63.3%"></div>
+                            <div class="bg-danger h-full" style="width:36.7%"></div>
+                        </div>
+                    </div>
+                    <!-- 条目4 -->
+                    <div>
+                        <div class="flex justify-between text-xs mb-1.5">
+                            <span>4 弓长岭分公司</span>
+                            <span>64 / 120 &nbsp; 53.3%</span>
+                        </div>
+                        <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden flex">
+                            <div class="bg-success h-full" style="width:53.3%"></div>
+                            <div class="bg-danger h-full" style="width:46.7%"></div>
+                        </div>
+                    </div>
+                    <!-- 条目5 -->
+                    <div>
+                        <div class="flex justify-between text-xs mb-1.5">
+                            <span>5 大孤山铁矿</span>
+                            <span>48 / 120 &nbsp; 40.0%</span>
+                        </div>
+                        <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden flex">
+                            <div class="bg-success h-full" style="width:40%"></div>
+                            <div class="bg-danger h-full" style="width:60%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧主内容区域 -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- 筛选区域 -->
+            <div class="bg-white rounded-lg p-4 card-shadow mb-4 flex-shrink-0">
+                <div class="grid grid-cols-3 gap-4 mb-3">
+                    <div class="flex items-center gap-2">
+                        <label class="text-sm text-textSecondary whitespace-nowrap">作业位置</label>
+                        <select class="flex-1 border border-borderColor rounded px-2 py-1.5 text-sm outline-none">
+                            <option>请选择</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <label class="text-sm text-textSecondary whitespace-nowrap">作业区域</label>
+                        <select class="flex-1 border border-borderColor rounded px-2 py-1.5 text-sm outline-none">
+                            <option>请选择</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <label class="text-sm text-textSecondary whitespace-nowrap">视频回传状态</label>
+                        <select class="flex-1 border border-borderColor rounded px-2 py-1.5 text-sm outline-none">
+                            <option>请选择</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-2">
+                        <!-- <label class="text-sm text-textSecondary whitespace-nowrap">作业时间</label> -->
+                        <!-- <input type="text" value="2025-05-19 ~ 2025-05-25" class="border border-borderColor rounded px-2 py-1.5 text-sm w-[220px] outline-none"> -->
+                    </div>
+                    <input type="text" placeholder="请输入作业内容或作业单位关键词" class="flex-1 border border-borderColor rounded px-2 py-1.5 text-sm outline-none">
+                    <button class="border border-borderColor px-4 py-1.5 rounded text-sm">展开 ∨</button>
+                </div>
+            </div>
+
+            <!-- 表格区域 -->
+            <div class="bg-white rounded-lg card-shadow flex-1 flex flex-col overflow-hidden">
+                <div class="p-4 border-b border-borderColor flex items-center justify-between">
+                    <span class="font-medium">作业事项列表</span>
+                    <button class="bg-primary text-white px-4 py-2 rounded flex items-center gap-2 text-sm">
+                        <i class="fa fa-download"></i>导出列表
+                    </button>
+                </div>
+                <div class="flex-1 overflow-auto">
+                    <table class="w-full text-sm">
+                        <thead class="bg-grayBg sticky top-0">
+                            <tr>
+                                <th class="px-3 py-3 text-left font-medium text-textSecondary">序号</th>
+                                <th class="px-3 py-3 text-left font-medium text-textSecondary">作业内容</th>
+                                <th class="px-3 py-3 text-left font-medium text-textSecondary">作业位置</th>
+                                <th class="px-3 py-3 text-left font-medium text-textSecondary">作业时间</th>
+                                <th class="px-3 py-3 text-left font-medium text-textSecondary">作业单位</th>
+                                <th class="px-3 py-3 text-left font-medium text-textSecondary">所属单位</th>
+                                <th class="px-3 py-3 text-left font-medium text-textSecondary">作业区域</th>
+                                <th class="px-3 py-3 text-left font-medium text-textSecondary">是否危险作业</th>
+                                <th class="px-3 py-3 text-left font-medium text-textSecondary">二级分类</th>
+                                <th class="px-3 py-3 text-left font-medium text-textSecondary">摄像头</th>
+                                <th class="px-3 py-3 text-left font-medium text-textSecondary">视频回传状态</th>
+                                <th class="px-3 py-3 text-center font-medium text-textSecondary">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b border-borderColor hover:bg-grayBg/50">
+                                <td class="px-3 py-3">1</td>
+                                <td class="px-3 py-3">皮带机头更换托辊作业</td>
+                                <td class="px-3 py-3">主运输大巷（西段）</td>
+                                <td class="px-3 py-3">05-20 08:30 ~ 10:30</td>
+                                <td class="px-3 py-3">运搬队</td>
+                                <td class="px-3 py-3">主井皮带队</td>
+                                <td class="px-3 py-3">1号运输头</td>
+                                <td class="px-3 py-3"><span class="tag-danger">危险作业</span></td>
+                                <td class="px-3 py-3">设备检修</td>
+                                <td class="px-3 py-3"><span class="camera-fixed">固定</span>主运输大巷西段-01</br><span class="camera-mobile">移动</span>主运输大巷西段-01</br><span style="font-size:12px; color: rgb(17, 28, 250);">&nbsp&nbsp&nbsp更多(4)</span></td>
+                                <td class="px-3 py-3"><span class="tag-returned">部分回传(1/4)</span></td>
+                                <td class="px-3 py-3 text-center"><i class="fa fa-file-text-o text-primary cursor-pointer">查看回放</i></td>
+                            </tr>
+                            <tr class="border-b border-borderColor hover:bg-grayBg/50">
+                                <td class="px-3 py-3">2</td>
+                                <td class="px-3 py-3">采煤机检修作业</td>
+                                <td class="px-3 py-3">22306工作面</td>
+                                <td class="px-3 py-3">05-20 10:45 ~ 12:15</td>
+                                <td class="px-3 py-3">综采队</td>
+                                <td class="px-3 py-3">采煤一队</td>
+                                <td class="px-3 py-3"><span class="camera-mobile">移动</span>22306工作面-采煤机前方</td>
+                                <td class="px-3 py-3"><span class="tag-danger">危险作业</span></td>
+                                <td class="px-3 py-3">设备检修</td>
+                                <td class="px-3 py-3"><span class="camera-fixed">固定</span>主运输大巷西段-01</br><span class="camera-mobile">移动</span>主运输大巷西段-01</br><span style="font-size:12px; color: rgb(17, 28, 250);">&nbsp&nbsp&nbsp更多(4)</span></td>
+                                <td class="px-3 py-3"><span class="tag-returned">已回传(4/4)</span></td>
+                                <td class="px-3 py-3 text-center"><i class="fa fa-file-text-o text-primary cursor-pointer">查看回放</i></td>
+                            </tr>
+                            <tr class="border-b border-borderColor hover:bg-grayBg/50">
+                                <td class="px-3 py-3">3</td>
+                                <td class="px-3 py-3">液压支架违修作业</td>
+                                <td class="px-3 py-3">22306工作面</td>
+                                <td class="px-3 py-3">05-20 13:30 ~ 15:00</td>
+                                <td class="px-3 py-3">综采队</td>
+                                <td class="px-3 py-3">采煤一队</td>
+                                <td class="px-3 py-3">22306工作面-液压支架区</td>
+                                <td class="px-3 py-3"><span class="tag-danger">危险作业</span></td>
+                                <td class="px-3 py-3">设备检修</td>
+                                <td class="px-3 py-3"><span class="camera-law">执法仪</span>22306液压支架区-02</td>
+                                <td class="px-3 py-3"><span class="tag-no-return">未回传(0/1)</span></td>
+                                <td class="px-3 py-3 text-center"><i>--</i></td>
+                            </tr>
+                            <tr class="border-b border-borderColor hover:bg-grayBg/50">
+                                <td class="px-3 py-3">4</td>
+                                <td class="px-3 py-3">皮带机中部修补作业</td>
+                                <td class="px-3 py-3">主运输大巷（中段）</td>
+                                <td class="px-3 py-3">05-20 15:20 ~ 16:40</td>
+                                <td class="px-3 py-3">运搬队</td>
+                                <td class="px-3 py-3">主井皮带队</td>
+                                <td class="px-3 py-3">主井皮带中段-2号转接头</td>
+                                <td class="px-3 py-3"><span class="tag-normal">普通作业</span></td>
+                                <td class="px-3 py-3">设备检修</td>
+                                <td class="px-3 py-3"><span class="camera-fixed">固定</span>主井皮带中段-02</td>
+                                <td class="px-3 py-3"><span class="tag-no-return">未回传(0/1)</span></td>
+                                <td class="px-3 py-3 text-center"><i>--</i></td>
+                            </tr>
+                            <tr class="border-b border-borderColor hover:bg-grayBg/50">
+                                <td class="px-3 py-3">5</td>
+                                <td class="px-3 py-3">电缆挂钩违修作业</td>
+                                <td class="px-3 py-3">回风巷（南段）</td>
+                                <td class="px-3 py-3">05-20 16:50 ~ 17:30</td>
+                                <td class="px-3 py-3">机电队</td>
+                                <td class="px-3 py-3">回风巷-3号违修队</td>
+                                <td class="px-3 py-3">回风巷-3号违修头</td>
+                                <td class="px-3 py-3"><span class="tag-normal">普通作业</span></td>
+                                <td class="px-3 py-3">设备检修</td>
+                                <td class="px-3 py-3"><span class="camera-mobile">移动</span>回风巷南段-03</td>
+                                <td class="px-3 py-3"><span class="tag-returned">已回传(1/1)</span></td>
+                                <td class="px-3 py-3 text-center"><i class="fa fa-file-text-o text-primary cursor-pointer">查看回放</i></td>
+                            </tr>
+                            <tr class="border-b border-borderColor hover:bg-grayBg/50">
+                                <td class="px-3 py-3">6</td>
+                                <td class="px-3 py-3">高空管路检修作业</td>
+                                <td class="px-3 py-3">中央变电所外墙</td>
+                                <td class="px-3 py-3">05-20 08:10 ~ 09:40</td>
+                                <td class="px-3 py-3">机电队</td>
+                                <td class="px-3 py-3">机电管理部</td>
+                                <td class="px-3 py-3">中央变电所区域</td>
+                                <td class="px-3 py-3"><span class="tag-danger">危险作业</span></td>
+                                <td class="px-3 py-3">高空作业</td>
+                                <td class="px-3 py-3"><span class="camera-fixed">固定</span>中央变电所外墙-01</td>
+                                <td class="px-3 py-3"><span class="tag-returned">已回传(1/1)</span></td>
+                                <td class="px-3 py-3 text-center"><i class="fa fa-file-text-o text-primary cursor-pointer">查看回放</i></td>
+                            </tr>
+                            <tr class="border-b border-borderColor hover:bg-grayBg/50">
+                                <td class="px-3 py-3">7</td>
+                                <td class="px-3 py-3">动火焊接作业</td>
+                                <td class="px-3 py-3">副井口材料库</td>
+                                <td class="px-3 py-3">05-20 09:50 ~ 11:20</td>
+                                <td class="px-3 py-3">机修厂</td>
+                                <td class="px-3 py-3">机电管理部</td>
+                                <td class="px-3 py-3">副井口区域</td>
+                                <td class="px-3 py-3"><span class="tag-danger">危险作业</span></td>
+                                <td class="px-3 py-3">动火作业</td>
+                                <td class="px-3 py-3"><span class="camera-law">执法仪</span>副井口材料库-01</td>
+                                <td class="px-3 py-3"><span class="tag-no-return">未回传(0/1)</span></td>
+                                <td class="px-3 py-3 text-center"><i>--</i></td>
+                            </tr>
+                            <tr class="border-b border-borderColor hover:bg-grayBg/50">
+                                <td class="px-3 py-3">8</td>
+                                <td class="px-3 py-3">顶板支护作业</td>
+                                <td class="px-3 py-3">22307工作面</td>
+                                <td class="px-3 py-3">05-20 11:30 ~ 13:00</td>
+                                <td class="px-3 py-3">综采队</td>
+                                <td class="px-3 py-3">采煤二队</td>
+                                <td class="px-3 py-3">22307工作面-顶板支护区</td>
+                                <td class="px-3 py-3"><span class="tag-danger">危险作业</span></td>
+                                <td class="px-3 py-3">顶板管理</td>
+                                <td class="px-3 py-3"><span class="camera-mobile">移动</span>22307顶板支护区-01</td>
+                                <td class="px-3 py-3"><span class="tag-returned">已回传(1/1)</span></td>
+                                <td class="px-3 py-3 text-center"><i class="fa fa-file-text-o text-primary cursor-pointer">查看回放</i></td>
+                            </tr>
+                            <tr class="border-b border-borderColor hover:bg-grayBg/50">
+                                <td class="px-3 py-3">9</td>
+                                <td class="px-3 py-3">探放水钻孔作业</td>
+                                <td class="px-3 py-3">回风巷（北段）</td>
+                                <td class="px-3 py-3">05-20 14:20 ~ 16:00</td>
+                                <td class="px-3 py-3">钻探队</td>
+                                <td class="px-3 py-3">地测防治水队</td>
+                                <td class="px-3 py-3">回风巷-北段区域</td>
+                                <td class="px-3 py-3"><span class="tag-normal">普通作业</span></td>
+                                <td class="px-3 py-3">探放水</td>
+                                <td class="px-3 py-3"><span class="camera-law">执法仪</span>回风巷北段-02</td>
+                                <td class="px-3 py-3"><span class="tag-returned">已回传(1/1)</span></td>
+                                <td class="px-3 py-3 text-center"><i class="fa fa-file-text-o text-primary cursor-pointer">查看回放</i></td>
+                            </tr>
+                            <tr class="hover:bg-grayBg/50">
+                                <td class="px-3 py-3">10</td>
+                                <td class="px-3 py-3">设备润滑保养作业</td>
+                                <td class="px-3 py-3">主井提升机房</td>
+                                <td class="px-3 py-3">05-20 16:10 ~ 17:20</td>
+                                <td class="px-3 py-3">机电队</td>
+                                <td class="px-3 py-3">机电管理部</td>
+                                <td class="px-3 py-3">主井提升机房区域</td>
+                                <td class="px-3 py-3"><span class="tag-normal">普通作业</span></td>
+                                <td class="px-3 py-3">设备检修</td>
+                                <td class="px-3 py-3"><span class="camera-fixed">固定</span>主井提升机房-01</td>
+                                <td class="px-3 py-3"><span class="tag-no-return">未回传(0/1)</span></td>
+                                <td class="px-3 py-3 text-center"><i>--</i></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!-- 分页 -->
+                <div class="flex items-center justify-between px-4 py-3 border-t border-borderColor">
+                    <span class="text-sm text-textSecondary">共 128 条</span>
+                    <div class="flex items-center gap-2 text-sm">
+                        <select class="border border-borderColor rounded px-2 py-1">
+                            <option>10条/页</option>
+                        </select>
+                        <button class="px-2 py-1 border border-borderColor rounded">‹</button>
+                        <button class="px-2 py-1 bg-primary text-white rounded">1</button>
+                        <button class="px-2 py-1 border border-borderColor rounded">2</button>
+                        <button class="px-2 py-1 border border-borderColor rounded">3</button>
+                        <button class="px-2 py-1 border border-borderColor rounded">4</button>
+                        <button class="px-2 py-1 border border-borderColor rounded">5</button>
+                        <span>…</span>
+                        <button class="px-2 py-1 border border-borderColor rounded">13</button>
+                        <button class="px-2 py-1 border border-borderColor rounded">›</button>
+                        <span>前往</span>
+                        <input type="text" value="1" class="w-10 border border-borderColor rounded px-1 py-1 text-center">
+                        <span>页</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script src="navigation.js?v=20260819-2"></script>
+    <script>
+        (function () {
+            const panel = document.getElementById('orgPanel');
+            const toggle = document.getElementById('orgPanelToggle');
+            const toggleText = document.getElementById('orgPanelToggleText');
+            if (!panel || !toggle) return;
+            toggle.addEventListener('click', function () {
+                const open = panel.classList.toggle('is-open');
+                panel.setAttribute('aria-expanded', String(open));
+                toggle.setAttribute('aria-label', open ? '收起组织架构' : '展开组织架构');
+                toggle.setAttribute('title', open ? '收起组织架构' : '展开组织架构');
+                toggleText.textContent = open ? '收起' : '展开';
+            });
+        })();
+    </script>
+</body>
+</html>

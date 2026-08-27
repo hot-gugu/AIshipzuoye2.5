@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>人员人脸采集</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body { font-family: "Microsoft YaHei", "Noto Sans SC", sans-serif; }
+    .safe-bottom { padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen">
+  <header class="bg-[#0F3A78] text-white px-5 pt-5 pb-16 relative overflow-hidden">
+    <div class="absolute -right-10 -top-12 w-40 h-40 rounded-full border-[28px] border-white/10"></div>
+    <div class="relative flex items-center gap-3">
+      <div class="w-10 h-10 rounded-lg bg-white/15 flex items-center justify-center"><i class="fa fa-face-viewfinder text-xl"></i></div>
+      <div><h1 class="font-semibold text-lg">人员人脸采集</h1><p class="text-blue-100 text-xs mt-0.5">矿山智能算力管控平台</p></div>
+    </div>
+  </header>
+
+  <main class="px-4 -mt-10 pb-28 relative">
+    <form id="collectForm" class="space-y-4">
+      <section class="bg-white rounded-xl shadow-sm p-5">
+        <div class="flex items-center justify-between mb-5"><h2 class="font-semibold">人员信息</h2><span class="text-xs text-slate-400">标记 * 为必填</span></div>
+        <div class="space-y-4">
+          <label class="block"><span class="text-sm">姓名 <b class="text-red-500">*</b></span><input required name="name" class="mt-2 w-full border border-slate-200 rounded-lg px-3.5 py-3 text-sm outline-none focus:border-blue-600" placeholder="请输入真实姓名"></label>
+          <label class="block"><span class="text-sm">身份证号 <b class="text-red-500">*</b></span><input required name="idCard" maxlength="18" class="mt-2 w-full border border-slate-200 rounded-lg px-3.5 py-3 text-sm outline-none focus:border-blue-600" placeholder="请输入身份证号码"></label>
+          <label class="block"><span class="text-sm">手机号码 <b class="text-red-500">*</b></span><input required name="phone" inputmode="tel" maxlength="11" class="mt-2 w-full border border-slate-200 rounded-lg px-3.5 py-3 text-sm outline-none focus:border-blue-600" placeholder="请输入手机号码"></label>
+          <label class="block"><span class="text-sm">所属企业 <b class="text-red-500">*</b></span><select required name="company" class="mt-2 w-full border border-slate-200 rounded-lg px-3.5 py-3 text-sm bg-white outline-none focus:border-blue-600"><option value="">请选择所属企业</option><option>鞍钢矿业有限公司</option><option>鞍钢智联科技有限公司</option></select></label>
+        </div>
+      </section>
+
+      <section class="bg-white rounded-xl shadow-sm p-5">
+        <div class="flex items-center justify-between mb-4"><h2 class="font-semibold">人脸照片</h2><span id="photoState" class="text-xs text-orange-500">待采集</span></div>
+        <label for="facePhoto" class="block cursor-pointer">
+          <div id="photoPlaceholder" class="h-64 rounded-xl border-2 border-dashed border-blue-200 bg-blue-50 flex flex-col items-center justify-center text-center px-8">
+            <div class="w-16 h-16 rounded-full bg-blue-600 text-white flex items-center justify-center mb-4"><i class="fa fa-camera text-2xl"></i></div>
+            <div class="font-medium text-blue-700">拍摄正面人脸照片</div>
+            <div class="text-xs text-slate-500 mt-2 leading-5">请保持光线充足，正视镜头<br>勿佩戴口罩、安全帽或深色眼镜</div>
+          </div>
+          <img id="photoPreview" class="hidden w-full h-64 rounded-xl object-cover bg-slate-100" alt="人脸照片预览">
+        </label>
+        <input id="facePhoto" required name="facePhoto" type="file" accept="image/*" capture="user" class="hidden">
+        <div class="grid grid-cols-3 gap-2 mt-4 text-center text-xs text-slate-500">
+          <div><i class="fa fa-sun text-orange-400 mr-1"></i>光线充足</div><div><i class="fa fa-user text-blue-500 mr-1"></i>正脸入镜</div><div><i class="fa fa-eye text-green-500 mr-1"></i>五官清晰</div>
+        </div>
+      </section>
+      <label class="flex items-start gap-2 px-1 text-xs text-slate-500 leading-5"><input id="consent" required type="checkbox" class="mt-1 accent-blue-600"><span>本人已阅读并同意人脸信息采集说明，授权平台将所采集信息用于人员身份核验与安全管理。</span></label>
+    </form>
+  </main>
+
+  <div class="fixed bottom-0 inset-x-0 bg-white border-t border-slate-200 px-4 pt-3 safe-bottom">
+    <button form="collectForm" class="w-full bg-blue-600 active:bg-blue-700 text-white rounded-lg py-3.5 font-medium"><i class="fa fa-cloud-arrow-up mr-2"></i>确认提交</button>
+  </div>
+
+  <div id="successModal" class="fixed inset-0 bg-slate-900/50 hidden items-center justify-center p-6 z-50">
+    <div class="bg-white rounded-2xl w-full max-w-sm p-6 text-center">
+      <div class="w-16 h-16 rounded-full bg-green-100 text-green-600 flex items-center justify-center mx-auto"><i class="fa fa-check text-2xl"></i></div>
+      <h2 class="text-lg font-semibold mt-4">采集提交成功</h2><p class="text-sm text-slate-500 mt-2">人员信息与人脸照片已提交，等待平台审核。</p>
+      <button id="doneButton" class="mt-6 w-full bg-blue-600 text-white rounded-lg py-3">完成</button>
+    </div>
+  </div>
+  <script>
+    const photoInput = document.getElementById('facePhoto');
+    photoInput.addEventListener('change', () => {
+      const file = photoInput.files[0]; if (!file) return;
+      const reader = new FileReader(); reader.onload = event => { document.getElementById('photoPreview').src = event.target.result; document.getElementById('photoPreview').classList.remove('hidden'); document.getElementById('photoPlaceholder').classList.add('hidden'); document.getElementById('photoState').textContent = '已采集'; document.getElementById('photoState').className = 'text-xs text-green-600'; }; reader.readAsDataURL(file);
+    });
+    document.getElementById('collectForm').addEventListener('submit', event => { event.preventDefault(); const modal = document.getElementById('successModal'); modal.classList.remove('hidden'); modal.classList.add('flex'); });
+    document.getElementById('doneButton').onclick = () => { const modal = document.getElementById('successModal'); modal.classList.add('hidden'); modal.classList.remove('flex'); };
+  </script>
+<script src="ai-assistant.js?v=20260825-2"></script>
+</body>
+</html>

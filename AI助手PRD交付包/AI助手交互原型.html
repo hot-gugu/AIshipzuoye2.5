@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI 助手一期交互原型</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;font:14px/1.55 "Microsoft YaHei",sans-serif;background:#eef2f7;color:#172033}.app{display:flex;min-height:100vh}.nav{width:216px;background:#102a56;color:#d8e5ff;padding:22px 16px}.brand{font-size:17px;font-weight:700;color:white;margin-bottom:28px}.nav div{padding:10px 12px;border-radius:7px;margin:4px 0}.nav .on{background:#1e5bd7;color:#fff}.page{flex:1;padding:26px}.panel{background:#fff;border-radius:12px;padding:22px;box-shadow:0 2px 12px #152a4812}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:18px 0}.card{background:#fff;border-radius:10px;padding:18px;border:1px solid #e5eaf2}.card b{font-size:26px;display:block}.table{height:420px;background:linear-gradient(#fff,#f9fbfe);border:1px solid #e2e8f0;border-radius:10px;padding:18px}.fab{position:fixed;right:26px;bottom:26px;width:58px;height:58px;border:0;border-radius:50%;background:#2168ed;color:#fff;font-size:24px;box-shadow:0 6px 20px #2168ed66;cursor:pointer}.drawer{position:fixed;right:0;top:0;width:440px;height:100vh;background:#f8fafc;box-shadow:-8px 0 30px #17203324;display:flex;flex-direction:column;transform:translateX(105%);transition:.25s;z-index:3}.drawer.open{transform:none}.head{height:66px;background:white;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;padding:0 18px;gap:10px}.head h2{font-size:18px;margin:0;flex:1}.iconbtn{border:0;background:#f1f5f9;border-radius:7px;padding:8px 10px;cursor:pointer}.context{padding:10px 16px;background:#eef5ff;border-bottom:1px solid #d7e6ff;display:flex;gap:7px;flex-wrap:wrap}.chip{font-size:12px;background:#fff;border:1px solid #bcd2fa;color:#2457a7;padding:3px 8px;border-radius:12px}.chat{flex:1;overflow:auto;padding:18px}.msg{max-width:91%;margin:0 0 16px}.user{margin-left:auto;background:#2168ed;color:white;padding:10px 13px;border-radius:12px 12px 2px 12px}.bot{background:#fff;border:1px solid #e1e7f0;border-radius:2px 12px 12px 12px;padding:14px;box-shadow:0 2px 7px #1720330d}.meta{font-size:12px;color:#728096;margin-top:8px;border-top:1px dashed #dce3ec;padding-top:8px}.metric{display:flex;align-items:end;gap:8px;margin:8px 0}.metric strong{font-size:30px;color:#1f63e9}.answer-table{width:100%;border-collapse:collapse;margin:8px 0}.answer-table th,.answer-table td{border-bottom:1px solid #edf0f5;padding:7px 4px;text-align:left}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.action{border:1px solid #2168ed;color:#2168ed;background:white;border-radius:6px;padding:6px 10px;cursor:pointer;text-decoration:none}.action.primary{background:#2168ed;color:white}.suggestions{padding:0 16px 10px;display:flex;gap:7px;overflow:auto}.suggestions button{white-space:nowrap;border:1px solid #cad5e5;background:white;border-radius:16px;padding:6px 10px;cursor:pointer}.composer{background:#fff;border-top:1px solid #e2e8f0;padding:12px;display:flex;gap:8px}.composer input{flex:1;border:1px solid #cbd5e1;border-radius:8px;padding:11px}.send{background:#2168ed;color:#fff;border:0;border-radius:8px;padding:0 16px;cursor:pointer}.state{padding:12px;border-radius:8px;margin:8px 0}.empty{background:#f8fafc;color:#64748b}.denied{background:#fff3f3;color:#c24141}.error{background:#fff7e6;color:#a35b00}.dots:after{content:'...';animation:dots 1s infinite}@keyframes dots{0%{content:'.'}50%{content:'..'}100%{content:'...'}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <aside class="nav"><div class="brand">视频 AI 识别自进化能力平台</div><div>首页</div><div>作业计划管理</div><div class="on">实时在线巡检</div><div>事后视频倒查</div><div>AI 预警核查</div><div>隐患违章管理</div></aside>
+  <main class="page"><h2>实时在线巡检</h2><section class="panel">当前页面上下文：实时监控 / 作业计划 Tab</section><div class="cards"><div class="card">今日作业<b>128</b></div><div class="card">在线摄像头<b>42</b></div><div class="card">实时预警<b>6</b></div><div class="card">未绑定作业<b>3</b></div></div><div class="table"><h3>视频监控区域</h3><p>此区域代表现有业务页面；点击右下角入口打开 AI 助手。</p></div></main>
+</div>
+<button class="fab" id="fab" title="打开 AI 助手">AI</button>
+<aside class="drawer open" id="drawer">
+  <div class="head"><span>✨</span><h2>AI 业务助手</h2><button class="iconbtn" id="close" aria-label="关闭 AI 助手">×</button></div>
+  <div class="chat" id="chat">
+    <div class="msg bot"><b>你好，我可以帮你查询业务数据、统计分析、罗列待办并导航到业务页面。</b><div class="meta">所有结果均按当前账号权限过滤；我不会直接执行查处、复核、整改或删除。</div></div>
+  </div>
+  <div class="suggestions"><button data-q="今天有多少作业？">今天有多少作业？</button><button data-q="统计近7天违章预警，分别是哪些单位？">近7天违章预警</button><button data-q="我有哪些待查处违章？">我的待查处违章</button><button data-q="模拟无权限">异常状态</button></div>
+  <div class="composer"><input id="input" placeholder="请输入业务问题，如：近7天有哪些待查处违章"><button class="send" id="send">发送</button></div>
+</aside>
+<script>
+const drawer=document.querySelector('#drawer'),chat=document.querySelector('#chat'),input=document.querySelector('#input');
+const returnTo=new URLSearchParams(location.search).get('returnTo');
+const closeAssistant=()=>{
+  if(returnTo){location.href=returnTo;return}
+  drawer.classList.remove('open');
+};
+document.querySelector('#fab').onclick=e=>{e.stopPropagation();drawer.classList.add('open')};
+document.querySelector('#close').onclick=closeAssistant;
+document.addEventListener('click',e=>{if(drawer.classList.contains('open')&&!drawer.contains(e.target))closeAssistant()});
+document.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>ask(b.dataset.q));document.querySelector('#send').onclick=()=>ask(input.value);input.onkeydown=e=>{if(e.key==='Enter')ask(input.value)};
+function addUser(t){chat.insertAdjacentHTML('beforeend',`<div class="msg user">${t}</div>`);chat.scrollTop=chat.scrollHeight}
+function addBot(h){chat.insertAdjacentHTML('beforeend',`<div class="msg bot">${h}</div>`);chat.scrollTop=chat.scrollHeight}
+function ask(q){q=q.trim();if(!q)return;input.value='';addUser(q);addBot('<span class="dots">正在解析条件并查询业务数据</span>');setTimeout(()=>{chat.lastElementChild.remove();answer(q)},650)}
+function answer(q){
+ if(q.includes('多少作业')||q.includes('作业数量')){addBot('<b>今天共有作业计划</b><div class="metric"><strong>128</strong><span>项</span></div><div>其中危险作业 46 项，未回传作业 15 项。</div><div class="actions"><a class="action" href="../作业计划管理.html?source=assistant">查看作业列表</a></div><div class="meta">指标：作业计划数（work_plan.count）<br>范围：2026-08-24 00:00–23:59；齐大山选矿厂等授权组织<br>数据更新时间：2026-08-24 10:36:12</div>')}
+ else if(q.includes('违章预警')&&q.includes('单位')){addBot('<b>近7天违章预警共 86 条</b><table class="answer-table"><tr><th>单位</th><th>数量</th><th>占比</th></tr><tr><td>齐大山选矿厂</td><td>31</td><td>36.05%</td></tr><tr><td>眼前山铁矿</td><td>24</td><td>27.91%</td></tr><tr><td>东鞍山分公司</td><td>18</td><td>20.93%</td></tr><tr><td>弓长岭铁矿</td><td>13</td><td>15.12%</td></tr></table><div class="actions"><a class="action" href="../AI隐患核查.html?source=assistant">查看预警</a></div><div class="meta">指标：违章预警数（warning.violation.count）｜维度：组织<br>数据更新时间：2026-08-24 10:36:12</div>')}
+ else if(q.includes('齐大山')){addBot('已继承上一轮“近7天违章预警”条件，并将组织修改为齐大山选矿厂。<div class="metric"><strong>31</strong><span>条</span></div><div class="meta">指标：warning.violation.count｜数据更新时间：2026-08-24 10:36:12</div>')}
+ else if(q.includes('待查处')){addBot('<b>你当前有 3 项待查处违章</b><table class="answer-table"><tr><th>违章名称</th><th>等级</th><th>单位</th></tr><tr><td>未佩戴安全帽</td><td>A类</td><td>齐大山选矿厂</td></tr><tr><td>违规穿越设备</td><td>B类</td><td>眼前山铁矿</td></tr></table><div class="actions"><a class="action primary" href="../隐患违章管理-违章查处.html?violationId=V-20260824-001&tab=pending&source=assistant">去查处</a><a class="action" href="../隐患违章管理-违章查处.html?source=assistant">查看全部</a></div><div class="meta">指标：待查处违章数（violation.pending_handle.count）<br>仅展示你具备查处权限且当前仍为待查处的事项；数据更新时间：2026-08-24 10:36:12</div>')}
+ else if(q.includes('无权限')){addBot('<div class="state denied"><b>无权访问</b><br>你没有查看“弓长岭铁矿”明细的权限。该单位不会计入总数或分组结果。</div><div class="state empty"><b>无数据</b><br>当前权限范围与筛选条件下没有记录。</div><div class="state error"><b>查询失败</b><br>业务查询服务暂时不可用，请稍后重试。系统不会使用模型估算业务数据。</div>')}
+ else if(q.includes('查看')&&q.includes('监控')){addBot('找到 2 个名称相近的作业，请先选择：<div class="actions"><button class="action">东帮658段采矿作业（白班）</button><button class="action">东帮658段巡检作业（晚班）</button></div><div class="meta">存在多个匹配对象时必须澄清，不按名称猜测。</div>')}
+ else{addBot('我暂时无法唯一识别你的业务目标。请补充业务对象、时间范围或单位，例如：“查询近7天齐大山选矿厂的待复核预警”。')}
+}
+</script>
+</body></html>
