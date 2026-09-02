@@ -1,0 +1,881 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>训练管理 - 数据集详情</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="算力算法调度平台.css">
+  <style>
+    * {
+      box-sizing: border-box
+    }
+
+    .dataset-detail {
+      min-height: 100vh;
+      background: #f4f7fb;
+      color: #253247
+    }
+
+    .detail-head {
+      height: 66px;
+      background: #fff;
+      border-bottom: 1px solid #dfe7f2;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px
+    }
+
+    .detail-head .crumb {
+      font-size: 12px;
+      color: #7b8ba3;
+      margin-bottom: 4px
+    }
+
+    .detail-head h1 {
+      font-size: 20px;
+      margin: 0
+    }
+
+    .detail-actions {
+      display: flex;
+      gap: 8px
+    }
+
+    .detail-main {
+      padding: 18px 22px 28px
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: minmax(350px, 38%) minmax(560px, 62%);
+      gap: 16px;
+      align-items: stretch
+    }
+
+    .detail-side,
+    .image-workspace {
+      background: #fff;
+      border: 1px solid #dfe7f2;
+      border-radius: 9px;
+      min-height: calc(100vh - 114px)
+    }
+
+    .detail-side {
+      padding: 20px;
+      overflow: auto
+    }
+
+    .section {
+      padding-bottom: 20px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #e8edf5
+    }
+
+    .section:last-child {
+      border-bottom: 0;
+      margin-bottom: 0
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 16px;
+      margin: 0 0 15px
+    }
+
+    .section-title:before {
+      content: "";
+      width: 3px;
+      height: 18px;
+      background: #2563eb;
+      border-radius: 2px
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: 104px 1fr 104px 1fr;
+      gap: 12px 10px;
+      font-size: 13px;
+      align-items: center
+    }
+
+    .info-grid span {
+      color: #7b8ba3
+    }
+
+    .info-grid b {
+      font-weight: 600;
+      color: #28364c;
+      min-width: 0
+    }
+
+    .full {
+      grid-column: 2/5
+    }
+
+    .progress-line {
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .progress-line i {
+      height: 7px;
+      width: 112px;
+      background: #e6edf6;
+      border-radius: 8px;
+      overflow: hidden
+    }
+
+    .progress-line i:after {
+      content: "";
+      display: block;
+      width: 99%;
+      height: 100%;
+      background: #2563eb
+    }
+
+    .source-list {
+      display: grid;
+      gap: 8px
+    }
+
+    .source-row {
+      display: grid;
+      grid-template-columns: 1.1fr .9fr 62px;
+      gap: 8px;
+      align-items: center;
+      padding: 9px 10px;
+      background: #f8fafc;
+      border-radius: 6px;
+      font-size: 12px
+    }
+
+    .source-row span:nth-child(2) {
+      color: #6e7f97
+    }
+
+    .source-row b {
+      text-align: right
+    }
+
+    .tag-note {
+      font-size: 12px;
+      color: #d94841;
+      background: #fff5f4;
+      padding: 9px 10px;
+      border-radius: 5px;
+      line-height: 1.55;
+      margin-bottom: 10px
+    }
+
+    .mini-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px
+    }
+
+    .mini-table th {
+      background: #f1f5fa;
+      color: #66768d;
+      font-weight: 600;
+      text-align: left;
+      padding: 9px
+    }
+
+    .mini-table td {
+      border-bottom: 1px solid #e8edf5;
+      padding: 10px 9px
+    }
+
+    .train-chain {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto 1fr;
+      gap: 6px;
+      align-items: center
+    }
+
+    .chain-item {
+      padding: 10px 6px;
+      background: #f8fafc;
+      border-radius: 6px;
+      text-align: center
+    }
+
+    .chain-item i {
+      display: block;
+      color: #2563eb;
+      margin-bottom: 5px
+    }
+
+    .chain-item b {
+      font-size: 12px
+    }
+
+    .train-chain>.fa-angle-right {
+      color: #9aa8ba
+    }
+
+    .image-workspace {
+      padding: 0 18px 16px;
+      display: flex;
+      flex-direction: column;
+      min-width: 0
+    }
+
+    .workspace-head {
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #e8edf5
+    }
+
+    .workspace-title {
+      font-size: 17px;
+      font-weight: 700;
+      display: flex;
+      gap: 9px;
+      align-items: center
+    }
+
+    .workspace-title:before {
+      content: "";
+      width: 3px;
+      height: 18px;
+      background: #2563eb;
+      border-radius: 2px
+    }
+
+    .workspace-actions {
+      display: flex;
+      gap: 8px
+    }
+
+    .tabs {
+      height: 46px;
+      display: flex;
+      align-items: flex-end;
+      gap: 28px;
+      border-bottom: 1px solid #e8edf5
+    }
+
+    .tab {
+      height: 46px;
+      border: 0;
+      background: none;
+      color: #42516a;
+      cursor: pointer;
+      padding: 0 0 12px;
+      position: relative
+    }
+
+    .tab.active {
+      color: #2563eb;
+      font-weight: 600
+    }
+
+    .tab.active:after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -1px;
+      height: 2px;
+      background: #2563eb
+    }
+
+    .image-filters {
+      display: flex;
+      gap: 10px;
+      padding: 14px 0
+    }
+
+    .search-box {
+      height: 34px;
+      border: 1px solid #d8e1ed;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 10px;
+      flex: 1;
+      max-width: 270px;
+      color: #9aa8ba
+    }
+
+    .search-box input {
+      border: 0;
+      outline: 0;
+      width: 100%;
+      font: inherit
+    }
+
+    .image-filters select {
+      height: 34px;
+      border: 1px solid #d8e1ed;
+      border-radius: 5px;
+      padding: 0 10px;
+      background: #fff;
+      color: #506079
+    }
+
+    .image-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(132px, 1fr));
+      gap: 12px;
+      align-content: start
+    }
+
+    .image-card {
+      border: 1px solid #dfe7f2;
+      border-radius: 6px;
+      overflow: hidden;
+      background: #fff;
+      cursor: pointer;
+      transition: border-color .16s, transform .16s
+    }
+
+    .image-card:hover {
+      border-color: #2563eb;
+      transform: translateY(-2px)
+    }
+
+    .image-card.selected {
+      outline: 2px solid #2563eb
+    }
+
+    .image-box {
+      height: 132px;
+      position: relative;
+      background: #edf2f7
+    }
+
+    .image-box img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover
+    }
+
+    .image-state {
+      position: absolute;
+      right: 0;
+      top: 0;
+      padding: 4px 7px;
+      border-radius: 0 0 0 5px;
+      background: #059669;
+      color: #fff;
+      font-size: 11px
+    }
+
+    .image-state.pending {
+      background: #d97706
+    }
+
+    .mark-box {
+      position: absolute;
+      border: 2px solid #ef4444;
+      left: 18%;
+      top: 22%;
+      width: 57%;
+      height: 58%
+    }
+
+    .mark-name {
+      position: absolute;
+      left: 18%;
+      top: calc(22% - 17px);
+      background: #ef4444;
+      color: #fff;
+      font-size: 10px;
+      padding: 2px 5px
+    }
+
+    .image-name {
+      height: 32px;
+      display: flex;
+      align-items: center;
+      padding: 0 7px;
+      font-size: 11px;
+      color: #6d7c91;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis
+    }
+
+    .workspace-footer {
+      margin-top: auto;
+      padding-top: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: #6d7c91
+    }
+
+    .pager-inline {
+      display: flex;
+      align-items: center;
+      gap: 6px
+    }
+
+    .pager-inline button,
+    .pager-inline span {
+      height: 28px;
+      min-width: 28px;
+      border: 1px solid #d8e1ed;
+      background: #fff;
+      border-radius: 4px;
+      color: #506079
+    }
+
+    .pager-inline span {
+      display: grid;
+      place-items: center;
+      background: #2563eb;
+      color: #fff;
+      border-color: #2563eb
+    }
+
+    .import-menu {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 36, 78, .28);
+      display: none;
+      place-items: center;
+      z-index: 2000
+    }
+
+    .import-menu.show {
+      display: grid
+    }
+
+    .import-dialog {
+      width: 440px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 16px 42px rgba(15, 36, 78, .22);
+      overflow: hidden
+    }
+
+    .dialog-head {
+      padding: 17px 20px;
+      border-bottom: 1px solid #e8edf5;
+      display: flex;
+      justify-content: space-between
+    }
+
+    .dialog-head h3 {
+      margin: 0
+    }
+
+    .dialog-body {
+      padding: 18px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px
+    }
+
+    .import-choice {
+      border: 1px solid #dfe7f2;
+      border-radius: 8px;
+      padding: 18px;
+      text-align: left;
+      background: #fff;
+      cursor: pointer
+    }
+
+    .import-choice:hover {
+      border-color: #2563eb;
+      background: #f7faff
+    }
+
+    .import-choice i {
+      font-size: 22px;
+      color: #2563eb;
+      margin-bottom: 12px
+    }
+
+    .import-choice b,
+    .import-choice small {
+      display: block
+    }
+
+    .import-choice small {
+      color: #7b8ba3;
+      margin-top: 6px;
+      line-height: 1.5
+    }
+
+    .dialog-foot {
+      padding: 12px 18px;
+      border-top: 1px solid #e8edf5;
+      text-align: right
+    }
+
+    .toast2 {
+      position: fixed;
+      left: 50%;
+      bottom: 34px;
+      transform: translateX(-50%);
+      background: #0f244e;
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: 6px;
+      display: none;
+      z-index: 3000;
+      font-size: 13px
+    }
+
+    @media(max-width:1200px) {
+      .detail-grid {
+        grid-template-columns: 1fr
+      }
+
+      .detail-side,
+      .image-workspace {
+        min-height: auto
+      }
+
+      .image-workspace {
+        min-height: 700px
+      }
+    }
+
+    @media(max-width:800px) {
+      .detail-main {
+        padding: 12px
+      }
+
+      .image-grid {
+        grid-template-columns: repeat(2, 1fr)
+      }
+
+      .info-grid {
+        grid-template-columns: 95px 1fr
+      }
+
+      .info-grid .full {
+        grid-column: auto
+      }
+
+      .workspace-head {
+        height: auto;
+        padding: 12px 0;
+        align-items: flex-start
+      }
+
+      .workspace-actions {
+        flex-wrap: wrap;
+        justify-content: flex-end
+      }
+    }
+
+    .head-main {
+      display: flex;
+      align-items: center;
+      gap: 14px
+    }
+
+    .header-back {
+      height: 34px;
+      padding: 0 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      border: 1px solid #d8e1ed;
+      border-radius: 5px;
+      background: #fff;
+      color: #43536b;
+      text-decoration: none;
+      font-size: 13px
+    }
+
+    .header-back:hover {
+      border-color: #2563eb;
+      color: #2563eb
+    }
+
+    .section-title small {
+      font-size: 12px;
+      color: #7b8ba3;
+      font-weight: 400
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid #e2e8f0;
+      border-radius: 7px
+    }
+
+    .unit-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      white-space: nowrap
+    }
+
+    .unit-table th {
+      padding: 11px 10px;
+      background: #f1f5fa;
+      color: #63738a;
+      text-align: center;
+      font-weight: 600
+    }
+
+    .unit-table th:first-child,
+    .unit-table td:first-child {
+      text-align: left
+    }
+
+    .unit-table td {
+      padding: 12px 10px;
+      text-align: center;
+      border-bottom: 1px solid #e8edf5;
+      color: #34445b
+    }
+
+    .unit-table tbody tr:last-child td {
+      border-bottom: 0
+    }
+
+    .image-meta {
+      display: grid;
+      gap: 4px;
+      padding: 0 7px 9px;
+      color: #53657d;
+      font-size: 10px;
+      line-height: 1.35
+    }
+
+    .image-meta span {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis
+    }
+
+    .image-filters {
+      border-bottom: 1px solid #eef2f7;
+      margin-bottom: 14px
+    }
+
+    .image-box {
+      height: 118px
+    }
+
+    @media(max-width:800px) {
+      .head-main {
+        gap: 9px
+      }
+
+      .header-back span {
+        display: none
+      }
+
+      .header-back {
+        padding: 0 10px
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="platform-shell dataset-detail" style="margin-left:240px">
+    <header class="detail-head">
+      <div class="head-main"><a class="header-back" href="算力算法调度管理-样本与数据集.html" title="返回样本与数据集"><i
+            class="fa fa-arrow-left"></i><span>返回</span></a>
+        <div>
+          <div class="crumb">训练管理 / 样本与数据集 / 数据集详情</div>
+          <h1 id="pageTitle">未佩戴安全帽数据集</h1>
+        </div>
+      </div>
+    </header>
+    <main class="detail-main">
+      <div class="detail-grid">
+        <section class="detail-side">
+          <div class="section">
+            <h2 class="section-title">基本信息</h2>
+            <div class="info-grid"><span>数据集版本</span><b id="version">DS-v12</b><span>状态</span><b id="datasetStatus"><em
+                  class="status s-success">已训练</em></b><span>数据时间范围</span><b class="full" id="dataRange">2026-07-01 至
+                2026-08-24</b><span>下一模型版本</span><b id="nextModel">v3.3.0（拟发布）</b><span>来源单位</span><b id="unitCount">4
+                家</b><span>总图片数</span><b id="totalImages">21,120 张</b><span>已标注图片</span><b id="annotatedImages">20,840
+                张</b><span>未标注图片</span><b id="pendingImages">280 张</b><span>标注进度</span><b class="progress-line"
+                id="progressText"><i></i>99%</b><span>计划训练时间</span><b id="trainingPlan">2026-08-25
+                02:00</b><span>训练任务</span><b id="trainingTask"><a class="link"
+                  href="算力算法调度管理-训练任务管理.html">TRAIN-202608-012</a></b></div>
+          </div>
+          <div class="section">
+            <h2 class="section-title">单位维度统计 </h2>
+            <div class="table-wrap">
+              <table class="unit-table">
+                <thead>
+                  <tr>
+                    <th>单位名称</th>
+                    <th>图片总数</th>
+                    <th>正样本</th>
+                    <th>负样本</th>
+                    <th>无效样本</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>鞍钢矿业公司</td>
+                    <td>5,280</td>
+                    <td>3,520</td>
+                    <td>1,280</td>
+                    <td>480</td>
+                  </tr>
+                  <tr>
+                    <td>矿业事业部</td>
+                    <td>3,420</td>
+                    <td>2,210</td>
+                    <td>780</td>
+                    <td>430</td>
+                  </tr>
+                  <tr>
+                    <td>安全环保部</td>
+                    <td>2,150</td>
+                    <td>1,430</td>
+                    <td>420</td>
+                    <td>300</td>
+                  </tr>
+                  <tr>
+                    <td>生产运营部</td>
+                    <td>1,790</td>
+                    <td>1,090</td>
+                    <td>340</td>
+                    <td>360</td>
+                  </tr>
+                  <tr>
+                    <td>信息管理部</td>
+                    <td>720</td>
+                    <td>430</td>
+                    <td>160</td>
+                    <td>130</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+             <div class="section">
+            <h2 class="section-title">算法维度统计 </h2>
+            <div class="table-wrap">
+              <table class="unit-table">
+                <thead>
+                  <tr>
+                    <th>算法名称</th>
+                    <th>图片总数</th>
+                    <th>正样本</th>
+                    <th>负样本</th>
+                    <th>无效样本</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>未佩戴安全帽</td>
+                    <td>5,280</td>
+                    <td>3,520</td>
+                    <td>1,280</td>
+                    <td>480</td>
+                  </tr>
+                  <tr>
+                    <td>人员入侵</td>
+                    <td>3,420</td>
+                    <td>2,210</td>
+                    <td>780</td>
+                    <td>430</td>
+                  </tr>
+                  <tr>
+                    <td>车辆逆行</td>
+                    <td>2,150</td>
+                    <td>1,430</td>
+                    <td>420</td>
+                    <td>300</td>
+                  </tr>
+                  <tr>
+                    <td>人员违规打电话</td>
+                    <td>1,790</td>
+                    <td>1,090</td>
+                    <td>340</td>
+                    <td>360</td>
+                  </tr>
+                  <tr>
+                    <td>人员离岗</td>
+                    <td>720</td>
+                    <td>430</td>
+                    <td>160</td>
+                    <td>130</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+        <section class="image-workspace">
+          <div class="workspace-head">
+            <div class="workspace-title">图片列表</div>
+            <div class="workspace-actions">
+              <button class="btn" id="exportBtn">标注图片</button>
+              <button class="btn" id="exportBtn">从隐患库导入图片</button>
+              <button class="btn" id="exportBtn">导入本地图片</button>
+              <button class="btn" id="exportBtn"><i class="fa fa-download"></i> 导出</button>
+            </div>
+          </div>
+          <div class="tabs image-tabs">
+            <button class="tab active" data-filter="all">全部（12）</button>
+            <button class="tab" data-filter="done">已标注（8）</button>
+            <button class="tab" data-filter="pending">未标注（4）</button>
+          </div>
+          <div class="image-filters"><label class="search-box"><i class="fa fa-magnifying-glass"></i><input
+                id="imageSearch" placeholder="输入图片名称"></label><select id="unitFilter">
+              <option value="all">标注单位：全部</option>
+              <option>鞍钢矿业公司</option>
+              <option>矿业事业部</option>
+              <option>安全环保部</option>
+              <option>生产运营部</option>
+              <option>信息管理部</option>
+            </select><select id="sourceTypeFilter">
+              <option value="all">数据来源：全部</option>
+              <option>视频监控</option>
+              <option>隐患库</option>
+              <option>人工上报</option>
+            </select></div>
+          <div class="image-grid" id="imageGrid"></div>
+          <div class="workspace-footer"><span id="resultCount">共 12 条</span>
+            <div class="pager-inline">
+              <button>‹</button><span>1</span><button>2</button><button>3</button><button>›</button><select>
+                <option>12 / 页</option>
+                <option>24 / 页</option>
+              </select></div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+  <div class="toast2" id="toast2"></div>
+  <script>
+    const query = new URLSearchParams(location.search), version = query.get('dataset') || 'DS-v12';
+    const profiles = {
+      'DS-v12': { name: '未佩戴安全帽数据集', status: '已训练', range: '2026-07-01 至 2026-08-24', next: 'v3.3.0（拟发布）', units: '4 家', total: '21,120 张', annotated: '20,840 张', pending: '280 张', progress: '99%', plan: '2026-08-25 02:00', task: 'TRAIN-202608-012', sources: [['齐大山选矿厂', 'AI预警-视频识别', '8,460'], ['弓长岭铁矿', '事后视频倒查', '5,320'], ['眼前山铁矿', '实时巡检上报', '4,760'], ['东鞍山分公司', '视频倒查上报', '2,580']] },
+      'DS-v8': { name: '未系安全带数据集', status: '待训练', range: '2026-08-01 至 2026-08-28', next: 'v2.5.0（拟发布）', units: '3 家', total: '15,536 张', annotated: '15,350 张', pending: '186 张', progress: '99%', plan: '2026-08-30 02:00', task: '未提交', sources: [['齐大山选矿厂', 'AI预警-视频识别', '6,820'], ['弓长岭铁矿', '事后视频倒查', '5,026'], ['东鞍山分公司', '视频倒查上报', '3,690']] },
+      'DS-v5': { name: '消防通道占用数据集', status: '待训练', range: '2026-07-15 至 2026-08-26', next: 'v1.9.0（拟发布）', units: '1 家', total: '9,553 张', annotated: '9,480 张', pending: '73 张', progress: '99%', plan: '2026-09-01 02:00', task: '未提交', sources: [['眼前山铁矿', '实时巡检上报', '9,553']] }
+    }; const profile = profiles[version] || profiles['DS-v12']; document.getElementById('pageTitle').textContent = profile.name; document.getElementById('version').textContent = version; document.getElementById('datasetStatus').innerHTML = '<em class="status ' + (profile.status === '已训练' ? 's-success' : 's-warn') + '">' + profile.status + '</em>'; document.getElementById('dataRange').textContent = profile.range; document.getElementById('nextModel').textContent = profile.next; document.getElementById('unitCount').textContent = profile.units; document.getElementById('totalImages').textContent = profile.total; document.getElementById('annotatedImages').textContent = profile.annotated; document.getElementById('pendingImages').textContent = profile.pending; document.getElementById('progressText').innerHTML = '<i></i>' + profile.progress; document.getElementById('trainingPlan').textContent = profile.plan; document.getElementById('trainingTask').innerHTML = profile.task === '未提交' ? '未提交' : '<a class="link" href="算力算法调度管理-训练任务管理.html">' + profile.task + '</a>';
+    const images = [
+      ['sample-no-helmet.jpg', 'IMG_20260824_102436.jpg', '鞍钢矿业公司', '视频监控', 'done'], ['sample-helmet.jpg', 'IMG_20260824_102439.jpg', '矿业事业部', '隐患库', 'done'], ['sample-safety-belt.jpg', 'IMG_20260823_164750.jpg', '安全环保部', '人工上报', 'done'], ['sample-normal-scene.jpg', 'IMG_20260823_164752.jpg', '生产运营部', '视频监控', 'pending'],
+      ['sample-no-helmet.jpg', 'IMG_20260822_134810.jpg', '鞍钢矿业公司', '视频监控', 'done'], ['sample-helmet.jpg', 'IMG_20260822_134812.jpg', '矿业事业部', '隐患库', 'done'], ['sample-safety-belt.jpg', 'IMG_20260821_134828.jpg', '安全环保部', '人工上报', 'done'], ['sample-normal-scene.jpg', 'IMG_20260821_134831.jpg', '信息管理部', '视频监控', 'pending'],
+      ['sample-no-helmet.jpg', 'IMG_20260820_134913.jpg', '鞍钢矿业公司', '隐患库', 'done'], ['sample-blocked-passage.jpg', 'IMG_20260820_135033.jpg', '矿业事业部', '人工上报', 'pending'], ['sample-fire.jpg', 'IMG_20260819_095416.jpg', '安全环保部', '视频监控', 'done'], ['sample-normal-scene.jpg', 'IMG_20260819_095421.jpg', '生产运营部', '隐患库', 'pending']
+    ]; let active = 'all'; const grid = document.getElementById('imageGrid'), search = document.getElementById('imageSearch'), unitFilter = document.getElementById('unitFilter'), sourceTypeFilter = document.getElementById('sourceTypeFilter');
+    function updateTabCounts() { document.querySelector('[data-filter="all"]').textContent = '全部（' + images.length + '）'; document.querySelector('[data-filter="done"]').textContent = '已标注（' + images.filter(x => x[4] === 'done').length + '）'; document.querySelector('[data-filter="pending"]').textContent = '未标注（' + images.filter(x => x[4] === 'pending').length + '）' }
+    function renderImages() { const term = search.value.trim(), unit = unitFilter.value, sourceType = sourceTypeFilter.value; const rows = images.filter(x => (active === 'all' || x[4] === active) && (!term || x[1].includes(term)) && (unit === 'all' || x[2] === unit) && (sourceType === 'all' || x[3] === sourceType)); grid.innerHTML = rows.map(x => `<article class="image-card" data-state="${x[4]}" data-name="${x[1]}"><div class="image-box"><img src="${x[0]}" alt="${x[1]}"><span class="image-state ${x[4] === 'pending' ? 'pending' : ''}">${x[4] === 'done' ? '已标注' : '未标注'}</span>${x[4] === 'done' ? '<span class="mark-name">未佩戴安全帽</span><span class="mark-box"></span>' : ''}</div><div class="image-name" title="${x[1]}">${x[1]}</div><div class="image-meta"><span>标注单位：${x[2]}</span><span>数据来源：${x[3]}</span></div></article>`).join(''); document.getElementById('resultCount').textContent = '共 ' + rows.length + ' 条'; grid.querySelectorAll('.image-card').forEach(card => card.onclick = () => { if (card.dataset.state === 'pending') location.href = '人工标注工作台.html?dataset=' + encodeURIComponent(version); else { grid.querySelectorAll('.image-card').forEach(x => x.classList.remove('selected')); card.classList.add('selected') } }) }
+    document.querySelectorAll('.tab').forEach(tab => tab.onclick = () => { document.querySelectorAll('.tab').forEach(x => x.classList.remove('active')); tab.classList.add('active'); active = tab.dataset.filter; renderImages() }); search.oninput = renderImages; unitFilter.onchange = renderImages; sourceTypeFilter.onchange = renderImages; updateTabCounts(); renderImages();
+    document.getElementById('exportBtn').onclick = () => showToast('数据集图片清单已生成'); function showToast(t) { const el = document.getElementById('toast2'); el.textContent = t; el.style.display = 'block'; setTimeout(() => el.style.display = 'none', 1800) }
+  </script>
+  <script src="navigation.js"></script>
+</body>
+
+</html>

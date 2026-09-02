@@ -1,55 +1,334 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
-  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>AI智能分析 / 算法精准度分析</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
-  <script>tailwind.config={theme:{extend:{colors:{primary:'#2563EB',pageBg:'#F8FAFC',borderLine:'#E2E8F0',textMain:'#1E293B',textSub:'#64748B',textLight:'#94A3B8'}}}};</script>
-  <style type="text/tailwindcss">@layer utilities{.scrollbar-thin::-webkit-scrollbar{width:4px}.scrollbar-thin::-webkit-scrollbar-thumb{background:#CBD5E1;border-radius:4px}.table-row:hover{background:#F8FAFC}}</style>
+  <script>tailwind.config = { theme: { extend: { colors: { primary: '#2563EB', pageBg: '#F8FAFC', borderLine: '#E2E8F0', textMain: '#1E293B', textSub: '#64748B', textLight: '#94A3B8' } } } };</script>
+  <style type="text/tailwindcss">
+    @layer utilities{.scrollbar-thin::-webkit-scrollbar{width:4px}.scrollbar-thin::-webkit-scrollbar-thumb{background:#CBD5E1;border-radius:4px}.table-row:hover{background:#F8FAFC}}
+  </style>
+  <style>
+    .expand-btn {
+      width: 24px;
+      height: 24px;
+      border: 1px solid #dbeafe;
+      border-radius: 6px;
+      background: #eff6ff;
+      color: #2563eb;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 8px;
+      cursor: pointer;
+      transition: .16s
+    }
+
+    .expand-btn:hover {
+      border-color: #2563eb;
+      background: #dbeafe
+    }
+
+    .expand-btn.open i {
+      transform: rotate(90deg)
+    }
+
+    .expand-btn i {
+      transition: .16s
+    }
+
+    .unit-dashboard {
+      background: #f8fbff;
+      border-top: 1px solid #e2e8f0
+    }
+
+    .unit-dashboard-inner {
+      display: grid;
+      grid-template-columns: minmax(760px, 1fr) 320px;
+      gap: 14px;
+      padding: 16px 20px
+    }
+
+    .unit-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 6px 18px rgba(15, 23, 42, .04)
+    }
+
+    .unit-card-head {
+      padding: 14px 16px;
+      border-bottom: 1px solid #e2e8f0;
+      font-weight: 700;
+      color: #1e293b
+    }
+
+    .unit-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px
+    }
+
+    .unit-table th {
+      background: #f8fafc;
+      color: #64748b;
+      font-weight: 600;
+      text-align: left;
+      padding: 10px 12px;
+      border-bottom: 1px solid #e2e8f0;
+      white-space: nowrap
+    }
+
+    .unit-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #eef2f7;
+      color: #475569;
+      white-space: nowrap
+    }
+
+    .rank-medal {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      border-radius: 999px;
+      background: #e2e8f0;
+      color: #64748b;
+      font-weight: 700
+    }
+
+    .rank-medal.top1 {
+      background: #fbbf24;
+      color: #fff
+    }
+
+    .rank-medal.top2 {
+      background: #cbd5e1;
+      color: #fff
+    }
+
+    .rank-medal.top3 {
+      background: #d97706;
+      color: #fff
+    }
+
+    .trend-mini {
+      width: 86px;
+      height: 24px
+    }
+
+    .side-stack {
+      display: grid;
+      gap: 14px
+    }
+
+    .donut-wrap {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: 16px
+    }
+
+    .donut {
+      width: 118px;
+      height: 118px;
+      border-radius: 50%;
+      background: conic-gradient(#10b981 0 27%, #3b82f6 27% 63%, #8b5cf6 63% 86%, #f97316 86% 100%);
+      position: relative;
+      flex: 0 0 auto
+    }
+
+    .donut:after {
+      content: "";
+      position: absolute;
+      inset: 29px;
+      background: #fff;
+      border-radius: 50%
+    }
+
+    .donut-center {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1;
+      font-size: 12px;
+      color: #64748b
+    }
+
+    .donut-center b {
+      font-size: 22px;
+      color: #1e293b
+    }
+
+    .legend-list {
+      display: grid;
+      gap: 8px;
+      font-size: 12px;
+      color: #475569
+    }
+
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      display: inline-block;
+      margin-right: 6px
+    }
+
+    .state-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      padding: 16px
+    }
+
+    .state-box {
+      border-radius: 8px;
+      padding: 12px 6px;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 700
+    }
+
+    .state-box b {
+      display: block;
+      font-size: 24px;
+      margin-top: 6px
+    }
+
+    @media(max-width:1200px) {
+      .unit-dashboard-inner {
+        grid-template-columns: 1fr
+      }
+
+      .side-stack {
+        grid-template-columns: 1fr 1fr
+      }
+    }
+  </style>
 </head>
+
 <body class="bg-pageBg h-screen overflow-hidden text-textMain">
-<div class="flex h-full"><aside></aside><div class="flex flex-col overflow-hidden w-[calc(100%-240px)] ml-[240px]">
-  <header class="h-14 bg-white border-b border-borderLine flex items-center justify-between px-5 shrink-0">
-    <div class="flex items-center gap-4"><button class="text-textSub"><i class="fa fa-bars"></i></button><div class="text-sm"><span class="text-textSub">AI智能分析</span><span class="mx-2 text-textLight">/</span><span class="font-medium">算法精准度分析</span></div></div>
-    <div class="flex items-center gap-5"><button class="relative text-textSub"><i class="fa fa-bell-o text-lg"></i><span class="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center">11</span></button><div class="flex items-center gap-2"><div class="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center text-sm">张</div><div class="text-sm"><div class="font-medium">张安全</div><div class="text-[11px] text-textSub">安全环保部·管理员</div></div></div></div>
-  </header>
-  <main class="flex-1 overflow-y-auto scrollbar-thin p-5">
-    <section class="bg-white border border-borderLine rounded-xl p-5 mb-4 flex items-center justify-between">
-      <div><h1 class="text-lg font-semibold">算法综合列表</h1><p class="text-xs text-textSub mt-1.5">汇总当前使用的算法及其最新版本，精准度为各单位最新有效精准度的简单平均值。</p></div>
-      <div class="min-w-[190px] rounded-xl bg-blue-50 border border-blue-100 px-5 py-4 flex items-center gap-4"><div class="w-11 h-11 rounded-lg bg-primary text-white flex items-center justify-center"><i class="fa fa-cubes text-lg"></i></div><div><div class="text-xs text-textSub">算法总数</div><div class="text-2xl font-bold mt-0.5"><span id="algorithmCount">0</span><span class="text-sm font-normal text-textSub ml-1">种</span></div></div></div>
-    </section>
-    <section class="bg-white border border-borderLine rounded-xl overflow-hidden">
-      <div class="px-5 py-4 border-b border-borderLine flex justify-between items-center"><div><span class="font-medium text-sm">算法列表</span><span id="listCount" class="text-xs text-textSub ml-2"></span></div><div class="flex items-center gap-3"><div class="text-xs text-textSub"><i class="fa fa-info-circle mr-1 text-primary"></i>综合精准度保留两位小数</div><button id="importAlgorithmButton" class="px-3 py-1.5 rounded-md bg-primary text-white text-xs hover:opacity-90"><i class="fa fa-upload mr-1"></i>导入</button><input id="algorithmImportInput" type="file" accept=".xlsx,.xls,.csv" class="hidden"></div></div>
-      <div class="overflow-x-auto"><table class="w-full text-xs"><thead class="bg-slate-50 text-textSub"><tr><th class="px-5 py-3 text-center font-medium w-16">序号</th><th class="px-5 py-3 text-left font-medium">算法名称</th><th class="px-5 py-3 text-left font-medium">算法类型</th><th class="px-5 py-3 text-center font-medium">当前版本</th><th class="px-5 py-3 text-center font-medium">综合精准度</th><th class="px-5 py-3 text-center font-medium">更新时间</th><th class="px-5 py-3 text-center font-medium w-20">操作</th></tr></thead><tbody id="algorithmTable"></tbody></table></div>
-      <div class="px-5 py-4 border-t border-borderLine flex items-center justify-between"><span id="pageSummary" class="text-xs text-textSub"></span><div id="pagination" class="flex gap-2"></div></div>
-    </section>
-  </main>
-</div></div>
-<script>
-const algorithms=[
-['ALG-20240401-001','动火作业识别','安全生产','v3.2.1',[92.34,93.18,91.72,92.68],'运行中','2026-08-18 10:30'],
-['ALG-20240312-006','未佩戴安全帽识别','人员行为','v2.8.0',[95.41,94.86,96.02,95.37],'运行中','2026-08-18 09:16'],
-['ALG-20240508-012','高处作业未系安全带','人员行为','v2.3.4',[91.28,90.74,92.16,91.05],'运行中','2026-08-17 16:42'],
-['ALG-20240126-003','烟火识别','环境设施','v4.1.2',[94.63,93.88,94.11,95.02],'运行中','2026-08-17 14:20'],
-['ALG-20240618-021','人员闯入危险区域','人员行为','v1.9.3',[89.72,90.18,88.96,89.43],'运行中','2026-08-16 11:05'],
-['ALG-20240205-008','通道堵塞识别','环境设施','v2.1.0',[88.24,87.95,88.61,null],'运行中','2026-08-15 17:36'],
-['ALG-20240702-025','人员倒地识别','人员行为','v1.5.2',[90.62,91.04,89.77,90.31],'运行中','2026-08-15 13:10'],
-['ALG-20240521-016','违规跨越设备识别','安全生产','v1.6.0',[86.92,87.36,86.48,null],'已停用','2026-08-12 08:45'],
-['ALG-20240328-010','抽烟行为识别','人员行为','v2.4.1',[87.64,88.12,87.31,86.95],'运行中','2026-08-11 15:24'],
-['ALG-20240603-019','配电柜未关闭识别','环境设施','v1.3.5',[85.71,86.08,84.92,null],'运行中','2026-08-10 10:18'],
-['ALG-20240416-014','打电话行为识别','人员行为','v2.0.3',[84.93,85.41,85.08,84.72],'运行中','2026-08-09 18:02'],
-['ALG-20240719-029','违规堆物识别','环境设施','v1.1.0',[82.48,83.16,82.92,null],'调试中','2026-08-08 09:40']
-].map(([code,name,type,version,values,status,updated])=>({code,name,type,version,values,status,updated}));
-const average=values=>{const valid=values.filter(Number.isFinite);return valid.length?valid.reduce((sum,value)=>sum+value,0)/valid.length:null};
-const pageSize=8;let currentPage=1;
-function render(){const pages=Math.ceil(algorithms.length/pageSize),start=(currentPage-1)*pageSize,rows=algorithms.slice(start,start+pageSize);
-document.getElementById('algorithmCount').textContent=algorithms.length;document.getElementById('listCount').textContent=`（共 ${algorithms.length} 种）`;
-document.getElementById('algorithmTable').innerHTML=rows.map((item,index)=>{const precision=average(item.values);return `<tr class="table-row border-t border-borderLine first:border-t-0"><td class="px-5 py-4 text-center text-textSub">${start+index+1}</td><td class="px-5 py-4"><div class="font-medium">${item.name}</div><div class="text-[11px] text-textLight mt-1">${item.code}</div></td><td class="px-5 py-4 text-textSub">${item.type}</td><td class="px-5 py-4 text-center font-medium">${item.version}</td><td class="px-5 py-4 text-center"><span class="text-primary font-semibold text-sm">${precision===null?'--':precision.toFixed(2)+'%'}</span></td><td class="px-5 py-4 text-center text-textSub">${item.updated}</td><td class="px-5 py-4 text-center"><a class="text-primary hover:underline" href="算法精准度分析.html?algorithm=${encodeURIComponent(item.code)}">查看</a></td></tr>`}).join('');
-document.getElementById('pageSummary').textContent=`第 ${start+1}-${Math.min(start+pageSize,algorithms.length)} 条，共 ${algorithms.length} 条`;document.getElementById('pagination').innerHTML=Array.from({length:pages},(_,i)=>`<button data-page="${i+1}" class="w-8 h-8 rounded-md text-xs border ${currentPage===i+1?'bg-primary border-primary text-white':'bg-white border-borderLine text-textSub hover:border-primary'}">${i+1}</button>`).join('');document.querySelectorAll('[data-page]').forEach(button=>button.onclick=()=>{currentPage=Number(button.dataset.page);render()})}render();
-const importButton=document.getElementById('importAlgorithmButton'),importInput=document.getElementById('algorithmImportInput');
-importButton.onclick=()=>importInput.click();
-importInput.onchange=()=>{if(!importInput.files.length)return;const toast=document.createElement('div');toast.className='fixed top-20 right-6 z-50 bg-emerald-500 text-white px-4 py-2.5 rounded-lg shadow-lg text-sm';toast.innerHTML='<i class="fa fa-check-circle mr-2"></i>算法数据导入成功';document.body.appendChild(toast);setTimeout(()=>toast.remove(),2000);importInput.value=''};
-</script>
-<script src="navigation.js?v=20260819-2"></script>
-</body></html>
+  <div class="flex h-full">
+    <aside></aside>
+    <div class="flex flex-col overflow-hidden w-[calc(100%-240px)] ml-[240px]">
+      <header class="h-14 bg-white border-b border-borderLine flex items-center justify-between px-5 shrink-0">
+        <div class="flex items-center gap-4"><button class="text-textSub"><i class="fa fa-bars"></i></button>
+          <div class="text-sm"><span class="text-textSub">AI智能分析</span><span class="mx-2 text-textLight">/</span><span
+              class="font-medium">算法精准度分析</span></div>
+        </div>
+        <div class="flex items-center gap-5"><button class="relative text-textSub"><i
+              class="fa fa-bell-o text-lg"></i><span
+              class="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center">11</span></button>
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center text-sm">张</div>
+            <div class="text-sm">
+              <div class="font-medium">张安全</div>
+              <div class="text-[11px] text-textSub">安全环保部·管理员</div>
+            </div>
+          </div>
+        </div>
+      </header>
+      <main class="flex-1 overflow-y-auto scrollbar-thin p-5">
+        <section class="bg-white border border-borderLine rounded-xl p-5 mb-4 flex items-center justify-between">
+          <div>
+            <h1 class="text-lg font-semibold">算法运行效果总览</h1>
+            <p class="text-xs text-textSub mt-1.5">各单位的实际运行效果；用于发现精准度或误报率偏低的单位与场景，并回流问题样本至统一数据集。</p>
+          </div>
+          <div class="min-w-[190px] rounded-xl bg-blue-50 border border-blue-100 px-5 py-4 flex items-center gap-4">
+            <div class="w-11 h-11 rounded-lg bg-primary text-white flex items-center justify-center"><i
+                class="fa fa-cubes text-lg"></i></div>
+            <div>
+              <div class="text-xs text-textSub">算法总数</div>
+              <div class="text-2xl font-bold mt-0.5"><span id="algorithmCount">0</span><span
+                  class="text-sm font-normal text-textSub ml-1">种</span></div>
+            </div>
+          </div>
+        </section>
+        <section class="bg-white border border-borderLine rounded-xl overflow-hidden">
+          <div class="px-5 py-4 border-b border-borderLine flex justify-between items-center">
+            <div><span class="font-medium text-sm">综合算法列表</span><span id="listCount"
+                class="text-xs text-textSub ml-2"></span></div>
+            <div class="flex items-center gap-3">
+              <div class="text-xs text-textSub"><i
+                  class="fa fa-info-circle mr-1 text-primary"></i>进入详情可查看各单位精准度、误报率趋势与问题场景</div><button
+                id="importAlgorithmButton"
+                class="px-3 py-1.5 rounded-md bg-primary text-white text-xs hover:opacity-90"><i
+                  class="fa fa-upload mr-1"></i>导入</button><input id="algorithmImportInput" type="file"
+                accept=".xlsx,.xls,.csv" class="hidden">
+            </div>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-xs">
+              <thead class="bg-slate-50 text-textSub">
+                <tr>
+                  <th class="px-5 py-3 text-center font-medium w-16">序号</th>
+                  <th class="px-5 py-3 text-left font-medium min-w-[260px]">算法名称 / 版本</th>
+                  <th class="px-5 py-3 text-left font-medium">算法类型</th>
+                  <th class="px-5 py-3 text-center font-medium">综合精准度</th>
+                  <th class="px-5 py-3 text-center font-medium">综合误报率</th>
+                  <th class="px-5 py-3 text-center font-medium">精准度最高三位</th>
+                  <th class="px-5 py-3 text-center font-medium">误报率最高单位</th>
+                  <th class="px-5 py-3 text-center font-medium">更新时间</th>
+                  <!-- <th class="px-5 py-3 text-center font-medium w-20">操作</th> -->
+                </tr>
+              </thead>
+              <tbody id="algorithmTable"></tbody>
+            </table>
+          </div>
+          <div class="px-5 py-4 border-t border-borderLine flex items-center justify-between"><span id="pageSummary"
+              class="text-xs text-textSub"></span>
+            <div id="pagination" class="flex gap-2"></div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+  <script>
+    const algorithms = [
+      ['ALG-20240401-001', '动火作业识别', '安全生产', 'v3.2.1', [92.34, 93.18, 91.72, 92.68], '运行中', '2026-08-18 10:30'],
+      ['ALG-20240312-006', '未佩戴安全帽识别', '人员行为', 'v2.8.0', [95.41, 94.86, 96.02, 95.37], '运行中', '2026-08-18 09:16'],
+      ['ALG-20240508-012', '高处作业未系安全带', '人员行为', 'v2.3.4', [91.28, 90.74, 92.16, 91.05], '运行中', '2026-08-17 16:42'],
+      ['ALG-20240126-003', '烟火识别', '环境设施', 'v4.1.2', [94.63, 93.88, 94.11, 95.02], '运行中', '2026-08-17 14:20'],
+      ['ALG-20240618-021', '人员闯入危险区域', '人员行为', 'v1.9.3', [89.72, 90.18, 88.96, 89.43], '运行中', '2026-08-16 11:05'],
+      ['ALG-20240205-008', '通道堵塞识别', '环境设施', 'v2.1.0', [88.24, 87.95, 88.61, null], '运行中', '2026-08-15 17:36'],
+      ['ALG-20240702-025', '人员倒地识别', '人员行为', 'v1.5.2', [90.62, 91.04, 89.77, 90.31], '运行中', '2026-08-15 13:10'],
+      ['ALG-20240521-016', '违规跨越设备识别', '安全生产', 'v1.6.0', [86.92, 87.36, 86.48, null], '已停用', '2026-08-12 08:45'],
+      ['ALG-20240328-010', '抽烟行为识别', '人员行为', 'v2.4.1', [87.64, 88.12, 87.31, 86.95], '运行中', '2026-08-11 15:24'],
+      ['ALG-20240603-019', '配电柜未关闭识别', '环境设施', 'v1.3.5', [85.71, 86.08, 84.92, null], '运行中', '2026-08-10 10:18'],
+      ['ALG-20240416-014', '打电话行为识别', '人员行为', 'v2.0.3', [84.93, 85.41, 85.08, 84.72], '运行中', '2026-08-09 18:02'],
+      ['ALG-20240719-029', '违规堆物识别', '环境设施', 'v1.1.0', [82.48, 83.16, 82.92, null], '调试中', '2026-08-08 09:40']
+    ].map(([code, name, type, version, values, status, updated]) => ({ code, name, type, version, values, status, updated }));
+    const average = values => { const valid = values.filter(Number.isFinite); return valid.length ? valid.reduce((sum, value) => sum + value, 0) / valid.length : null };
+    const units = ['齐大山选矿厂', '弓长岭铁矿', '眼前山铁矿', '东鞍山分公司', '某某选矿厂', '矿业检修中心', '尾矿运维中心', '能源动力厂'];
+    const pageSize = 8; let currentPage = 1, expandedCode = algorithms[0].code;
+    const falseRateFor = (precision, offset = 0) => precision === null ? null : Math.max(1.2, (100 - precision) * .52 + offset);
+    const trendSvg = (values, color = '#2563eb') => { const valid = values.filter(Number.isFinite), min = Math.min(...valid) - .6, max = Math.max(...valid) + .6, points = values.map((value, index) => { const x = 8 + index * 14, y = 20 - ((value - min) / (max - min)) * 16; return `${x},${y}` }).join(' '); return `<svg class="trend-mini" viewBox="0 0 92 28" aria-hidden="true"><polyline points="${points}" fill="none" stroke="${color}" stroke-width="2"/><g>${values.map((value, index) => { const x = 8 + index * 14, y = 20 - ((value - min) / (max - min)) * 16; return `<circle cx="${x}" cy="${y}" r="2" fill="${color}"/>` }).join('')}</g></svg>` };
+    function unitRows(item) { const base = average(item.values) || 88; return units.map((name, index) => { const precision = Math.max(80, Math.min(98, base + 3.7 - index * 1.85 + ((index % 3) - 1) * .42)); const falseRate = falseRateFor(precision, (index % 4) * .18); const checked = Math.round(2486 - index * 246 - (100 - precision) * 18); const reviewed = Math.round(checked * (.86 - index * .012)); const improve = index < 2 ? 1.78 - index * .46 : index === 4 ? -0.18 : Math.max(.24, 1.1 - index * .09); const status = precision >= 95 ? '正常' : precision >= 90 ? '需关注' : precision >= 85 ? '需优化' : '异常'; return { rank: index + 1, name, precision, falseRate, checked, reviewed, improve, status, trend: [precision - .7, precision - .25, precision - .52, precision + .15, precision + .38, precision + .31] } }) }
+    function bestUnits(item) { return unitRows(item).slice().sort((a, b) => b.precision - a.precision).slice(0, 3) }
+    function worstFalseUnit(item) { return unitRows(item).slice().sort((a, b) => b.falseRate - a.falseRate)[0] }
+    function statusClass(status) { return status === '正常' ? 'bg-emerald-50 text-emerald-600' : status === '需关注' ? 'bg-orange-50 text-orange-500' : status === '需优化' ? 'bg-red-50 text-red-500' : 'bg-rose-50 text-rose-600' }
+    function expandedPanel(item) { const rows = unitRows(item), state = { normal: rows.filter(x => x.status === '正常').length, attention: rows.filter(x => x.status === '需关注').length, optimize: rows.filter(x => x.status === '需优化').length, abnormal: rows.filter(x => x.status === '异常').length }; return `<tr class="unit-dashboard"><td colspan="9"><div class="unit-dashboard-inner"><div class="unit-card"><div class="unit-card-head">各单位运行效果总览 <span class="text-textSub font-normal">（${rows.length}）</span></div><table class="unit-table"><thead><tr><th>排名</th><th>单位名称</th><th>精准度</th><th>较上周期</th><th>误报率</th><th>预警数</th><th>已复核数</th><th>提升幅度</th><th>状态</th><th>趋势</th><th>操作</th></tr></thead><tbody>${rows.map(row => `<tr><td><span class="rank-medal ${row.rank < 4 ? 'top' + row.rank : ''}">${row.rank}</span></td><td class="font-medium text-textMain">${row.name}</td><td class="text-primary font-semibold">${row.precision.toFixed(2)}%</td><td class="${row.rank < 3 ? 'text-emerald-500' : 'text-red-500'}">${row.rank < 3 ? '↑' : '↓'} ${(row.rank < 3 ? 1.89 - row.rank * .33 : .42 + row.rank * .11).toFixed(2)}%</td><td class="${row.falseRate > 5 ? 'text-red-500' : 'text-primary'} font-medium">${row.falseRate.toFixed(2)}%</td><td>${row.checked.toLocaleString()}</td><td>${row.reviewed.toLocaleString()}</td><td class="${row.improve < 0 ? 'text-emerald-500' : 'text-emerald-500'}">${row.improve < 0 ? '↓' : '↑'} ${Math.abs(row.improve).toFixed(2)}%</td><td><span class="px-2 py-1 rounded-full ${statusClass(row.status)}">${row.status}</span></td><td>${trendSvg(row.trend, row.status === '正常' ? '#10b981' : row.status === '需关注' ? '#f97316' : '#ef4444')}</td><td><a class="text-primary hover:underline" href="算法精准度分析.html?algorithm=${encodeURIComponent(item.code)}&unit=${encodeURIComponent(row.name)}">查看分析 <i class="fa fa-angle-right"></i></a></td></tr>`).join('')}</tbody></table></div><div class="side-stack"><div class="unit-card"><div class="unit-card-head">单位效果分布</div><div class="donut-wrap"><div class="donut"><div class="donut-center"><b>${rows.length}</b><span>单位总数</span></div></div><div class="legend-list"><div><span class="legend-dot" style="background:#10b981"></span>优秀（精准度 ≥95%） ${rows.filter(x => x.precision >= 95).length} 个</div><div><span class="legend-dot" style="background:#3b82f6"></span>良好（90%-95%） ${rows.filter(x => x.precision < 95 && x.precision >= 90).length} 个</div><div><span class="legend-dot" style="background:#8b5cf6"></span>一般（85%-90%） ${rows.filter(x => x.precision < 90 && x.precision >= 85).length} 个</div><div><span class="legend-dot" style="background:#f97316"></span>较差（<85%） ${rows.filter(x => x.precision < 85).length} 个</div></div></div></div><div class="unit-card"><div class="unit-card-head">状态统计</div><div class="state-grid"><div class="state-box bg-emerald-50 text-emerald-600">正常<b>${state.normal}</b></div><div class="state-box bg-orange-50 text-orange-500">需关注<b>${state.attention}</b></div><div class="state-box bg-red-50 text-red-500">需优化<b>${state.optimize}</b></div><div class="state-box bg-rose-50 text-rose-600">异常<b>${state.abnormal}</b></div></div></div></div></div></td></tr>` }
+    function render() {
+      const pages = Math.ceil(algorithms.length / pageSize), start = (currentPage - 1) * pageSize, rows = algorithms.slice(start, start + pageSize);
+      document.getElementById('algorithmCount').textContent = algorithms.length; document.getElementById('listCount').textContent = `（共 ${algorithms.length} 种）`;
+      document.getElementById('algorithmTable').innerHTML = rows.map((item, index) => { const precision = average(item.values), falseRate = falseRateFor(precision), topThree = bestUnits(item), falseUnit = worstFalseUnit(item), isOpen = expandedCode === item.code, mainRow = `<tr class="table-row border-t border-borderLine first:border-t-0"><td class="px-5 py-4 text-center text-textSub">${start + index + 1}</td><td class="px-5 py-4"><div class="flex items-start"><button class="expand-btn ${isOpen ? 'open' : ''}" data-expand="${item.code}" title="展开各单位趋势分析"><i class="fa fa-angle-right"></i></button><div><div class="font-medium">${item.name} <span class="ml-1 text-textSub font-normal">${item.version}</span></div><div class="text-[11px] text-textLight mt-1">${item.code}</div></div></div></td><td class="px-5 py-4 text-textSub">${item.type}</td><td class="px-5 py-4 text-center"><span class="text-primary font-semibold text-sm">${precision === null ? '--' : precision.toFixed(2) + '%'}</span></td><td class="px-5 py-4 text-center ${falseRate > 5 ? 'text-red-500' : 'text-emerald-600'} font-medium">${falseRate === null ? '--' : falseRate.toFixed(2) + '%'}</td><td class="px-5 py-4 text-center">${topThree.map(unit => `<div class="leading-5"><span class="text-textMain">${unit.name}</span> <b class="text-primary">${unit.precision.toFixed(2)}%</b></div>`).join('')}</td><td class="px-5 py-4 text-center"><span class="text-amber-600">${falseUnit.name}</span><div class="${falseUnit.falseRate > 5 ? 'text-red-500' : 'text-emerald-600'} font-semibold mt-1">${falseUnit.falseRate.toFixed(2)}%</div></td><td class="px-5 py-4 text-center text-textSub">${item.updated}</td><td class="px-5 py-4 text-center"><a class="text-primary hover:underline" href="算法精准度分析.html?algorithm=${encodeURIComponent(item.code)}"></a></td></tr>`; return mainRow + (isOpen ? expandedPanel(item) : '') }).join('');
+      document.querySelectorAll('[data-expand]').forEach(button => button.onclick = () => { expandedCode = expandedCode === button.dataset.expand ? '' : button.dataset.expand; render() });
+      document.getElementById('pageSummary').textContent = `第 ${start + 1}-${Math.min(start + pageSize, algorithms.length)} 条，共 ${algorithms.length} 条`; document.getElementById('pagination').innerHTML = Array.from({ length: pages }, (_, i) => `<button data-page="${i + 1}" class="w-8 h-8 rounded-md text-xs border ${currentPage === i + 1 ? 'bg-primary border-primary text-white' : 'bg-white border-borderLine text-textSub hover:border-primary'}">${i + 1}</button>`).join(''); document.querySelectorAll('[data-page]').forEach(button => button.onclick = () => { currentPage = Number(button.dataset.page); render() })
+    } render();
+    const importButton = document.getElementById('importAlgorithmButton'), importInput = document.getElementById('algorithmImportInput');
+    importButton.onclick = () => importInput.click();
+    importInput.onchange = () => { if (!importInput.files.length) return; const toast = document.createElement('div'); toast.className = 'fixed top-20 right-6 z-50 bg-emerald-500 text-white px-4 py-2.5 rounded-lg shadow-lg text-sm'; toast.innerHTML = '<i class="fa fa-check-circle mr-2"></i>算法数据导入成功'; document.body.appendChild(toast); setTimeout(() => toast.remove(), 2000); importInput.value = '' };
+  </script>
+  <script src="navigation.js?v=20260819-2"></script>
+</body>
+
+</html>

@@ -6,6 +6,18 @@
   <title>算力算法调度管理 - 样本与数据集</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="算力算法调度平台.css">
+  <style>
+    .import-dropdown { position: relative; display: inline-flex; vertical-align: middle }
+    .import-trigger { height: 28px !important; margin: 0 !important; padding: 0 9px !important; border: 1px solid #bfdbfe !important; border-radius: 5px !important; background: #eff6ff !important; color: #1d4ed8 !important; font-size: 12px !important; font-weight: 600 !important; line-height: 26px }
+    .import-trigger:hover { border-color: #2563eb !important; background: #dbeafe !important }
+    .import-trigger i { margin-left: 3px }
+    .import-menu { position: absolute; right: 0; top: calc(100% + 6px); z-index: 100; display: none; min-width: 150px; padding: 5px 0; background: #fff; border: 1px solid #dbe4ef; border-radius: 7px; box-shadow: 0 10px 24px rgba(15,23,42,.18) }
+    .import-menu.open { display: block }
+    .import-menu button { display: flex !important; align-items: center; gap: 8px; width: 100%; height: 32px; border: 0; background: #fff; padding: 0 12px; text-align: left; color: #334155; cursor: pointer; font: 12px "Microsoft YaHei", sans-serif; white-space: nowrap }
+    .import-menu button + button { border-top: 1px solid #edf1f5 }
+    .import-menu button:hover { background: #eff6ff; color: #1d4ed8 }
+    .import-menu button i { width: 14px; margin: 0; text-align: center; color: #2563eb }
+  </style>
 </head>
 <body data-module="datasets">
   <div class="platform-shell"><div id="moduleRoot"></div></div>

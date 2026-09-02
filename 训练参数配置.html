@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>训练管理 - 训练参数配置</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="算力算法调度平台.css">
+  <style>
+    .config-layout {
+      width: 100%;
+      max-width: none
+    }
+
+    .config-layout section {
+      width: 100%
+    }
+
+    .config-nav {
+      background: #0f244e;
+      border-radius: 10px;
+      color: #fff;
+      padding: 22px
+    }
+
+    .config-nav h2 {
+      font-size: 17px;
+      margin: 0 0 9px
+    }
+
+    .config-nav p {
+      font-size: 12px;
+      line-height: 1.7;
+      color: #b7cbea;
+      margin: 0
+    }
+
+    .flow-line {
+      margin-top: 24px;
+      border-left: 1px solid #5073b4;
+      padding-left: 18px
+    }
+
+    .flow-line div {
+      position: relative;
+      margin: 0 0 20px;
+      font-size: 13px
+    }
+
+    .flow-line div:before {
+      content: "";
+      position: absolute;
+      width: 9px;
+      height: 9px;
+      border: 2px solid #82a9ef;
+      border-radius: 50%;
+      background: #0f244e;
+      left: -24px;
+      top: 2px
+    }
+
+    .flow-line small {
+      display: block;
+      color: #a8bedf;
+      font-size: 11px;
+      margin-top: 4px
+    }
+
+    .setting {
+      padding: 20px
+    }
+
+    .setting-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px
+    }
+
+    .setting h2 {
+      font-size: 16px;
+      margin: 0 0 6px
+    }
+
+    .setting p {
+      color: var(--sub);
+      font-size: 13px;
+      line-height: 1.7;
+      margin: 0
+    }
+
+    .switch {
+      appearance: none;
+      width: 46px;
+      height: 25px;
+      border-radius: 20px;
+      background: #cbd5e1;
+      cursor: pointer;
+      position: relative;
+      flex: 0 0 auto;
+      transition: .18s
+    }
+
+    .switch:after {
+      content: "";
+      width: 19px;
+      height: 19px;
+      background: #fff;
+      border-radius: 50%;
+      position: absolute;
+      left: 3px;
+      top: 3px;
+      transition: .18s
+    }
+
+    .switch:checked {
+      background: #10b981
+    }
+
+    .switch:checked:after {
+      left: 24px
+    }
+
+    .rule-box {
+      margin-top: 17px;
+      padding: 13px 15px;
+      border-radius: 7px;
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      font-size: 12px;
+      color: #53667d;
+      line-height: 1.7
+    }
+
+    .mode {
+      display: none;
+      margin-top: 12px
+    }
+
+    .mode.show {
+      display: block
+    }
+
+    .savebar {
+      position: sticky;
+      bottom: 0;
+      background: #fff;
+      border-top: 1px solid var(--line);
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between
+    }
+
+    .toast {
+      position: fixed;
+      right: 24px;
+      top: 78px;
+      background: #0f766e;
+      color: #fff;
+      padding: 11px 16px;
+      border-radius: 6px;
+      display: none;
+      z-index: 50
+    }
+  </style>
+</head>
+
+<body>
+  <div class="platform-shell" style="margin-left:240px">
+    <header class="page-head">
+      <div>
+        <div class="crumb">训练管理 / 训练参数配置</div>
+        <h1>训练参数配置</h1>
+      </div>
+    </header>
+    <main class="page-main">
+      <div class="permission-tip"><i class="fa fa-circle-info"></i> 此页面用于设置已冻结数据集进入集团训练队列的方式。</div>
+      <div class="config-layout">
+        <section>
+          <article class="panel setting">
+            <div class="setting-top">
+              <div>
+                <h2>履职查处图片直接标注</h2>
+                <p>开启后，在业务履职查处违章/隐患时，可直接进入图片标注；关闭后，仅保留查处记录，不展示标注入口。</p>
+              </div><input id="directMarkSwitch" class="switch" type="checkbox" checked>
+            </div>
+            <div id="directMarkRule" class="rule-box">当前规则：违章/隐患查处记录可直接进入图片标注，标注结果归集至对应数据集。</div>
+          </article>
+          <article class="panel setting">
+            <div class="setting-top">
+              <div>
+                <h2>数据集自动提交训练</h2>
+                <p>开启后，符合条件且已冻结的数据集进入定时训练队列；关闭后，由管理员在“样本与数据集”中手动提交训练。</p>
+              </div><input id="autoTrainSwitch" class="switch" type="checkbox">
+            </div>
+            <div id="autoMode" class="mode"><label class="field">定时训练时间 <select id="schedule">
+                  <option>每日</option>
+                  <option>每周</option>
+                  <option>每月</option>
+                </select></label>
+              
+              
+              
+              
+              </div>
+              
+            <div id="trainRule" class="rule-box">当前规则：数据集冻结后，等待管理员手动提交训练。</div>
+          </article>
+          <article class="panel setting">
+            <div class="setting-top">
+              <div>
+                <h2>自动训练图片阈值</h2>
+                <p>当已冻结的数据集图片数量达到设定阈值后，才允许按自动训练规则进入训练队列。</p>
+              </div>
+            </div>
+            <div class="mode show"><label class="field">最小图片数 <input id="minImageCount" type="number" min="1" step="100" value="1000"> 张</label></div>
+            <div id="thresholdRule" class="rule-box">当前规则：数据集图片数量达到 1,000 张后，可自动进入训练队列。</div>
+          </article>
+          <div class="savebar"><span id="summary" class="text-xs text-textSub">配置尚未保存</span><button id="save"
+              class="btn btn-primary"><i class="fa fa-check"></i> 保存配置</button></div>
+        </section>
+      </div>
+    </main>
+  </div>
+  <div id="toast" class="toast"><i class="fa fa-check-circle"></i> 配置已保存，相关页面刷新后生效</div>
+  <script>const autoTrain = document.getElementById('autoTrainSwitch'), autoMode = document.getElementById('autoMode'), trainRule = document.getElementById('trainRule'), schedule = document.getElementById('schedule'), directMark = document.getElementById('directMarkSwitch'), directMarkRule = document.getElementById('directMarkRule'), minImageCount = document.getElementById('minImageCount'), thresholdRule = document.getElementById('thresholdRule'); autoTrain.checked = localStorage.getItem('trainingAutoSubmitEnabled') === 'true'; directMark.checked = localStorage.getItem('businessDirectMarkEnabled') !== 'false'; schedule.value = localStorage.getItem('trainingAutoSchedule') || '每日'; minImageCount.value = localStorage.getItem('trainingMinImageCount') || '1000'; function paint() { const threshold = Math.max(1, Number(minImageCount.value) || 1000).toLocaleString(); autoMode.classList.toggle('show', autoTrain.checked); trainRule.textContent = autoTrain.checked ? '当前规则：数据集冻结且图片数量达到阈值后，按定时任务自动进入训练队列。' : '当前规则：数据集冻结后，等待管理员手动提交训练。'; directMarkRule.textContent = directMark.checked ? '当前规则：违章/隐患查处记录可直接进入图片标注，标注结果归集至对应数据集。' : '当前规则：违章/隐患查处记录不展示图片标注入口，仅保留查处记录。'; thresholdRule.textContent = '当前规则：数据集图片数量达到 '+threshold+' 张后，可自动进入训练队列。'; document.getElementById('summary').textContent = '当前：' + (directMark.checked ? '查处可直接标注' : '查处不直接标注') + ' · ' + (autoTrain.checked ? '自动定时训练' : '手动提交训练') + ' · 阈值 '+threshold+' 张' } autoTrain.onchange = paint; directMark.onchange = paint; minImageCount.oninput = paint; paint(); document.getElementById('save').onclick = () => { localStorage.setItem('trainingAutoSubmitEnabled', String(autoTrain.checked)); localStorage.setItem('trainingAutoSchedule', schedule.value); localStorage.setItem('businessDirectMarkEnabled', String(directMark.checked)); localStorage.setItem('trainingMinImageCount', String(Math.max(1, Number(minImageCount.value) || 1000))); const t = document.getElementById('toast'); t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 1800) };</script>
+  <script src="navigation.js"></script>
+</body>
+
+</html>

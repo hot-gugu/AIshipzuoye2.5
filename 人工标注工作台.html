@@ -29,6 +29,11 @@
       overflow: hidden
     }
 
+    .workbench-content {
+      margin-left: 240px;
+      width: calc(100% - 240px)
+    }
+
     .top {
       height: 62px;
       background: #fff;
@@ -78,7 +83,7 @@
     .shell {
       height: calc(100vh - 62px);
       display: grid;
-      grid-template-columns: 250px minmax(500px, 1fr) 320px
+      grid-template-columns: 300px minmax(500px, 1fr) 320px
     }
 
     .left,
@@ -89,7 +94,7 @@
 
     .left {
       border-right: 1px solid var(--line);
-      padding: 18px 14px
+      padding: 16px 12px
     }
 
     .section-title {
@@ -100,11 +105,16 @@
       margin: 4px 8px 14px
     }
 
+    .image-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 14px }
+    .image-tab { border: 1px solid var(--line); border-radius: 5px; padding: 7px 2px; background: #fff; color: #63748a; cursor: pointer; font-size: 12px }
+    .image-tab.active { color: var(--blue); border-color: var(--blue); background: #effafa; font-weight: bold }
+    #imageList { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px }
+
     .image-item {
       border: 1px solid var(--line);
       border-radius: 8px;
-      margin-bottom: 13px;
-      padding: 8px;
+      margin: 0;
+      padding: 5px;
       cursor: pointer;
       position: relative;
       transition: .15s
@@ -118,15 +128,15 @@
     .image-item img {
       display: block;
       width: 100%;
-      height: 112px;
+      height: 82px;
       object-fit: cover;
       border-radius: 5px
     }
 
     .image-item .num {
       position: absolute;
-      top: 15px;
-      left: 15px;
+      top: 10px;
+      left: 10px;
       background: #0c2448e6;
       color: white;
       border-radius: 4px;
@@ -138,9 +148,11 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin: 8px 1px 1px;
+      margin: 6px 1px 1px;
       font-size: 12px
     }
+
+    .status span { max-width: 84px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
 
     .pending {
       color: #b76500
@@ -307,6 +319,8 @@
       color: #08616e
     }
 
+    .sample-grid .label { width: 100%; text-align: left }
+
     .field-label {
       font-weight: bold;
       font-size: 13px;
@@ -411,7 +425,7 @@
     .bottom {
       position: absolute;
       bottom: 0;
-      left: 250px;
+      left: 540px;
       right: 320px;
       height: 58px;
       background: #fff;
@@ -461,16 +475,28 @@
       display: none;
       z-index: 8
     }
+
+    @media (max-width: 900px) {
+      .workbench-content {
+        margin-left: 0;
+        width: 100%
+      }
+
+      .bottom {
+        left: 300px
+      }
+    }
   </style>
 </head>
 
 <body>
-  <header class="top"><a class="back" href="AI识别的违章复核.html"><i class="fa fa-angle-left"></i> 返回复核</a><span
-      class="title">人工标注工作台</span><span class="task">任务编号：AI-20240518-102436　<b id="count">0 / 3 已标注</b></span><span
+  <aside data-unified-menu-host="true"></aside>
+  <header class="top workbench-content"><a class="back" href="AI识别的违章复核.html"><i class="fa fa-angle-left"></i> 返回复核</a><span
+      class="title">人工标注工作台</span><span class="task" id="taskContext">任务编号：AI-20240518-102436　<b id="count">0 / 3 已标注</b></span><span
       class="progress"><i id="bar"></i></span></header>
-  <main class="shell">
+  <main class="shell workbench-content">
     <aside class="left">
-      <div class="section-title">抓拍图片 · 3</div>
+      <div class="image-tabs" id="imageTabs"><button class="image-tab active" data-filter="all">全部</button><button class="image-tab" data-filter="done">已标注</button><button class="image-tab" data-filter="pending">未标注</button></div>
       <div id="imageList"></div>
     </aside>
     <section class="canvas-area">
@@ -489,20 +515,12 @@
     </section>
     <aside class="right">
       <h3>标注属性</h3>
-      <div class="field-label">标注标签 <span style="color:#d94841">*</span></div>
-      <div class="label-grid" id="labels"><button class="label active">未佩戴安全帽</button><button
-          class="label">未系安全带</button><button class="label">人员</button><button class="label">车辆</button><button
-          class="label">危险区域</button><button class="label">其他违章</button></div>
-      <div class="field-label">样本判定</div><select class="select">
-        <option>存在违章/隐患（正样本）</option>
-        <option>不是违章/隐患（负样本）</option>
-        <option>无效样本（无法判定）</option>
-      </select>
-      <!-- <div class="field-label">画面质量</div><select class="select">
-        <option>画面清晰</option>
-        <option>部分遮挡</option>
-        <option>画面模糊 / 过暗</option>
-      </select> -->
+      <div class="field-label">算法名称 <span style="color:#d94841">*</span></div>
+      <div class="label-grid" id="labels"><button class="label active">未佩戴安全帽</button><button>未带绝缘手套</button><button>未带防火面罩</button><button>缺失灭火器</button><button>车辆违规进入</button><button>车辆逆向行驶</button><button>车辆违规载人</button><button>车辆异常占用</button><button>人员睡岗</button><button>人员搭钢</button><button>违规打电话</button><button>未穿反光衣</button><button>人员翻越</button><button>人员入侵</button><button>人员抽烟</button><button>未穿安全帽</button><button>通道占用</button><button>人员离岗</button><button>烟火报警</button></div>
+      <div class="field-label">模型选择</div>
+      <div class="label-grid sample-grid" id="sampleJudgment"><button class="label active">人的模型</button><button class="label">安全帽模型</button></div>
+      <div class="field-label" style="margin-top:14px">目标物选择</div>
+      <div class="label-grid sample-grid" id="objectSelection"><button class="label active">人物</button><button class="label">安全帽</button></div>
       <div class="anno-list">
         <div class="field-label" style="margin-top:0">当前图片标注 <span id="annCount">0</span></div>
         <div id="annoList">
@@ -522,16 +540,17 @@
         class="fa fa-check"></i> 保存当前标注</button><button class="btn complete" id="complete" disabled><i
         class="fa fa-check-circle"></i> 确认完成并返回复核</button></div>
   <div class="toast" id="toast"></div>
+  <script src="navigation.js?v=20260830-1"></script>
   <script>
-    const photos = [['sample-no-helmet.jpg', '井下运输大巷 · 10:24:36'], ['sample-normal-scene.jpg', '井下运输大巷 · 10:24:39'], ['sample-safety-belt.jpg', '井下运输大巷 · 10:24:42']]; const query = new URLSearchParams(location.search), returnPage = query.get('return') || 'AI识别的违章复核.html', annotationStatusKey = returnPage.includes('视频倒查') ? 'annotationReviewCompletedBackcheck' : returnPage.includes('AI预警实时') ? 'annotationReviewCompletedRealtime' : 'annotationReviewCompleted'; let current = Math.max(0, (+query.get('image') || 1) - 1), tool = 'rect', label = '未佩戴安全帽', marks = [[], [], []], start = null, preview = null, poly = []; const $ = id => document.getElementById(id);
-    function renderList() { $('imageList').innerHTML = photos.map((p, i) => `<div class="image-item ${i === current ? 'active' : ''}" onclick="choose(${i})"><img src="${p[0]}"><span class="num">${String(i + 1).padStart(2, '0')}</span><div class="status"><span>${p[1]}</span><b class="${marks[i].saved ? 'done' : 'pending'}">${marks[i].saved ? '已标注' : '待标注'}</b></div></div>`).join(''); const n = marks.filter(x => x.saved).length; $('count').textContent = `${n} / 3 已标注`; $('bar').style.width = (n / 3 * 100) + '%'; $('complete').disabled = n !== 3 }
+    const photos = [['sample-no-helmet.jpg', '井下运输大巷 · 10:24:36'], ['sample-normal-scene.jpg', '井下运输大巷 · 10:24:39'], ['sample-safety-belt.jpg', '井下运输大巷 · 10:24:42']]; const query = new URLSearchParams(location.search), datasetVersion = query.get('dataset'), returnPage = query.get('return') || (datasetVersion ? '算力算法调度管理-样本与数据集.html' : 'AI识别的违章复核.html'), annotationStatusKey = returnPage.includes('视频倒查') ? 'annotationReviewCompletedBackcheck' : returnPage.includes('AI预警实时') ? 'annotationReviewCompletedRealtime' : 'annotationReviewCompleted'; let current = Math.max(0, (+query.get('image') || 1) - 1), tool = 'rect', label = '未佩戴安全帽', sampleJudgment = '存在违章/隐患（正样本）', imageFilter = 'all', marks = [[], [], []], start = null, preview = null, poly = []; const $ = id => document.getElementById(id); if(datasetVersion){$('taskContext').innerHTML='数据集：'+datasetVersion+'　<b id="count">0 / 3 已标注</b>';$('complete').innerHTML='<i class="fa fa-check-circle"></i> 确认完成并返回数据集'}
+    function renderList() { const visible = photos.map((p, i) => ({ p, i })).filter(({ i }) => imageFilter === 'all' || (imageFilter === 'done' ? marks[i].saved : !marks[i].saved)); $('imageList').innerHTML = visible.map(({ p, i }) => `<div class="image-item ${i === current ? 'active' : ''}" onclick="choose(${i})"><img src="${p[0]}"><span class="num">${String(i + 1).padStart(2, '0')}</span><div class="status"><span title="${p[1]}">${p[1]}</span><b class="${marks[i].saved ? 'done' : 'pending'}">${marks[i].saved ? '已标注' : '待标注'}</b></div></div>`).join('') || '<div style="grid-column:1/-1;color:#98a6b8;font-size:13px;padding:16px 2px">暂无符合条件的图片</div>'; const n = marks.filter(x => x.saved).length; $('count').textContent = `${n} / 3 已标注`; $('bar').style.width = (n / 3 * 100) + '%'; $('complete').disabled = n !== 3 }
     function choose(i) { current = i; poly = []; $('photo').src = photos[i][0]; renderList(); renderMarks() } window.choose = choose;
     function renderMarks() { const a = marks[current] || []; $('layer').innerHTML = ''; a.forEach((m, i) => { let el; if (m.type === 'poly') { el = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); el.classList.add('shape', 'poly'); el.style.cssText = 'inset:0;width:100%;height:100%;position:absolute'; el.innerHTML = `<polygon points="${m.points.map(p => p.join(',')).join(' ')}" fill="#f59e0b28" stroke="#f59e0b" stroke-width="2"/><text x="${m.points[0][0]}" y="${m.points[0][1] - 6}" fill="#fff" font-size="12">${m.label}</text>` } else { el = document.createElement('div'); el.className = 'shape ' + (m.type === 'ellipse' ? 'ellipse' : ''); el.style.left = m.x + '%'; el.style.top = m.y + '%'; el.style.width = m.w + '%'; el.style.height = m.h + '%'; el.innerHTML = `<span class="shape-label">${m.label}</span>` } $('layer').append(el) }); $('annCount').textContent = a.length; $('annoList').innerHTML = a.length ? a.map((m, i) => `<div class="anno"><i class="dot"></i>${m.label}<span style="color:#8b9aae">${m.type === 'rect' ? '矩形' : m.type === 'ellipse' ? '椭圆' : '多边形'}</span><button class="del" onclick="removeMark(${i})"><i class="fa fa-times"></i></button></div>`).join('') : '<div style="color:#98a6b8;font-size:13px;padding:14px 2px">尚未添加标注</div>'; $('hint').style.display = a.length ? 'none' : 'flex' }
     function pos(e) { let r = $('board').getBoundingClientRect(); return { x: (e.clientX - r.left) / r.width * 100, y: (e.clientY - r.top) / r.height * 100 } }
-    function newBox(p, q) { return { x: Math.min(p.x, q.x), y: Math.min(p.y, q.y), w: Math.abs(q.x - p.x), h: Math.abs(q.y - p.y), type: tool, label } }
+    function newBox(p, q) { return { x: Math.min(p.x, q.x), y: Math.min(p.y, q.y), w: Math.abs(q.x - p.x), h: Math.abs(q.y - p.y), type: tool, label: window.annotationTarget || '人物' } }
     $('layer').addEventListener('pointerdown', e => { let p = pos(e); if (tool === 'poly') { poly.push([p.x, p.y]); if (poly.length > 2 && e.detail === 2) { marks[current].push({ type: 'poly', points: poly, label }); poly = []; renderMarks() } else renderPoly(); return } start = p; $('layer').setPointerCapture(e.pointerId) }); $('layer').addEventListener('pointermove', e => { if (!start) return; let m = newBox(start, pos(e)); preview && preview.remove(); preview = document.createElement('div'); preview.className = 'shape ' + (tool === 'ellipse' ? 'ellipse' : ''); preview.style.cssText = `left:${m.x}%;top:${m.y}%;width:${m.w}%;height:${m.h}%`; $('layer').append(preview) }); $('layer').addEventListener('pointerup', e => { if (!start) return; let m = newBox(start, pos(e)); preview && preview.remove(); preview = null; start = null; if (m.w > 1 && m.h > 1) { marks[current].push(m); renderMarks() } });
     function renderPoly() { $('layer').querySelectorAll('.draft').forEach(x => x.remove()); let s = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); s.classList.add('draft'); s.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none'; s.innerHTML = `<polyline points="${poly.map(p => p.join(',')).join(' ')}" fill="none" stroke="#f59e0b" stroke-width="2"/>`; $('layer').append(s) }
-    function removeMark(i) { marks[current].splice(i, 1); renderMarks() } window.removeMark = removeMark; document.querySelectorAll('[data-tool]').forEach(b => b.onclick = () => { tool = b.dataset.tool; poly = []; document.querySelectorAll('[data-tool]').forEach(x => x.classList.remove('active')); b.classList.add('active'); $('toolHint').textContent = tool === 'poly' ? '逐点点击描边，双击最后一点闭合' : '按住鼠标拖拽绘制' + (tool === 'ellipse' ? '椭圆' : '矩形') + '区域' }); $('labels').onclick = e => { if (e.target.tagName !== 'BUTTON') return; document.querySelectorAll('.label').forEach(x => x.classList.remove('active')); e.target.classList.add('active'); label = e.target.textContent; $('exampleLabel').textContent = label; $('exampleBoxLabel').textContent = label; $('exampleImage').src = label === '未系安全带' ? 'sample-safety-belt.jpg' : 'sample-no-helmet.jpg'; $('exampleNote').textContent = label === '未佩戴安全帽' ? '框选人员头部及安全帽应出现的区域，不要包含过多背景。' : label === '未系安全带' ? '框选安全带及与人员身体接触的关键区域，确保违规特征可见。' : '框选与当前标签直接对应的目标区域，尽量贴合目标边界。' }; $('undo').onclick = () => { marks[current].pop(); renderMarks() }; $('clear').onclick = () => { marks[current] = []; renderMarks() }; $('prev').onclick = () => choose(Math.max(0, current - 1)); $('next').onclick = () => choose(Math.min(2, current + 1)); $('save').onclick = () => { marks[current].saved = true; renderList(); toast('当前图片已保存为“已标注”'); }; $('complete').onclick = () => { localStorage.setItem(annotationStatusKey, 'true'); location.href = returnPage }; function toast(t) { $('toast').textContent = t; $('toast').style.display = 'block'; setTimeout(() => $('toast').style.display = 'none', 1800) } choose(current);
+    function removeMark(i) { marks[current].splice(i, 1); renderMarks() } window.removeMark = removeMark; document.querySelectorAll('[data-tool]').forEach(b => b.onclick = () => { tool = b.dataset.tool; poly = []; document.querySelectorAll('[data-tool]').forEach(x => x.classList.remove('active')); b.classList.add('active'); $('toolHint').textContent = tool === 'poly' ? '逐点点击描边，双击最后一点闭合' : '按住鼠标拖拽绘制' + (tool === 'ellipse' ? '椭圆' : '矩形') + '区域' }); $('labels').onclick = e => { if (e.target.tagName !== 'BUTTON') return; $('labels').querySelectorAll('.label').forEach(x => x.classList.remove('active')); e.target.classList.add('active'); label = e.target.textContent; $('exampleLabel').textContent = label; $('exampleBoxLabel').textContent = label; $('exampleImage').src = label === '未系安全带' ? 'sample-safety-belt.jpg' : 'sample-no-helmet.jpg'; $('exampleNote').textContent = label === '未佩戴安全帽' ? '框选人员头部及安全帽应出现的区域，不要包含过多背景。' : label === '未系安全带' ? '框选安全带及与人员身体接触的关键区域，确保违规特征可见。' : '框选与当前标签直接对应的目标区域，尽量贴合目标边界。' }; $('sampleJudgment').onclick = e => { if (e.target.tagName !== 'BUTTON') return; $('sampleJudgment').querySelectorAll('.label').forEach(x => x.classList.remove('active')); e.target.classList.add('active'); sampleJudgment = e.target.textContent }; $('imageTabs').onclick = e => { if (e.target.tagName !== 'BUTTON') return; $('imageTabs').querySelectorAll('.image-tab').forEach(x => x.classList.remove('active')); e.target.classList.add('active'); imageFilter = e.target.dataset.filter; renderList() }; $('undo').onclick = () => { marks[current].pop(); renderMarks() }; $('clear').onclick = () => { marks[current] = []; renderMarks() }; $('prev').onclick = () => choose(Math.max(0, current - 1)); $('next').onclick = () => choose(Math.min(2, current + 1)); $('save').onclick = () => { marks[current].saved = true; renderList(); toast('当前图片已保存为“已标注”'); }; $('complete').onclick = () => { localStorage.setItem(annotationStatusKey, 'true'); if(datasetVersion){var annotatedMap=JSON.parse(localStorage.getItem('datasetAnnotationCounts')||'{}');annotatedMap[datasetVersion]=(annotatedMap[datasetVersion]||0)+marks.filter(x=>x.saved).length;localStorage.setItem('datasetAnnotationCounts',JSON.stringify(annotatedMap))} location.href = returnPage }; function toast(t) { $('toast').textContent = t; $('toast').style.display = 'block'; setTimeout(() => $('toast').style.display = 'none', 1800) } choose(current);
   </script>
 </body>
 

@@ -5,7 +5,7 @@
 
   const style = document.createElement('style');
   style.textContent = `
-    #global-ai-assistant { position: fixed; right: 0; top: 20%; z-index: 9998; font-family: Inter, "Microsoft YaHei", sans-serif; }
+    #global-ai-assistant { position: fixed; right: 0; top: 20%; z-index: 9998; font-family: Inter, "Microsoft YaHei", sans-serif; touch-action: none; }
     .gaa-rail { width: 68px; height: 150px; display: flex; align-items: center; justify-content: center; padding-left: 7px; border-radius: 32px 0 0 32px; background: linear-gradient(145deg,#dcecff 0%,#a9ccff 100%); box-shadow: 0 8px 24px rgba(37,99,235,.18); }
     .gaa-trigger { width: 52px; min-height: 126px; border: 0; border-radius: 19px; background: rgba(255,255,255,.96); color: #2458ad; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; cursor: pointer; box-shadow: 0 7px 20px rgba(48,91,164,.16); transition: transform .2s ease, box-shadow .2s ease; }
     .gaa-trigger:hover { transform: translateX(-3px); box-shadow: 0 9px 25px rgba(48,91,164,.25); }
@@ -85,6 +85,24 @@
   const input = overlay.querySelector('.gaa-input');
   const send = overlay.querySelector('.gaa-send');
   const chat = overlay.querySelector('.gaa-chat');
+
+  let dragging = false, moved = false, startX = 0, startY = 0, originX = 0, originY = 0;
+  root.querySelector('.gaa-rail').addEventListener('pointerdown', (event) => {
+    dragging = true; moved = false; startX = event.clientX; startY = event.clientY;
+    const rect = root.getBoundingClientRect(); originX = rect.left; originY = rect.top;
+    root.setPointerCapture?.(event.pointerId);
+  });
+  root.querySelector('.gaa-rail').addEventListener('pointermove', (event) => {
+    if (!dragging) return;
+    const dx = event.clientX - startX, dy = event.clientY - startY;
+    if (Math.abs(dx) + Math.abs(dy) > 4) moved = true;
+    if (!moved) return;
+    const x = Math.max(0, Math.min(window.innerWidth - root.offsetWidth, originX + dx));
+    const y = Math.max(8, Math.min(window.innerHeight - root.offsetHeight, originY + dy));
+    root.style.left = `${x}px`; root.style.top = `${y}px`; root.style.right = 'auto';
+  });
+  root.querySelector('.gaa-rail').addEventListener('pointerup', () => { dragging = false; });
+  root.querySelector('.gaa-rail').addEventListener('click', (event) => { if (moved) { event.preventDefault(); event.stopImmediatePropagation(); moved = false; } }, true);
 
   function setOpen(open) {
     document.documentElement.classList.toggle('gaa-open', open);

@@ -8,6 +8,7 @@
     { title: '实时在线巡检', icon: 'fa-video-camera', href: '实时监控.html' },
     { title: '事后视频倒查', icon: 'fa-history', href: '视频倒查列表页面.html' },
     { title: 'AI预警核查', icon: 'fa-bell', href: 'AI隐患核查.html' },
+    { title: '隐患库', icon: 'fa-database', href: '隐患库.html' },
     {
       title: '隐患违章管理',
       icon: 'fa-exclamation-triangle',
@@ -16,6 +17,7 @@
         { title: '隐患查处', href: '隐患违章管理-隐患查处.html' }
       ]
     },
+    { title: '算法精准度分析', icon: 'fa-line-chart', href: '算法精准度分析列表.html' },
     {
       title: '履职统计',
       icon: 'fa-bar-chart',
@@ -25,17 +27,27 @@
         { title: '隐患统计分析', href: '隐患统计分析.html' }
       ]
     },
-        {
-            title: '智能运维',
-            icon: 'fa-microchip',
-            children: [
-                { title: '设备管理', href: '设备管理列表.html' },
-                  { title: '算法管理', href: '算法管理.html' },
-                  { title: '算法精准度分析', href: '算法精准度分析列表.html' },
-                 { title: '训练样本库', href: '数据回溯正负样本.html' },
-                 { title: '算力智能调度', href: '算力智能调度简版.html' }
-              ]
-          },
+    {
+      title: '训练管理',
+      icon: 'fa-graduation-cap',
+      children: [
+        { title: '样本与数据集', href: '算力算法调度管理-样本与数据集.html' },
+        { title: '训练任务管理', href: '算力算法调度管理-训练任务管理.html' },
+        { title: '模型版本管理', href: '算力算法调度管理-模型版本管理.html' },
+        { title: '模型发布管理', href: '算力算法调度管理-模型发布管理.html' },
+        { title: '算法管理', href: '算法管理.html' },
+        { title: '训练正负样本库', href: '数据回溯正负样本.html' },
+        { title: '训练参数配置', href: '训练参数配置.html' }
+      ]
+    },
+    {
+      title: '智能运维',
+      icon: 'fa-microchip',
+      children: [
+        { title: '设备管理', href: '设备管理列表.html' },
+        { title: '算力智能调度', href: '算力智能调度简版.html' }
+      ]
+    },
     {
       title: '基础管理',
       icon: 'fa-cogs',
@@ -261,8 +273,8 @@
 
   const renderMenu = () => {
     injectStyle();
-    let aside = document.querySelector('aside');
-    if (!aside && currentFile.startsWith('算力算法调度管理-')) {
+    let aside = document.querySelector('aside[data-unified-menu-host]') || document.querySelector('aside');
+    if (!aside) {
       aside = document.createElement('aside');
       document.body.insertBefore(aside, document.body.firstChild);
     }
@@ -329,6 +341,11 @@
     }
   };
 
+  if (decodeURI(location.pathname).endsWith('隐患库.html')) { const s=document.createElement('script'); s.src='隐患库增强.js'; document.body.appendChild(s); const m=document.createElement('style'); m.textContent='#photos>div>div:first-child{position:relative;overflow:hidden}#photos>div>div:first-child:after{content:"";position:absolute;left:24%;top:18%;width:48%;height:58%;border:2px solid #ef4444}#photos>div>div:first-child:before{content:"隐患目标 92%";position:absolute;left:24%;top:0;background:#ef4444;color:#fff;font-size:10px;padding:1px 4px;z-index:2}.overflow-x-auto table thead th:nth-child(8),.overflow-x-auto table tbody td:nth-child(8){display:none!important}'; document.head.appendChild(m); }
+  if (decodeURI(location.pathname).endsWith('隐患库.html')) { const h=document.querySelector('.hint'); if(h) h.textContent='当前隐患库还有 860 张未训练图片，可导入训练数据集进行训练。'; }
+  if (decodeURI(location.pathname).endsWith('人工标注工作台.html')) { const s=document.createElement('script'); s.src='标注属性增强.js'; document.body.appendChild(s); }
+  if (decodeURI(location.pathname).endsWith('人工标注工作台.html')) { document.addEventListener('click',e=>{ if(e.target.closest('#objectSelection button')) window.annotationTarget=e.target.closest('#objectSelection button').textContent.trim(); }); window.annotationTarget='人物'; }
+  if (decodeURI(location.pathname).endsWith('算力算法调度管理-训练任务管理.html')) { const s=document.createElement('style'); s.textContent='.page-main table th:nth-child(2),.page-main table td:nth-child(2){display:none!important}'; document.head.appendChild(s); }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', setup);
   } else {

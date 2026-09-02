@@ -76,5 +76,7 @@
     document.getElementById('search').addEventListener('input',e=>{const q=e.target.value.trim().toLowerCase();document.querySelectorAll('.group').forEach(group=>{let visible=0;group.querySelectorAll('.page-link').forEach(link=>{const hit=link.dataset.name.toLowerCase().includes(q);link.classList.toggle('hidden',!hit);if(hit)visible++});group.classList.toggle('empty',visible===0)})});
   </script>
 <script src="ai-assistant.js?v=20260825-2"></script>
+<script src="navigation.js?v=20260829-1"></script>
 </body>
 </html>
+

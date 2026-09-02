@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>未佩戴安全帽数据集详情</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        primary: '#2563eb',
+        success: '#10b981',
+        warning: '#f59e0b',
+        danger: '#ef4444',
+        gray: {
+          50: '#f9fafb',
+          100: '#f3f4f6',
+          200: '#e5e7eb',
+          300: '#d1d5db',
+          400: '#9ca3af',
+          500: '#6b7280',
+          600: '#4b5563',
+          700: '#374151',
+          800: '#1f2937',
+        }
+      },
+      fontFamily: {
+        sans: ['Inter', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif'],
+      }
+    }
+  }
+}
+</script>
+<style type="text/tailwindcss">
+@layer utilities {
+  .card {
+    @apply bg-white rounded-lg border border-gray-200 overflow-hidden;
+  }
+  .card-header {
+    @apply px-4 py-3 border-b border-gray-200 flex items-center justify-between;
+  }
+  .card-title {
+    @apply text-sm font-semibold text-gray-800 flex items-center gap-2;
+  }
+  .table-sm {
+    @apply w-full text-xs text-gray-700;
+  }
+  .table-sm th {
+    @apply text-left text-gray-500 font-medium py-2 px-2 border-b border-gray-200;
+  }
+  .table-sm td {
+    @apply py-2 px-2 border-b border-gray-100;
+  }
+  .tag {
+    @apply inline-block px-2 py-0.5 rounded text-xs font-medium;
+  }
+  .tag-green {
+    @apply bg-green-50 text-green-700;
+  }
+  .tag-blue {
+    @apply bg-blue-50 text-blue-700;
+  }
+  .tag-orange {
+    @apply bg-orange-50 text-orange-700;
+  }
+  .tag-red {
+    @apply bg-red-50 text-red-700;
+  }
+  .input-search {
+    @apply h-8 pl-8 pr-3 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary;
+  }
+  .select {
+    @apply h-8 px-3 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary;
+  }
+  .btn {
+    @apply h-8 px-3 text-xs rounded-lg border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 flex items-center gap-1.5;
+  }
+  .btn-primary {
+    @apply bg-primary text-white border-primary hover:bg-primary/90;
+  }
+  .img-card {
+    @apply border border-gray-200 rounded-lg overflow-hidden bg-gray-100;
+  }
+  .img-card-image {
+    @apply relative w-full h-36 bg-cover bg-center;
+  }
+  .img-card-info {
+    @apply px-2 py-1.5 text-xs;
+  }
+  .pagination-btn {
+    @apply w-7 h-7 flex items-center justify-center border border-gray-200 rounded text-xs text-gray-600 hover:bg-gray-50;
+  }
+  .pagination-btn.active {
+    @apply bg-primary text-white border-primary;
+  }
+  .progress-bar {
+    @apply w-full h-1.5 bg-gray-200 rounded-full overflow-hidden;
+  }
+  .progress-fill {
+    @apply h-full bg-primary rounded-full;
+  }
+}
+</style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans">
+<div class="min-h-screen p-4">
+  <!-- 顶部操作 -->
+  <div class="mb-4 flex items-center justify-between">
+    <div>
+      <div class="text-xs text-gray-500 mb-1">训练管理 / 样本与数据集 / 数据集详情</div>
+      <h1 class="text-lg font-semibold">未佩戴安全帽数据集</h1>
+    </div>
+    <button class="btn">
+      <i class="fa fa-arrow-left"></i> 返回列表
+    </button>
+  </div>
+
+  <!-- 双栏布局 -->
+  <div class="grid grid-cols-1 xl:grid-cols-[360px_1fr] gap-4">
+    <!-- 左侧面板 -->
+    <div class="space-y-4">
+      <!-- 基本信息 -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">
+            <span class="w-1 h-4 bg-primary rounded-full"></span>
+            基本信息
+          </h2>
+        </div>
+        <div class="p-4 text-xs">
+          <div class="grid grid-cols-2 gap-y-3">
+            <div class="text-gray-500">数据集版本</div>
+            <div>DS‑v12</div>
+
+            <div class="text-gray-500">状态</div>
+            <div><span class="tag tag-green">已训练</span></div>
+
+            <div class="text-gray-500">数据时间范围</div>
+            <div>2026‑07‑01 至 2026‑08‑24</div>
+
+            <div class="text-gray-500">下一更新版本</div>
+            <div>v3.3.0（将发布）</div>
+
+            <div class="text-gray-500">总图片数</div>
+            <div>21,120 张</div>
+
+            <div class="text-gray-500">标注进度</div>
+            <div class="flex items-center gap-2">
+              <div class="progress-bar flex-1">
+                <div class="progress-fill" style="width: 99%"></div>
+              </div>
+              <span>99%</span>
+            </div>
+
+            <div class="text-gray-500">来源类型</div>
+            <div class="flex flex-wrap gap-1">
+              <span class="tag tag-blue">隐患库标签</span>
+              <span class="tag tag-blue">手工导入</span>
+              <span class="tag tag-blue">单位数据</span>
+            </div>
+
+            <div class="text-gray-500">计划训练时间</div>
+            <div>2026‑08‑25 02:00</div>
+
+            <div class="text-gray-500">训练任务</div>
+            <div class="text-primary">TRAIN‑202608‑012</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 单位维度统计 -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">
+            <span class="w-1 h-4 bg-primary rounded-full"></span>
+            单位维度统计
+          </h2>
+          <span class="text-xs text-gray-500">来源：单位数据</span>
+        </div>
+        <div class="p-4 overflow-x-auto">
+          <table class="table-sm">
+            <thead>
+              <tr>
+                <th>单位名称</th>
+                <th>总图片数</th>
+                <th>正样本</th>
+                <th>负样本</th>
+                <th>无效样本</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>集团公司</td>
+                <td>5,280</td>
+                <td>3,520</td>
+                <td>1,280</td>
+                <td>480</td>
+                <td><span class="text-primary cursor-pointer">查看</span></td>
+              </tr>
+              <tr>
+                <td>矿业事业部</td>
+                <td>3,420</td>
+                <td>2,210</td>
+                <td>780</td>
+                <td>430</td>
+                <td><span class="text-primary cursor-pointer">查看</span></td>
+              </tr>
+              <tr>
+                <td>安全环保部</td>
+                <td>2,150</td>
+                <td>1,430</td>
+                <td>420</td>
+                <td>300</td>
+                <td><span class="text-primary cursor-pointer">查看</span></td>
+              </tr>
+              <tr>
+                <td>生产运营部</td>
+                <td>1,790</td>
+                <td>1,090</td>
+                <td>340</td>
+                <td>360</td>
+                <td><span class="text-primary cursor-pointer">查看</span></td>
+              </tr>
+              <tr>
+                <td>信息管理部</td>
+                <td>720</td>
+                <td>430</td>
+                <td>160</td>
+                <td>130</td>
+                <td><span class="text-primary cursor-pointer">查看</span></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="text-xs text-gray-500 mt-2">共 5 条</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 右侧图片列表区域 -->
+    <div class="card">
+      <div class="card-header flex justify-between flex-wrap gap-3">
+        <h2 class="card-title">
+          <span class="w-1 h-4 bg-primary rounded-full"></span>
+          图片列表
+        </h2>
+        <div class="flex gap-2">
+          <button class="btn">
+            <i class="fa fa-download"></i> 导出
+          </button>
+          <button class="btn btn-primary">
+            <i class="fa fa-tag"></i> 标注未标注图片
+          </button>
+        </div>
+      </div>
+
+      <div class="px-4 pt-2">
+        <!-- tab切换 -->
+        <div class="flex gap-6 text-xs mb-4">
+          <div class="text-primary font-medium border-b-2 border-primary pb-1">全部 (21,120)</div>
+          <div class="text-gray-500 pb-1">已标注 (18,610)</div>
+          <div class="text-gray-500 pb-1">未标注 (2,510)</div>
+        </div>
+
+        <!-- 筛选栏 -->
+        <div class="flex flex-wrap gap-3 mb-4 items-center">
+          <div class="relative flex-1 min-w-[180px] max-w-[260px]">
+            <i class="fa fa-search absolute left-2.5 top-2 text-gray-400"></i>
+            <input type="text" placeholder="输入图片名称" class="input-search w-full">
+          </div>
+          <select class="select">
+            <option>来源类型：全部</option>
+          </select>
+          <select class="select">
+            <option>数据来源：全部</option>
+          </select>
+          <select class="select">
+            <option>标注单位：全部</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- 图片网格 -->
+      <div class="px-4 pb-4">
+        <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+          <!-- 卡片1 -->
+          <div class="img-card">
+            <div class="img-card-image">
+              <span class="tag tag-red absolute top-2 left-2">未佩戴安全帽</span>
+              <span class="tag tag-green absolute top-2 right-2">已标注</span>
+            </div>
+            <div class="img-card-info">
+              <div class="text-gray-700 truncate">IMG_20260824_102436.jpg</div>
+              <div class="text-gray-500 mt-0.5">标注单位：集团公司</div>
+            </div>
+          </div>
+          <!-- 卡片2 -->
+          <div class="img-card">
+            <div class="img-card-image">
+              <span class="tag tag-red absolute top-2 left-2">未佩戴安全帽</span>
+              <span class="tag tag-green absolute top-2 right-2">已标注</span>
+            </div>
+            <div class="img-card-info">
+              <div class="text-gray-700 truncate">IMG_20260824_102439.jpg</div>
+              <div class="text-gray-500 mt-0.5">标注单位：矿业事业部</div>
+            </div>
+          </div>
+          <!-- 卡片3 -->
+          <div class="img-card">
+            <div class="img-card-image">
+              <span class="tag tag-red absolute top-2 left-2">未佩戴安全帽</span>
+              <span class="tag tag-green absolute top-2 right-2">已标注</span>
+            </div>
+            <div class="img-card-info">
+              <div class="text-gray-700 truncate">IMG_20260823_164750.jpg</div>
+              <div class="text-gray-500 mt-0.5">标注单位：安全环保部</div>
+            </div>
+          </div>
+          <!-- 卡片4 -->
+          <div class="img-card">
+            <div class="img-card-image">
+              <span class="tag tag-orange absolute top-2 right-2">未标注</span>
+            </div>
+            <div class="img-card-info">
+              <div class="text-gray-700 truncate">IMG_20260823_164752.jpg</div>
+              <div class="text-gray-500 mt-0.5">标注单位：生产运营部</div>
+            </div>
+          </div>
+          <!-- 卡片5 -->
+          <div class="img-card">
+            <div class="img-card-image">
+              <span class="tag tag-red absolute top-2 left-2">未佩戴安全帽</span>
+              <span class="tag tag-green absolute top-2 right-2">已标注</span>
+            </div>
+            <div class="img-card-info">
+              <div class="text-gray-700 truncate">IMG_20260822_134810.jpg</div>
+              <div class="text-gray-500 mt-0.5">标注单位：集团公司</div>
+            </div>
+          </div>
+          <!-- 卡片6 -->
+          <div class="img-card">
+            <div class="img-card-image">
+              <span class="tag tag-red absolute top-2 left-2">未佩戴安全帽</span>
+              <span class="tag tag-green absolute top-2 right-2">已标注</span>
+            </div>
+            <div class="img-card-info">
+              <div class="text-gray-700 truncate">IMG_20260822_134812.jpg</div>
+              <div class="text-gray-500 mt-0.5">标注单位：矿业事业部</div>
+            </div>
+          </div>
+          <!-- 卡片7 -->
+          <div class="img-card">
+            <div class="img-card-image">
+              <span class="tag tag-red absolute top-2 left-2">未佩戴安全帽</span>
+              <span class="tag tag-green absolute top-2 right-2">已标注</span>
+            </div>
+            <div class="img-card-info">
+              <div class="text-gray-700 truncate">IMG_20260821_134828.jpg</div>
+              <div class="text-gray-500 mt-0.5">标注单位：安全环保部</div>
+            </div>
+          </div>
+          <!-- 卡片8 -->
+          <div class="img-card">
+            <div class="img-card-image">
+              <span class="tag tag-orange absolute top-2 right-2">未标注</span>
+            </div>
+            <div class="img-card-info">
+              <div class="text-gray-700 truncate">IMG_20260821_134831.jpg</div>
+              <div class="text-gray-500 mt-0.5">标注单位：信息管理部</div>
+            </div>
+          </div>
+          <!-- 卡片9 -->
+          <div class="img-card">
+            <div class="img-card-image">
+              <span class="tag tag-red absolute top-2 left-2">未佩戴安全帽</span>
+              <span class="tag tag-green absolute top-2 right-2">已标注</span>
+            </div>
+            <div class="img-card-info">
+              <div class="text-gray-700 truncate">IMG_20260820_134913.jpg</div>
+              <div class="text-gray-500 mt-0.5">标注单位：集团公司</div>
+            </div>
+          </div>
+          <!-- 卡片10 -->
+          <div class="img-card">
+            <div class="img-card-image">
+              <span class="tag tag-blue absolute top-2 left-2">无效样本</span>
+              <span class="tag tag-green absolute top-2 right-2">已标注</span>
+            </div>
+            <div class="img-card-info">
+              <div class="text-gray-700 truncate">IMG_20260820_135033.jpg</div>
+              <div class="text-gray-500 mt-0.5">标注单位：矿业事业部</div>
+            </div>
+          </div>
+          <!-- 卡片11 -->
+          <div class="img-card">
+            <div class="img-card-image">
+              <span class="tag tag-orange absolute top-2 left-2">负样本</span>
+              <span class="tag tag-blue absolute top-2 right-2">未标注</span>
+            </div>
+            <div class="img-card-info">
+              <div class="text-gray-700 truncate">IMG_20260819_095416.jpg</div>
+              <div class="text-gray-500 mt-0.5">标注单位：安全环保部</div>
+            </div>
+          </div>
+          <!-- 卡片12 -->
+          <div class="img-card">
+            <div class="img-card-image">
+              <span class="tag tag-blue absolute top-2 left-2">无效样本</span>
+              <span class="tag tag-orange absolute top-2 right-2">未标注</span>
+            </div>
+            <div class="img-card-info">
+              <div class="text-gray-700 truncate">IMG_20260819_095421.jpg</div>
+              <div class="text-gray-500 mt-0.5">标注单位：生产运营部</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 分页 -->
+        <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
+          <div class="text-xs text-gray-500">共 21,120 条</div>
+          <div class="flex items-center gap-1">
+            <button class="pagination-btn"><i class="fa fa-angle-left"></i></button>
+            <button class="pagination-btn active">1</button>
+            <button class="pagination-btn">2</button>
+            <button class="pagination-btn">3</button>
+            <button class="pagination-btn">…</button>
+            <button class="pagination-btn">2112</button>
+            <button class="pagination-btn"><i class="fa fa-angle-right"></i></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
