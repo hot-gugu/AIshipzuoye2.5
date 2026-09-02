@@ -1,0 +1,2 @@
+.delete-confirm{position:fixed;inset:0;z-index:300;display:grid;place-items:center;background:rgba(15,23,42,.45)}
+.delete-dialog{width:min(420px,calc(100vw - 32px));background:#fff;border-radius:12px;padding:22px;box-shadow:0 12px 32px rgba(15,23,42,.22)}

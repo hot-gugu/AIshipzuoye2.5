@@ -8,7 +8,6 @@
     { title: '实时在线巡检', icon: 'fa-video-camera', href: '实时监控.html' },
     { title: '事后视频倒查', icon: 'fa-history', href: '视频倒查列表页面.html' },
     { title: 'AI预警核查', icon: 'fa-bell', href: 'AI隐患核查.html' },
-    { title: '隐患库', icon: 'fa-database', href: '隐患库.html' },
     {
       title: '隐患违章管理',
       icon: 'fa-exclamation-triangle',
@@ -18,6 +17,7 @@
       ]
     },
     { title: '算法精准度分析', icon: 'fa-line-chart', href: '算法精准度分析列表.html' },
+    { title: '隐患库', icon: 'fa-database', href: '隐患库.html' },
     {
       title: '履职统计',
       icon: 'fa-bar-chart',
@@ -32,10 +32,10 @@
       icon: 'fa-graduation-cap',
       children: [
         { title: '样本与数据集', href: '算力算法调度管理-样本与数据集.html' },
-        { title: '训练任务管理', href: '算力算法调度管理-训练任务管理.html' },
-        { title: '模型版本管理', href: '算力算法调度管理-模型版本管理.html' },
-        { title: '模型发布管理', href: '算力算法调度管理-模型发布管理.html' },
+        { title: '模型发布管理', href: '算力算法调度管理-模型版本管理.html' },
+        { title: '算法版本记录', href: '算力算法调度管理-模型发布管理.html' },
         { title: '算法管理', href: '算法管理.html' },
+        { title: '模型目标物标签', href: '模型目标物标签管理.html' },
         { title: '训练正负样本库', href: '数据回溯正负样本.html' },
         { title: '训练参数配置', href: '训练参数配置.html' }
       ]
@@ -335,7 +335,7 @@
     if (!document.querySelector('script[data-global-ai-assistant]') && !document.getElementById('global-ai-assistant')) {
       const script = document.createElement('script');
       const navigationScript = Array.from(document.scripts).find((item) => /navigation\.js(?:\?|$)/.test(item.src));
-      script.src = new URL('ai-assistant.js?v=20260825-2', navigationScript?.src || location.href).href;
+      script.src = new URL('ai-assistant.js?v=20260902-5', navigationScript?.src || location.href).href;
       script.dataset.globalAiAssistant = 'true';
       document.head.appendChild(script);
     }
@@ -346,6 +346,12 @@
   if (decodeURI(location.pathname).endsWith('人工标注工作台.html')) { const s=document.createElement('script'); s.src='标注属性增强.js'; document.body.appendChild(s); }
   if (decodeURI(location.pathname).endsWith('人工标注工作台.html')) { document.addEventListener('click',e=>{ if(e.target.closest('#objectSelection button')) window.annotationTarget=e.target.closest('#objectSelection button').textContent.trim(); }); window.annotationTarget='人物'; }
   if (decodeURI(location.pathname).endsWith('算力算法调度管理-训练任务管理.html')) { const s=document.createElement('style'); s.textContent='.page-main table th:nth-child(2),.page-main table td:nth-child(2){display:none!important}'; document.head.appendChild(s); }
+  if (decodeURI(location.pathname).endsWith('算力算法调度管理-数据集详情.html')) { const labels=['人的模型','安全帽模型','反光衣模型','人员摔倒模型','口罩模型']; const sync=()=>document.querySelectorAll('.mark-name').forEach((el,i)=>{const next=labels[i%labels.length];if(el.textContent!==next)el.textContent=next}); setTimeout(sync,0); const g=document.getElementById('imageGrid'); if(g)new MutationObserver(sync).observe(g,{childList:true,subtree:true}); }
+  if (decodeURI(location.pathname).endsWith('算力算法调度管理-模型版本管理.html')) { const s=document.createElement('script'); s.src='模型版本管理增强.js'; document.body.appendChild(s); }
+  if (decodeURI(location.pathname).endsWith('算力算法调度管理-模型发布管理.html')) { const s=document.createElement('script'); s.src='算法版本记录增强.js'; document.body.appendChild(s); }
+  if (/算力算法调度管理-(样本与数据集|数据集详情)\.html$/.test(decodeURI(location.pathname))) { const s=document.createElement('script'); s.src='训练任务详情抽屉.js'; document.body.appendChild(s); }
+  if (decodeURI(location.pathname).endsWith('算力算法调度管理-样本与数据集.html')) { const s=document.createElement('script'); s.src='样本与数据集创建方式增强.js'; document.body.appendChild(s); }
+  if (decodeURI(location.pathname).endsWith('算力算法调度管理-样本与数据集.html')) { const s=document.createElement('style'); s.textContent='.page-main table td:last-child{white-space:nowrap;display:flex;align-items:center;gap:6px}.page-main table td:last-child .link{display:inline-flex;align-items:center;justify-content:center;height:28px;padding:0 10px;margin:0;border:1px solid #bfdbfe;border-radius:5px;background:#eff6ff;color:#1d4ed8;font-size:12px;text-decoration:none}.page-main table td:last-child .link:hover{background:#dbeafe;border-color:#2563eb}.page-main table td:last-child .link.danger{border-color:#fecaca;background:#fff5f5;color:#dc2626}.page-main table td:last-child .import-dropdown{display:inline-flex}.page-main table td:last-child .import-trigger{height:28px!important;padding:0 10px!important;border:1px solid #bfdbfe!important;border-radius:5px!important;background:#eff6ff!important;color:#1d4ed8!important;font-size:12px!important;font-weight:600}.page-main table td:last-child .import-trigger:hover{background:#dbeafe!important;border-color:#2563eb!important}'; document.head.appendChild(s); }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', setup);
   } else {

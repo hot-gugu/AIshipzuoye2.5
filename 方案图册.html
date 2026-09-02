@@ -51,6 +51,6 @@
     stage.addEventListener('pointerdown',event=>{dragging=true;startX=event.clientX-x;startY=event.clientY-y;stage.classList.add('dragging');stage.setPointerCapture(event.pointerId)});stage.addEventListener('pointermove',event=>{if(!dragging)return;x=event.clientX-startX;y=event.clientY-startY;render()});stage.addEventListener('pointerup',()=>{dragging=false;stage.classList.remove('dragging')});stage.addEventListener('dblclick',()=>scale>minScale*1.15?fit():setScale(Math.min(2,minScale*2)));
     document.addEventListener('keydown',event=>{if(!viewer.classList.contains('open'))return;if(event.key==='Escape')closeViewer();if(event.key==='+')setScale(scale*1.2);if(event.key==='-')setScale(scale/1.2)});window.addEventListener('resize',()=>viewer.classList.contains('open')&&fit());
   </script>
-  <script src="navigation.js?v=20260819-2"></script>
+  <script src="navigation.js?v=20260902-2"></script>
 </body>
 </html>

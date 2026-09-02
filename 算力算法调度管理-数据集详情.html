@@ -619,6 +619,7 @@
       font-size: 12px;
       white-space: nowrap
     }
+    .unit-table th:last-child, .unit-table td:last-child { display: none; }
 
     .unit-table th {
       padding: 11px 10px;
@@ -707,7 +708,7 @@
                 张</b><span>未标注图片</span><b id="pendingImages">280 张</b><span>标注进度</span><b class="progress-line"
                 id="progressText"><i></i>99%</b><span>计划训练时间</span><b id="trainingPlan">2026-08-25
                 02:00</b><span>训练任务</span><b id="trainingTask"><a class="link"
-                  href="算力算法调度管理-训练任务管理.html">TRAIN-202608-012</a></b></div>
+                  href="#" data-training-task="TRAIN-202608-012">TRAIN-202608-012</a></b></div>
           </div>
           <div class="section">
             <h2 class="section-title">单位维度统计 </h2>
@@ -820,9 +821,9 @@
           <div class="workspace-head">
             <div class="workspace-title">图片列表</div>
             <div class="workspace-actions">
-              <button class="btn" id="exportBtn">标注图片</button>
-              <button class="btn" id="exportBtn">从隐患库导入图片</button>
-              <button class="btn" id="exportBtn">导入本地图片</button>
+              <!-- <button class="btn" id="exportBtn">标注图片</button> -->
+              <!-- <button class="btn" id="exportBtn">从隐患库导入图片</button> -->
+              <!-- <button class="btn" id="exportBtn">导入本地图片</button> -->
               <button class="btn" id="exportBtn"><i class="fa fa-download"></i> 导出</button>
             </div>
           </div>
@@ -864,7 +865,7 @@
       'DS-v12': { name: '未佩戴安全帽数据集', status: '已训练', range: '2026-07-01 至 2026-08-24', next: 'v3.3.0（拟发布）', units: '4 家', total: '21,120 张', annotated: '20,840 张', pending: '280 张', progress: '99%', plan: '2026-08-25 02:00', task: 'TRAIN-202608-012', sources: [['齐大山选矿厂', 'AI预警-视频识别', '8,460'], ['弓长岭铁矿', '事后视频倒查', '5,320'], ['眼前山铁矿', '实时巡检上报', '4,760'], ['东鞍山分公司', '视频倒查上报', '2,580']] },
       'DS-v8': { name: '未系安全带数据集', status: '待训练', range: '2026-08-01 至 2026-08-28', next: 'v2.5.0（拟发布）', units: '3 家', total: '15,536 张', annotated: '15,350 张', pending: '186 张', progress: '99%', plan: '2026-08-30 02:00', task: '未提交', sources: [['齐大山选矿厂', 'AI预警-视频识别', '6,820'], ['弓长岭铁矿', '事后视频倒查', '5,026'], ['东鞍山分公司', '视频倒查上报', '3,690']] },
       'DS-v5': { name: '消防通道占用数据集', status: '待训练', range: '2026-07-15 至 2026-08-26', next: 'v1.9.0（拟发布）', units: '1 家', total: '9,553 张', annotated: '9,480 张', pending: '73 张', progress: '99%', plan: '2026-09-01 02:00', task: '未提交', sources: [['眼前山铁矿', '实时巡检上报', '9,553']] }
-    }; const profile = profiles[version] || profiles['DS-v12']; document.getElementById('pageTitle').textContent = profile.name; document.getElementById('version').textContent = version; document.getElementById('datasetStatus').innerHTML = '<em class="status ' + (profile.status === '已训练' ? 's-success' : 's-warn') + '">' + profile.status + '</em>'; document.getElementById('dataRange').textContent = profile.range; document.getElementById('nextModel').textContent = profile.next; document.getElementById('unitCount').textContent = profile.units; document.getElementById('totalImages').textContent = profile.total; document.getElementById('annotatedImages').textContent = profile.annotated; document.getElementById('pendingImages').textContent = profile.pending; document.getElementById('progressText').innerHTML = '<i></i>' + profile.progress; document.getElementById('trainingPlan').textContent = profile.plan; document.getElementById('trainingTask').innerHTML = profile.task === '未提交' ? '未提交' : '<a class="link" href="算力算法调度管理-训练任务管理.html">' + profile.task + '</a>';
+    }; const profile = profiles[version] || profiles['DS-v12']; document.getElementById('pageTitle').textContent = profile.name; document.getElementById('version').textContent = version; document.getElementById('datasetStatus').innerHTML = '<em class="status ' + (profile.status === '已训练' ? 's-success' : 's-warn') + '">' + profile.status + '</em>'; document.getElementById('dataRange').textContent = profile.range; document.getElementById('nextModel').textContent = profile.next; document.getElementById('unitCount').textContent = profile.units; document.getElementById('totalImages').textContent = profile.total; document.getElementById('annotatedImages').textContent = profile.annotated; document.getElementById('pendingImages').textContent = profile.pending; document.getElementById('progressText').innerHTML = '<i></i>' + profile.progress; document.getElementById('trainingPlan').textContent = profile.plan; document.getElementById('trainingTask').innerHTML = profile.task === '未提交' ? '未提交' : '<a class="link" href="#" data-training-task="' + profile.task + '">' + profile.task + '</a>';
     const images = [
       ['sample-no-helmet.jpg', 'IMG_20260824_102436.jpg', '鞍钢矿业公司', '视频监控', 'done'], ['sample-helmet.jpg', 'IMG_20260824_102439.jpg', '矿业事业部', '隐患库', 'done'], ['sample-safety-belt.jpg', 'IMG_20260823_164750.jpg', '安全环保部', '人工上报', 'done'], ['sample-normal-scene.jpg', 'IMG_20260823_164752.jpg', '生产运营部', '视频监控', 'pending'],
       ['sample-no-helmet.jpg', 'IMG_20260822_134810.jpg', '鞍钢矿业公司', '视频监控', 'done'], ['sample-helmet.jpg', 'IMG_20260822_134812.jpg', '矿业事业部', '隐患库', 'done'], ['sample-safety-belt.jpg', 'IMG_20260821_134828.jpg', '安全环保部', '人工上报', 'done'], ['sample-normal-scene.jpg', 'IMG_20260821_134831.jpg', '信息管理部', '视频监控', 'pending'],

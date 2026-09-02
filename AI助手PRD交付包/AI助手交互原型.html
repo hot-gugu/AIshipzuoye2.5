@@ -31,6 +31,7 @@ const closeAssistant=()=>{
 };
 document.querySelector('#fab').onclick=e=>{e.stopPropagation();drawer.classList.add('open')};
 document.querySelector('#close').onclick=closeAssistant;
+drawer.addEventListener('click',e=>{if(!e.target.closest('button,input,a,[data-q]'))closeAssistant()});
 document.addEventListener('click',e=>{if(drawer.classList.contains('open')&&!drawer.contains(e.target))closeAssistant()});
 document.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>ask(b.dataset.q));document.querySelector('#send').onclick=()=>ask(input.value);input.onkeydown=e=>{if(e.key==='Enter')ask(input.value)};
 function addUser(t){chat.insertAdjacentHTML('beforeend',`<div class="msg user">${t}</div>`);chat.scrollTop=chat.scrollHeight}
