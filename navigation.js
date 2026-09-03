@@ -4,81 +4,44 @@
   const menuGroups = [
     { title: '首页', icon: 'fa-home', href: '首页.html' },
     { title: '监测一张图', icon: 'fa-picture-o', href: '方案图册.html' },
+    { title: '作业计划管理', icon: 'fa-list-alt', href: '作业计划管理.html' },
+    { title: '实时在线巡检', icon: 'fa-video-camera', href: '实时监控.html' },
+    { title: '事后视频倒查', icon: 'fa-history', href: '视频倒查列表页面.html' },
+    { title: 'AI预警核查', icon: 'fa-bell', href: 'AI隐患核查.html' },
     {
-      title: '智能监护中心',
-      icon: 'fa-shield',
+      title: '隐患违章管理',
+      icon: 'fa-exclamation-triangle',
       children: [
-        {
-          title: '作业智能监测',
-          icon: 'fa-video-camera',
-          children: [
-            { title: '作业计划管理', href: '作业计划管理.html' },
-            { title: '作业智能监测', href: '实时监控.html' },
-            { title: '事后视频倒查', href: '视频倒查列表页面.html' }
-          ]
-        },
-        { title: '重点区域监测', icon: 'fa-map-marker' },
-        { title: 'AI预警核查', icon: 'fa-bell', href: 'AI隐患核查.html' },
-        {
-          title: '隐患违章管理',
-          icon: 'fa-exclamation-triangle',
-          children: [
-            { title: '违章查处', href: '隐患违章管理-违章查处.html' },
-            { title: '隐患查处', href: '隐患违章管理-隐患查处.html' }
-          ]
-        },
-        {
-          title: '履职统计',
-          icon: 'fa-bar-chart',
-          children: [
-            { title: '领导履职统计', href: '领导履职台账.html' },
-            { title: '违章统计分析', href: '违章统计分析.html' },
-            { title: '隐患统计分析', href: '隐患统计分析.html' }
-          ]
-        }
+        { title: '违章查处', href: '隐患违章管理-违章查处.html' },
+        { title: '隐患查处', href: '隐患违章管理-隐患查处.html' }
+      ]
+    },
+    {
+      title: '履职统计',
+      icon: 'fa-bar-chart',
+      children: [
+        { title: '领导履职统计', href: '领导履职台账.html' },
+        { title: '违章统计分析', href: '违章统计分析.html' },
+        { title: '隐患统计分析', href: '隐患统计分析.html' }
       ]
     },
     {
       title: '算法训练中心',
       icon: 'fa-graduation-cap',
       children: [
-        {
-          title: '算法管理',
-          icon: 'fa-cubes',
-          children: [
-            { title: '算法管理', href: '算法管理.html' },
-            { title: '算法精准度分析', href: '算法精准度分析列表.html' }
-          ]
-        },
-        {
-          title: '算法训练',
-          icon: 'fa-graduation-cap',
-          children: [
-            { title: '样本与数据集', href: '算力算法调度管理-样本与数据集.html' },
-            { title: '模型发布管理', href: '算力算法调度管理-模型版本管理.html' },
-            { title: '算法版本记录', href: '算力算法调度管理-模型发布管理.html' }
-          ]
-        },
-        {
-          title: '训练样本库',
-          icon: 'fa-database',
-          children: [
-            { title: '训练正负样本库', href: '数据回溯正负样本.html' },
-            { title: '隐患库', href: '隐患库.html' }
-          ]
-        },
-        {
-          title: '参数配置',
-          icon: 'fa-sliders',
-          children: [
-            { title: '模型目标物标签', href: '模型目标物标签管理.html' },
-            { title: '训练参数配置', href: '训练参数配置.html' }
-          ]
-        }
+        { title: '样本与数据集', href: '算力算法调度管理-样本与数据集.html' },
+        { title: '模型发布管理', href: '算力算法调度管理-模型版本管理.html' },
+        { title: '算法版本记录', href: '算力算法调度管理-模型发布管理.html' },
+        { title: '算法管理', href: '算法管理.html' },
+        { title: '模型目标物标签', href: '模型目标物标签管理.html' },
+        { title: '训练正负样本库', href: '数据回溯正负样本.html' },
+        { title: '算法精准度分析', href: '算法精准度分析列表.html' },
+        { title: '隐患库', href: '隐患库.html' },
+        { title: '训练参数配置', href: '训练参数配置.html' }
       ]
     },
     {
-      title: '智能调度中心',
+      title: '智能运维',
       icon: 'fa-microchip',
       children: [
         { title: '设备管理', href: '设备管理列表.html' },
@@ -86,34 +49,28 @@
       ]
     },
     {
-      title: '基础配置中心',
+      title: '基础管理',
       icon: 'fa-cogs',
       children: [
-        {
-          title: '基础管理',
-          icon: 'fa-sliders',
-          children: [
-            { title: '违章规则管理', href: '违章规则管理.html' },
-            { title: '违章类型管理', href: '违章类型管理.html' },
-            { title: '违章等级管理', href: '违章等级管理.html' },
-            { title: '隐患分类管理', href: '隐患分类管理.html' },
-            { title: '隐患等级管理', href: '隐患等级管理.html' },
-            { title: '作业区域管理', href: '作业区域管理.html' },
-            { title: '作业类型管理', href: '作业类型管理.html' },
-            { title: '人脸采集库', href: '人脸采集库.html' },
-            { title: '作业班次', href: '作业班次.html' }
-          ]
-        },
-        {
-          title: '系统管理',
-          icon: 'fa-gear',
-          children: [
-            { title: '成员管理' },
-            { title: '组织架构' },
-            { title: '角色管理' },
-            { title: '岗位管理' }
-          ]
-        }
+        { title: '违章规则管理', href: '违章规则管理.html' },
+        { title: '违章类型管理', href: '违章类型管理.html' },
+        { title: '违章等级管理', href: '违章等级管理.html' },
+        { title: '隐患分类管理', href: '隐患分类管理.html' },
+        { title: '隐患等级管理', href: '隐患等级管理.html' },
+        { title: '作业区域管理', href: '作业区域管理.html' },
+        { title: '作业类型管理', href: '作业类型管理.html' },
+        { title: '人脸采集库', href: '人脸采集库.html' },
+        { title: '作业班次', href: '作业班次.html' }
+      ]
+    },
+    {
+      title: '系统管理',
+      icon: 'fa-gear',
+      children: [
+        { title: '成员管理' },
+        { title: '组织架构' },
+        { title: '角色管理' },
+        { title: '岗位管理' }
       ]
     },
     { title: '产品功能说明', icon: 'fa-book', href: '产品功能说明.html' }
@@ -141,7 +98,7 @@
   };
 
   const flattenMenu = groups => groups.flatMap(group => group.children ? group.children : [group]);
-  const activeGroup = group => group.children?.some(child => isSamePage(child.href) || activeGroup(child));
+  const activeGroup = group => group.children?.some(child => isSamePage(child.href));
 
   const injectStyle = () => {
     if (document.getElementById('unified-navigation-style')) return;
@@ -221,14 +178,10 @@
       .unified-menu-group-title {
         color: #8fa4cf;
         font-weight: 600;
-        cursor: pointer;
+        cursor: default;
         justify-content: space-between;
       }
-      .unified-menu-group-title:hover { background: rgba(255,255,255,0.07); color: #fff; }
       .unified-menu-group-title.active { color: #fff; }
-      .unified-menu-group-title > .fa-angle-down { transition: transform .18s ease; }
-      .unified-menu-group.collapsed > .unified-menu-group-title > .fa-angle-down { transform: rotate(-90deg); }
-      .unified-menu-group.collapsed > .unified-menu-children { display: none; }
       .unified-group-main {
         display: flex;
         align-items: center;
@@ -245,9 +198,6 @@
         font-size: 13px;
         border-radius: 8px;
       }
-      .unified-menu-children .unified-menu-group { margin-top: 2px; }
-      .unified-menu-children .unified-menu-group-title { min-height: 36px; padding: 8px 10px; font-size: 13px; border-radius: 8px; }
-      .unified-menu-children .unified-menu-children { margin-left: 18px; }
       .unified-menu-item.placeholder {
         cursor: default;
         color: #8fa4cf;
@@ -296,36 +246,20 @@
     return item;
   };
 
-  const menuStateKey = path => `unified-menu:${path}`;
-  const readMenuState = path => {
-    try { return sessionStorage.getItem(menuStateKey(path)); } catch (_) { return null; }
-  };
-  const writeMenuState = (path, collapsed) => {
-    try { sessionStorage.setItem(menuStateKey(path), collapsed ? 'collapsed' : 'expanded'); } catch (_) {}
-  };
-
-  const createGroup = (group, depth = 0, path = group.title) => {
+  const createGroup = group => {
     const wrapper = document.createElement('div');
-    const savedState = readMenuState(path);
-    const initiallyCollapsed = savedState ? savedState === 'collapsed' : depth === 0;
-    wrapper.className = `unified-menu-group${initiallyCollapsed ? ' collapsed' : ''}`;
+    wrapper.className = 'unified-menu-group';
 
     const title = document.createElement('div');
     title.className = `unified-menu-group-title${activeGroup(group) ? ' active' : ''}`;
     title.innerHTML = `
       <span class="unified-group-main"><i class="fa ${group.icon}" style="width:18px;text-align:center;"></i><span>${group.title}</span></span>
-      ${group.children.length ? '<i class="fa fa-angle-down"></i>' : '<span aria-hidden="true"></span>'}
+      <i class="fa fa-angle-down"></i>
     `;
 
     const children = document.createElement('div');
-    children.className = `unified-menu-children${group.children.length ? '' : ' empty'}`;
-    group.children.forEach(child => children.appendChild(child.children ? createGroup(child, depth + 1, `${path}/${child.title}`) : createItem(child)));
-
-    title.addEventListener('click', () => {
-      if (!group.children.length) return;
-      wrapper.classList.toggle('collapsed');
-      writeMenuState(path, wrapper.classList.contains('collapsed'));
-    });
+    children.className = 'unified-menu-children';
+    group.children.forEach(child => children.appendChild(createItem(child)));
 
     wrapper.append(title, children);
     return wrapper;
@@ -353,7 +287,7 @@
     const nav = document.createElement('nav');
     nav.className = 'unified-menu';
     menuGroups.forEach(group => {
-      nav.appendChild(group.children ? createGroup(group, 0, group.title) : createItem(group));
+      nav.appendChild(group.children ? createGroup(group) : createItem(group));
     });
 
     const footer = document.createElement('div');
