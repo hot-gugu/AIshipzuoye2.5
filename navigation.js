@@ -16,8 +16,6 @@
         { title: '隐患查处', href: '隐患违章管理-隐患查处.html' }
       ]
     },
-    { title: '算法精准度分析', icon: 'fa-line-chart', href: '算法精准度分析列表.html' },
-    { title: '隐患库', icon: 'fa-database', href: '隐患库.html' },
     {
       title: '履职统计',
       icon: 'fa-bar-chart',
@@ -28,7 +26,7 @@
       ]
     },
     {
-      title: '训练管理',
+      title: '算法训练中心',
       icon: 'fa-graduation-cap',
       children: [
         { title: '样本与数据集', href: '算力算法调度管理-样本与数据集.html' },
@@ -37,6 +35,8 @@
         { title: '算法管理', href: '算法管理.html' },
         { title: '模型目标物标签', href: '模型目标物标签管理.html' },
         { title: '训练正负样本库', href: '数据回溯正负样本.html' },
+        { title: '算法精准度分析', href: '算法精准度分析列表.html' },
+        { title: '隐患库', href: '隐患库.html' },
         { title: '训练参数配置', href: '训练参数配置.html' }
       ]
     },
