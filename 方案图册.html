@@ -11,7 +11,7 @@
     body{display:flex}.page-shell{flex:1;min-width:0;margin-left:240px}.topbar{height:72px;padding:0 32px;display:flex;align-items:center;justify-content:space-between;background:#fff;border-bottom:1px solid var(--line)}
     .crumb{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--muted)}.crumb i{color:var(--blue)}.crumb strong{color:var(--text)}.count{font-size:13px;color:var(--muted)}
     main{padding:34px 38px 50px;max-width:1560px;margin:auto}.heading{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:26px}.heading h1{margin:0 0 8px;font-size:28px}.heading p{margin:0;color:var(--muted);font-size:14px}.heading-mark{width:88px;height:5px;border-radius:9px;background:linear-gradient(90deg,var(--blue) 72%,var(--cyan) 72%)}
-    .gallery{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:22px}.image-card{grid-column:span 4;min-width:0;padding:0;border:1px solid var(--line);border-radius:12px;background:#fff;overflow:hidden;cursor:zoom-in;text-align:left;color:inherit;box-shadow:0 7px 24px rgba(15,36,78,.07);transition:transform .2s,border-color .2s,box-shadow .2s}.image-card:hover{transform:translateY(-4px);border-color:#a9c1ff;box-shadow:0 14px 34px rgba(15,36,78,.13)}.image-card:focus-visible{outline:3px solid rgba(22,93,255,.25);outline-offset:3px}
+    .gallery{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:22px}.image-card{grid-column:span 4;min-width:0;padding:0;border:1px solid var(--line);border-radius:12px;background:#fff;overflow:hidden;cursor:zoom-in;text-align:left;color:inherit;box-shadow:0 7px 24px rgba(15,36,78,.07);transition:transform .2s,border-color .2s,box-shadow .2s}.image-card[data-href]{cursor:pointer}.image-card:hover{transform:translateY(-4px);border-color:#a9c1ff;box-shadow:0 14px 34px rgba(15,36,78,.13)}.image-card:focus-visible{outline:3px solid rgba(22,93,255,.25);outline-offset:3px}
     .thumb{height:260px;padding:16px;background-color:#edf2f8;background-image:linear-gradient(45deg,rgba(15,36,78,.025) 25%,transparent 25%),linear-gradient(-45deg,rgba(15,36,78,.025) 25%,transparent 25%),linear-gradient(45deg,transparent 75%,rgba(15,36,78,.025) 75%),linear-gradient(-45deg,transparent 75%,rgba(15,36,78,.025) 75%);background-size:24px 24px;background-position:0 0,0 12px,12px -12px,-12px 0}.thumb img{width:100%;height:100%;display:block;object-fit:contain}.caption{min-height:64px;padding:0 18px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--line);font-size:15px;font-weight:700}.caption i{color:#a4aec0;transition:.2s}.image-card:hover .caption i{color:var(--blue);transform:scale(1.12)}
     .viewer{position:fixed;inset:0;z-index:20000;display:none;flex-direction:column;background:rgba(4,12,28,.96);color:#fff}.viewer.open{display:flex}.viewer-head{height:64px;flex:none;padding:0 20px 0 26px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.13);background:rgba(8,22,48,.86)}.viewer-title{font-size:15px;font-weight:700}.viewer-actions{display:flex;align-items:center;gap:8px}.tool{width:38px;height:38px;border:1px solid rgba(255,255,255,.18);border-radius:8px;background:rgba(255,255,255,.07);color:#fff;cursor:pointer}.tool:hover{background:rgba(255,255,255,.16)}.zoom-label{width:54px;text-align:center;font-size:12px;color:#c9d6ee}.viewer-stage{position:relative;flex:1;min-height:0;overflow:hidden;cursor:grab}.viewer-stage.dragging{cursor:grabbing}.viewer-image{position:absolute;left:50%;top:50%;max-width:none;max-height:none;user-select:none;-webkit-user-drag:none;transform-origin:center}.hint{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);padding:7px 13px;border-radius:999px;background:rgba(6,18,40,.74);color:#aebbd2;font-size:12px;pointer-events:none}
     @media(max-width:1100px){.image-card,.image-card:nth-child(1),.image-card:nth-child(2){grid-column:span 6}}@media(max-width:900px){.page-shell{margin-left:0}.topbar{padding:0 20px}main{padding:26px 20px 40px}}@media(max-width:640px){.heading{align-items:flex-start;gap:18px;flex-direction:column}.image-card,.image-card:nth-child(1),.image-card:nth-child(2){grid-column:1/-1}.thumb{height:220px}.viewer-head{padding:0 10px 0 15px}.viewer-title{max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.tool{width:34px;height:34px}.hint{display:none}}
@@ -20,7 +20,7 @@
 <body>
   <aside></aside>
   <div class="page-shell">
-    <header class="topbar"><div class="crumb"><i class="fa fa-home"></i><span>系统资料</span><i class="fa fa-angle-right"></i><strong>监测一张图</strong></div><span class="count">共 6 张图片</span></header>
+    <header class="topbar"><div class="crumb"><i class="fa fa-home"></i><span>系统资料</span><i class="fa fa-angle-right"></i><strong>监测一张图</strong></div><span class="count">共 7 张图片</span></header>
     <main>
       <div class="heading"><div><h1>监测一张图</h1><p>点击卡片预览原图，支持缩放、拖拽与全屏查看</p></div><i class="heading-mark"></i></div>
       <section class="gallery" id="gallery" aria-label="方案图片列表"></section>
@@ -35,15 +35,23 @@
     <div class="viewer-stage" id="stage"><img class="viewer-image" id="viewerImage" alt=""><div class="hint">滚轮缩放 · 按住拖拽 · Esc 关闭</div></div>
   </div>
   <script>
-    const pictures=['集团版.png','厂矿级.png','监测一张图作业区域弹窗.png','业务流程图.png','功能架构图.png','AI预警及人工标注处置流程.png'];
+    const pictures=[
+      {src:'集团版.png'},
+      {src:'厂矿级.png'},
+      {src:'监测一张图作业区域弹窗.png'},
+      {src:'业务流程图.png'},
+      {src:'功能架构图.png'},
+      {src:'AI预警及人工标注处置流程.png'},
+      {src:'四平台数据流交互流程图-v3.png',title:'四方系统数据交互图',href:'四子系统完整数据流交互.html'}
+    ];
     const gallery=document.getElementById('gallery');
-    gallery.innerHTML=pictures.map((src,index)=>`<button class="image-card" data-src="${src}" aria-label="预览${src.replace('.png','')}"><div class="thumb"><img src="${encodeURI(src)}" alt="${src.replace('.png','')}" loading="${index>1?'lazy':'eager'}"></div><div class="caption"><span>${src.replace('.png','')}</span><i class="fa fa-search-plus"></i></div></button>`).join('');
+    gallery.innerHTML=pictures.map((picture,index)=>{const title=picture.title||picture.src.replace('.png','');return `<button class="image-card" data-src="${picture.src}" ${picture.href?`data-href="${picture.href}"`:''} aria-label="${picture.href?'打开':'预览'}${title}"><div class="thumb"><img src="${encodeURI(picture.src)}" alt="${title}" loading="${index>1?'lazy':'eager'}"></div><div class="caption"><span>${title}</span><i class="fa ${picture.href?'fa-arrow-right':'fa-search-plus'}"></i></div></button>`}).join('');
     const viewer=document.getElementById('viewer'),stage=document.getElementById('stage'),image=document.getElementById('viewerImage'),title=document.getElementById('viewerTitle'),label=document.getElementById('zoomLabel');
     let scale=1,minScale=.1,x=0,y=0,dragging=false,startX=0,startY=0;
     const render=()=>{image.style.transform=`translate(-50%,-50%) translate(${x}px,${y}px) scale(${scale})`;label.textContent=`${Math.round(scale*100)}%`};
     const fit=()=>{if(!image.naturalWidth)return;const pad=50;minScale=Math.min((stage.clientWidth-pad)/image.naturalWidth,(stage.clientHeight-pad)/image.naturalHeight,1);scale=minScale;x=0;y=0;render()};
     const setScale=value=>{scale=Math.min(5,Math.max(minScale*.5,value));render()};
-    gallery.addEventListener('click',event=>{const card=event.target.closest('.image-card');if(!card)return;const src=card.dataset.src;title.textContent=src.replace('.png','');image.alt=`${title.textContent}大图预览`;viewer.classList.add('open');document.body.style.overflow='hidden';image.onload=fit;image.src=encodeURI(src);document.getElementById('close').focus()});
+    gallery.addEventListener('click',event=>{const card=event.target.closest('.image-card');if(!card)return;if(card.dataset.href){location.href=encodeURI(card.dataset.href);return}const src=card.dataset.src;title.textContent=src.replace('.png','');image.alt=`${title.textContent}大图预览`;viewer.classList.add('open');document.body.style.overflow='hidden';image.onload=fit;image.src=encodeURI(src);document.getElementById('close').focus()});
     const closeViewer=()=>{viewer.classList.remove('open');document.body.style.overflow='';if(document.fullscreenElement)document.exitFullscreen()};
     document.getElementById('close').onclick=closeViewer;document.getElementById('zoomIn').onclick=()=>setScale(scale*1.2);document.getElementById('zoomOut').onclick=()=>setScale(scale/1.2);document.getElementById('fit').onclick=fit;
     document.getElementById('fullscreen').onclick=()=>document.fullscreenElement?document.exitFullscreen():viewer.requestFullscreen();

@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>四子系统完整数据流交互示意图</title>
+  <style>
+    :root {
+      --ink: #172033;
+      --muted: #64748b;
+      --line: #dbe3ee;
+      --blue: #3d8de3;
+      --blue-soft: #eaf6ff;
+      --indigo: #6676d9;
+      --indigo-soft: #eef0ff;
+      --green: #45a767;
+      --green-soft: #edf9f0;
+      --amber: #d68b27;
+      --amber-soft: #fff7e8;
+      --red: #e86668;
+      --violet: #8b69d4;
+      --violet-soft: #f4efff;
+      --paper: #ffffff;
+      --page: #f4f7fb;
+      --shadow: 0 14px 38px rgba(31, 51, 78, .08);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--page);
+      font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", sans-serif;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .toolbar {
+      position: sticky;
+      z-index: 20;
+      top: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 11px 24px;
+      color: #fff;
+      background: rgba(23, 32, 51, .94);
+      backdrop-filter: blur(10px);
+    }
+    .toolbar-title { font-weight: 700; letter-spacing: .04em; }
+    .toolbar-actions { display: flex; gap: 8px; }
+    .tool-btn {
+      min-width: 34px;
+      height: 34px;
+      padding: 0 12px;
+      border: 1px solid rgba(255,255,255,.22);
+      border-radius: 7px;
+      color: #fff;
+      background: rgba(255,255,255,.08);
+      cursor: pointer;
+      font: inherit;
+    }
+    .tool-btn:hover { background: rgba(255,255,255,.16); }
+
+    .page-wrap { padding: 26px; overflow: auto; }
+    .canvas {
+      width: min(1540px, 100%);
+      margin: 0 auto;
+      padding: 38px 42px 48px;
+      background: var(--paper);
+      border: 1px solid #e4e9f0;
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      transform-origin: top left;
+      transition: transform .18s ease;
+    }
+
+    .page-head { text-align: center; margin-bottom: 30px; }
+    .page-head h1 { margin: 0 0 8px; font-size: 29px; letter-spacing: .04em; }
+    .page-head p { margin: 0; color: var(--muted); font-size: 14px; }
+
+    .legend { display: flex; justify-content: center; gap: 24px; margin-top: 18px; }
+    .legend span { display: inline-flex; align-items: center; gap: 7px; color: #475569; font-size: 12px; }
+    .legend i { width: 24px; height: 4px; border-radius: 4px; }
+    .legend .realtime { background: var(--red); }
+    .legend .offline { background: var(--violet); }
+    .legend .storage { background: var(--green); border-top: 2px dashed #fff; }
+
+    .flow-figure {
+      margin: 8px 0 34px;
+      padding: 14px;
+      overflow: hidden;
+      background: #fff;
+      border: 1px solid #dce6f2;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, .07);
+    }
+    .flow-figure img {
+      display: block;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 16 / 9;
+      object-fit: contain;
+      border-radius: 10px;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 34px 0 17px;
+      font-size: 19px;
+      font-weight: 750;
+    }
+    .section-title::after { content: ""; height: 1px; flex: 1; background: var(--line); }
+    .section-index {
+      display: grid;
+      place-items: center;
+      width: 29px;
+      height: 29px;
+      color: #fff;
+      background: var(--ink);
+      border-radius: 50%;
+      font-size: 13px;
+    }
+
+    .overview {
+      position: relative;
+      height: 510px;
+      overflow: hidden;
+      border: 1px solid #dbe5f0;
+      border-radius: 16px;
+      background:
+        linear-gradient(180deg, rgba(234,246,255,.6) 0 49.5%, rgba(244,239,255,.48) 49.5% 100%);
+    }
+    .lane-label {
+      position: absolute;
+      left: 18px;
+      z-index: 3;
+      padding: 6px 13px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      background: #fff;
+      box-shadow: 0 4px 14px rgba(31,51,78,.08);
+    }
+    .lane-label.top { top: 16px; color: #c75052; border: 1px solid #f2b0b1; }
+    .lane-label.bottom { top: 274px; color: #7452bc; border: 1px solid #cdbcf2; }
+    .lane-note {
+      position: absolute;
+      right: 18px;
+      top: 270px;
+      z-index: 3;
+      padding: 7px 12px;
+      color: #7452bc;
+      background: #fff;
+      border: 1px solid #cdbcf2;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .overview-grid {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 68px;
+      padding: 64px 42px 36px;
+    }
+    .system-card {
+      position: relative;
+      min-height: 178px;
+      padding: 19px 18px 15px;
+      border-radius: 13px;
+      background: rgba(255,255,255,.92);
+      box-shadow: 0 9px 24px rgba(48, 78, 111, .08);
+    }
+    .system-card.video { border: 1.5px solid #8bc8ea; background: linear-gradient(145deg, #f7fcff, #def3ff); }
+    .system-card.schedule { border: 1.5px solid #a4afea; background: linear-gradient(145deg, #fafbff, #e8ebff); }
+    .system-card.business { border: 1.5px solid #e5bc76; background: linear-gradient(145deg, #fffdf8, #fff2d9); }
+    .system-card.training { border: 1.5px solid #b7a1e5; background: linear-gradient(145deg, #fdfbff, #eee7ff); }
+    .system-card h3 { margin: 0 0 10px; padding-bottom: 9px; border-bottom: 1px solid rgba(100,116,139,.18); text-align: center; font-size: 16px; }
+    .system-card ul { margin: 0; padding: 0; list-style: none; color: #455268; font-size: 12px; }
+    .system-card li { margin: 4px 0; }
+    .system-card li::before { content: "›"; margin-right: 7px; color: var(--blue); font-weight: 800; }
+    .system-card.training { grid-column: 2 / 4; align-self: end; width: 460px; justify-self: center; min-height: 150px; }
+    .system-card.training ul { columns: 2; column-gap: 28px; }
+    .system-card.storage {
+      grid-column: 4;
+      align-self: end;
+      min-height: 150px;
+      border: 1.5px dashed #78be91;
+      background: linear-gradient(145deg, #f8fffa, #e9f8ee);
+    }
+    .overview-lines { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; }
+    .overview-caption {
+      position: absolute;
+      z-index: 4;
+      padding: 4px 9px;
+      border: 1px solid #dbe3ee;
+      border-radius: 6px;
+      color: #475569;
+      background: #fff;
+      font-size: 10.5px;
+      white-space: nowrap;
+    }
+    .cap-1 { left: 296px; top: 92px; }
+    .cap-2 { left: 640px; top: 92px; }
+    .cap-3 { left: 996px; top: 92px; }
+    .cap-4 { left: 466px; top: 284px; }
+    .cap-5 { left: 850px; top: 284px; }
+    .cap-6 { left: 1088px; top: 404px; color: #2f8550; border-style: dashed; }
+
+    .pair {
+      display: grid;
+      grid-template-columns: 285px 1fr 285px;
+      gap: 30px;
+      align-items: stretch;
+      margin-bottom: 24px;
+      padding: 20px;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      background: #fbfcfe;
+    }
+    .pair-platform {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 238px;
+      padding: 20px;
+      border-radius: 12px;
+      background: #fff;
+      border: 1.5px solid #b9d8ef;
+    }
+    .pair-platform.right { border-color: #bbc2ef; }
+    .pair-platform h3 { margin: 0 0 11px; text-align: center; font-size: 16px; }
+    .pair-platform ul { margin: 0; padding: 11px 0 0; border-top: 1px solid var(--line); list-style: none; color: #526074; font-size: 12px; }
+    .pair-platform li { margin: 5px 0; }
+    .channels { display: flex; flex-direction: column; justify-content: center; gap: 8px; }
+    .channel {
+      position: relative;
+      min-height: 47px;
+      padding: 7px 15px;
+      border: 1.4px solid #98c9ed;
+      border-radius: 8px;
+      background: #fff;
+      text-align: center;
+    }
+    .channel::before, .channel::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      width: 30px;
+      border-top: 2px solid currentColor;
+    }
+    .channel::before { left: -31px; }
+    .channel::after { right: -31px; }
+    .channel .arrow-left, .channel .arrow-right {
+      position: absolute;
+      top: calc(50% - 5px);
+      width: 0; height: 0;
+      border-top: 5px solid transparent;
+      border-bottom: 5px solid transparent;
+    }
+    .channel .arrow-left { left: -32px; border-right: 8px solid currentColor; }
+    .channel .arrow-right { right: -32px; border-left: 8px solid currentColor; }
+    .channel.to-right .arrow-left, .channel.to-left .arrow-right { display: none; }
+    .channel h4 { margin: 0 0 2px; font-size: 12px; }
+    .channel p { margin: 0; color: var(--muted); font-size: 10.5px; }
+    .channel.blue { color: var(--blue); border-color: #8ec8ee; }
+    .channel.red { color: var(--red); border-color: #ef9294; }
+    .channel.green { color: var(--green); border-color: #83c999; }
+    .channel.violet { color: var(--violet); border-color: #b9a5e7; }
+    .channel.amber { color: var(--amber); border-color: #e7bd77; }
+    .channel h4, .channel p { color: var(--ink); }
+    .pair-tag { grid-column: 1 / -1; margin: -4px 0 -5px; color: var(--muted); font-size: 11px; text-align: center; }
+
+    .sequence {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 24px;
+      margin-bottom: 22px;
+    }
+    .sequence.five { grid-template-columns: repeat(5, 1fr); }
+    .step {
+      position: relative;
+      min-height: 122px;
+      padding: 15px 13px;
+      border: 1px solid #abd9b9;
+      border-radius: 10px;
+      background: var(--green-soft);
+      text-align: center;
+    }
+    .step.offline { border-color: #c9b9ea; background: var(--violet-soft); }
+    .step:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      right: -18px;
+      top: 50%;
+      width: 12px;
+      border-top: 2px solid #718096;
+    }
+    .step:not(:last-child)::before {
+      content: "";
+      position: absolute;
+      right: -20px;
+      top: calc(50% - 4px);
+      border-top: 5px solid transparent;
+      border-bottom: 5px solid transparent;
+      border-left: 7px solid #718096;
+    }
+    .step strong { display: block; margin-bottom: 7px; font-size: 12.5px; }
+    .step span { display: block; color: #475569; font-size: 10.5px; }
+    .step code { display: block; margin-top: 5px; color: #6b7280; font: 9.5px/1.35 Consolas, monospace; }
+
+    .boundary-intro {
+      margin: -3px 0 16px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .boundary-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .boundary {
+      overflow: hidden;
+      border: 1px solid #dbe3ee;
+      border-top: 4px solid var(--boundary-color, var(--blue));
+      border-radius: 11px;
+      background: #fbfcfe;
+    }
+    .boundary summary {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 16px 18px;
+      cursor: pointer;
+      list-style: none;
+      background: linear-gradient(90deg, color-mix(in srgb, var(--boundary-color) 9%, #fff), #fff);
+    }
+    .boundary summary::-webkit-details-marker { display: none; }
+    .boundary summary::after {
+      content: "+";
+      margin-left: auto;
+      color: var(--boundary-color);
+      font-size: 20px;
+      line-height: 1;
+    }
+    .boundary[open] summary::after { content: "−"; }
+    .boundary-icon {
+      display: grid;
+      place-items: center;
+      width: 32px;
+      height: 32px;
+      flex: 0 0 auto;
+      border-radius: 8px;
+      color: #fff;
+      background: var(--boundary-color);
+      font-size: 13px;
+      font-weight: 800;
+    }
+    .boundary-title strong { display: block; font-size: 14px; }
+    .boundary-title span { display: block; margin-top: 1px; color: var(--muted); font-size: 10.5px; }
+    .boundary-body { padding: 0 18px 17px; }
+    .boundary-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    .boundary-table th,
+    .boundary-table td { padding: 9px 8px; border-top: 1px solid #e4eaf1; vertical-align: top; text-align: left; }
+    .boundary-table th { width: 104px; color: #344156; font-size: 11px; }
+    .boundary-table td { color: #5c687b; font-size: 10.5px; }
+    .boundary-table tr.forbid th,
+    .boundary-table tr.forbid td { color: #b64f51; }
+    .boundary.video-boundary { --boundary-color: #4a9bd6; }
+    .boundary.schedule-boundary { --boundary-color: #6576d6; }
+    .boundary.business-boundary { --boundary-color: #d49631; }
+    .boundary.training-boundary { --boundary-color: #8b69d4; }
+    .global-rules {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 16px;
+      padding: 16px;
+      border: 1px dashed #b9c6d7;
+      border-radius: 10px;
+      background: #f8fafc;
+    }
+    .global-rules h3 { grid-column: 1 / -1; margin: 0 0 2px; font-size: 13px; }
+    .rule { padding-left: 11px; border-left: 3px solid var(--blue); }
+    .rule strong { display: block; margin-bottom: 3px; font-size: 11px; }
+    .rule span { color: var(--muted); font-size: 10px; }
+
+    .role-wrap { overflow: hidden; border: 1px solid var(--line); border-radius: 14px; background: #fff; }
+    .role-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    .role-table th { padding: 12px 14px; color: #475569; background: #f5f8fc; border-bottom: 1px solid var(--line); font-size: 11px; text-align: left; }
+    .role-table td { padding: 12px 14px; color: #334155; border-bottom: 1px solid #edf1f6; font-size: 10.5px; line-height: 1.65; vertical-align: top; }
+    .role-table tr:last-child td { border-bottom: 0; }
+    .role-table .role-name { color: var(--ink); font-weight: 750; }
+    .role-platform { display: inline-block; padding: 3px 8px; border-radius: 999px; color: #175ea8; background: #eaf4ff; font-weight: 700; white-space: nowrap; }
+    .role-platform.biz { color: #9a5b12; background: #fff4df; }
+    .role-platform.isp { color: #5146a5; background: #efedff; }
+    .role-platform.atp { color: #08796f; background: #e6faf6; }
+    .role-note { margin: 12px 0 0; padding: 11px 14px; color: #526277; background: #f7faff; border: 1px dashed #bfd2ea; border-radius: 10px; font-size: 10.5px; line-height: 1.6; }
+
+    .footnote { margin-top: 28px; padding-top: 15px; border-top: 1px dashed #d8e0ea; color: #8a96a8; font-size: 10.5px; text-align: center; }
+
+    @media (max-width: 900px) {
+      .toolbar { padding-inline: 14px; }
+      .page-wrap { padding: 12px; }
+      .canvas { transform: none !important; }
+    }
+    @media print {
+      @page { size: A3 landscape; margin: 8mm; }
+      body { background: #fff; }
+      .toolbar { display: none; }
+      .page-wrap { padding: 0; overflow: visible; }
+      .canvas { width: 100%; border: 0; border-radius: 0; box-shadow: none; }
+      .pair, .overview, .sequence { break-inside: avoid; }
+      .boundary { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <header class="toolbar">
+    <div class="toolbar-title">四子系统数据流交互示意图</div>
+    <div class="toolbar-actions">
+      <button class="tool-btn" type="button" onclick="setZoom(-0.1)" aria-label="缩小">−</button>
+      <button class="tool-btn" type="button" id="zoomText" onclick="resetZoom()">100%</button>
+      <button class="tool-btn" type="button" onclick="setZoom(0.1)" aria-label="放大">＋</button>
+      <button class="tool-btn" type="button" onclick="window.print()">打印 / 导出 PDF</button>
+    </div>
+  </header>
+
+  <main class="page-wrap">
+    <article class="canvas" id="canvas">
+      <header class="page-head">
+        <h1>无视频不作业 · 四子系统完整数据流交互</h1>
+        <p>视频汇聚平台 · 智能调度平台 · 无视频不作业业务系统 · 训练标注平台</p>
+        <div class="legend">
+          <span><i class="realtime"></i>实时业务链路</span>
+          <span><i class="offline"></i>离线 / 准异步闭环</span>
+          <span><i class="storage"></i>对象存储 URL 引用</span>
+        </div>
+      </header>
+
+      <figure class="flow-figure" aria-label="四平台数据流交互流程图">
+        <img src="四平台数据流交互流程图-v3.png" width="1672" height="941" alt="视频汇聚平台、视频AI识别自进化业务平台、标注训练平台与智能算力调度平台数据流交互流程图，包含算力服务器预警识别与事件推送链路">
+      </figure>
+
+      <section>
+        <h2 class="section-title"><span class="section-index">1</span>全局交互总览</h2>
+        <div class="overview">
+          <div class="lane-label top">实时预警主链路</div>
+          <div class="lane-label bottom">离线样本与模型闭环</div>
+          <div class="lane-note">训练标注平台不参与实时视频链路</div>
+
+          <svg class="overview-lines" viewBox="0 0 1456 510" preserveAspectRatio="none" aria-hidden="true">
+            <defs>
+              <marker id="rtArrow" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><polygon points="0 0,9 3.5,0 7" fill="#e86668"/></marker>
+              <marker id="offArrow" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><polygon points="0 0,9 3.5,0 7" fill="#8b69d4"/></marker>
+              <marker id="storeArrow" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><polygon points="0 0,9 3.5,0 7" fill="#45a767"/></marker>
+            </defs>
+            <path d="M302 158 H397" stroke="#e86668" stroke-width="3" fill="none" marker-end="url(#rtArrow)"/>
+            <path d="M650 158 H758" stroke="#e86668" stroke-width="3" fill="none" marker-end="url(#rtArrow)"/>
+            <path d="M1011 158 H1110" stroke="#e86668" stroke-width="3" fill="none" marker-end="url(#rtArrow)"/>
+            <path d="M1110 195 H1011" stroke="#3d8de3" stroke-width="2" fill="none" marker-end="url(#rtArrow)"/>
+            <path d="M1236 245 C1236 300, 955 304, 920 340" stroke="#8b69d4" stroke-width="2.4" fill="none" marker-end="url(#offArrow)"/>
+            <path d="M643 340 C610 300, 562 280, 530 245" stroke="#8b69d4" stroke-width="2.4" fill="none" marker-end="url(#offArrow)"/>
+            <path d="M760 340 C760 293, 856 288, 884 245" stroke="#8b69d4" stroke-width="2.4" fill="none" marker-end="url(#offArrow)"/>
+            <path d="M920 408 H1128" stroke="#45a767" stroke-width="2" stroke-dasharray="7 5" fill="none" marker-end="url(#storeArrow)"/>
+            <path d="M1285 340 C1320 287, 1310 255, 1270 245" stroke="#45a767" stroke-width="2" stroke-dasharray="7 5" fill="none" marker-end="url(#storeArrow)"/>
+          </svg>
+
+          <span class="overview-caption cap-1">设备元数据 / RTSP流地址</span>
+          <span class="overview-caption cap-2">算力调度 / 视频拉流推理</span>
+          <span class="overview-caption cap-3">预警事件 / 推理结果</span>
+          <span class="overview-caption cap-4">模型包 / 版本状态</span>
+          <span class="overview-caption cap-5">难例样本 / 业务上下文 / 标签字典</span>
+          <span class="overview-caption cap-6">截图、帧样本、视频片段：仅传 URL</span>
+
+          <div class="overview-grid">
+            <div class="system-card video">
+              <h3>视频汇聚平台（VAP）</h3>
+              <ul><li>GB28181 / RTSP / ONVIF 接入</li><li>设备注册与在线状态</li><li>视频流转发与流地址服务</li><li>录像存储与回放</li><li>上下级平台级联</li></ul>
+            </div>
+            <div class="system-card schedule">
+              <h3>智能调度平台（ISP）</h3>
+              <ul><li>场景算力资源规则配置</li><li>轮询、并发与优先级策略</li><li>按场景自动生成算力任务</li><li>算法模型加载与版本管理</li><li>推理结果聚合与预警输出</li></ul>
+            </div>
+            <div class="system-card business">
+              <h3>无视频不作业业务系统</h3>
+              <ul><li>作业计划创建与启停</li><li>摄像头 + 业务场景 + 作业周期绑定</li><li>作业计划统一下发</li><li>违章预警展示、复核与处置</li><li>业务上下文权威数据源</li></ul>
+            </div>
+            <div class="system-card training">
+              <h3>训练标注平台（ATP）</h3>
+              <ul><li>样本接收与任务生成</li><li>预标注 / 人工标注 / 质检</li><li>数据集版本管理</li><li>模型训练与评估</li><li>模型导出与版本发布申请</li><li>不接入现场实时视频</li></ul>
+            </div>
+            <div class="system-card storage">
+              <h3>对象存储（MinIO / OSS）</h3>
+              <ul><li>截图与帧样本</li><li>短视频片段</li><li>数据集文件</li><li>模型权重文件</li><li>平台间只传文件 URL</li></ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="section-title"><span class="section-index">2</span>平台间详细数据通道</h2>
+
+        <div class="pair">
+          <div class="pair-platform">
+            <h3>视频汇聚平台（VAP）</h3>
+            <ul><li>设备接入、目录与状态</li><li>RTSP 流地址生成</li><li>录像检索与回放</li><li>流媒体转发</li></ul>
+          </div>
+          <div class="channels">
+            <div class="channel blue to-right"><i class="arrow-left"></i><i class="arrow-right"></i><h4>① 设备 / 摄像头元数据同步</h4><p>REST API / MQ · 设备ID、通道号、在线状态、位置</p></div>
+            <div class="channel red"><i class="arrow-left"></i><i class="arrow-right"></i><h4>② 视频流拉取（核心实时通道）</h4><p>调度请求流地址 → 汇聚返回鉴权 RTSP URL → 算力节点直连拉流</p></div>
+            <div class="channel blue"><i class="arrow-left"></i><i class="arrow-right"></i><h4>③ 录像 / 截图检索</h4><p>REST API · 摄像头ID、起止时间、录像片段URL、截图URL</p></div>
+            <div class="channel green"><i class="arrow-left"></i><i class="arrow-right"></i><h4>④ 心跳与运行状态</h4><p>HTTP / MQ · 设备在线、流中断、拉流异常</p></div>
+          </div>
+          <div class="pair-platform right">
+            <h3>智能调度平台（ISP）</h3>
+            <ul><li>按任务申请视频流</li><li>分配算力节点</li><li>下发算法与参数</li><li>监控流和节点状态</li></ul>
+          </div>
+          <p class="pair-tag">实时数据通道；视频流由算力节点按需直拉，不经过业务系统或训练标注平台。</p>
+        </div>
+
+        <div class="pair">
+          <div class="pair-platform">
+            <h3>无视频不作业业务系统</h3>
+            <ul><li>创建、编辑、启停作业计划</li><li>绑定摄像头、业务场景与作业周期</li><li>统一下发计划及场景编码</li><li>告警展示、复核与处置</li><li>模型质量看板</li></ul>
+          </div>
+          <div class="channels">
+            <div class="channel amber"><i class="arrow-left"></i><i class="arrow-right"></i><h4>① 业务场景与调度场景映射</h4><p>统一场景编码匹配；调度侧内置算法、模型、算力资源、轮询和默认优先级配置</p></div>
+            <div class="channel red to-right"><i class="arrow-left"></i><i class="arrow-right"></i><h4>② 作业计划统一下发</h4><p>REST API · 作业计划ID、作业单号、摄像头ID集合、场景编码、起止时间、作业周期</p></div>
+            <div class="channel amber to-right"><i class="arrow-left"></i><i class="arrow-right"></i><h4>③ 场景匹配并自动生成算力任务</h4><p>匹配场景配置 → 读取算力资源 / 轮询 / 并发 / 优先级规则 → 拆分并创建算力任务</p></div>
+            <div class="channel green to-left"><i class="arrow-left"></i><i class="arrow-right"></i><h4>④ 推理结果 / 预警事件回传</h4><p>Webhook / MQ · 标签、bbox、置信度、截图URL、事件时间</p></div>
+            <div class="channel blue"><i class="arrow-left"></i><i class="arrow-right"></i><h4>⑤ 作业计划与算力任务状态同步</h4><p>待执行、执行中、暂停、完成、异常；执行进度、算力节点、异常原因</p></div>
+            <div class="channel violet to-left"><i class="arrow-left"></i><i class="arrow-right"></i><h4>⑥ 模型效果指标回写</h4><p>摄像头 / 场景 / 算法维度：误报率、漏报率、有效告警率</p></div>
+          </div>
+          <div class="pair-platform right">
+            <h3>智能调度平台（ISP）</h3>
+            <ul><li>维护场景算力资源规则</li><li>维护轮询、并发与优先级策略</li><li>匹配场景并自动生成算力任务</li><li>分配节点、加载模型并执行推理</li><li>聚合预警和运行指标</li></ul>
+          </div>
+          <p class="pair-tag">业务系统是作业上下文与告警处置的权威源；智能调度平台承担实时推理编排。</p>
+        </div>
+
+        <div class="pair">
+          <div class="pair-platform">
+            <h3>无视频不作业业务系统</h3>
+            <ul><li>AI预警核查数据</li><li>实时在线巡检人工履职标注</li><li>事后视频倒查标注</li><li>隐患库关联隐患台账</li></ul>
+          </div>
+          <div class="channels">
+            <div class="channel violet to-right"><i class="arrow-left"></i><i class="arrow-right"></i><h4>① 标注图片及难例样本汇聚</h4><p>AI预警核查、实时巡检人工标注、事后倒查标注、隐患台账 → 训练平台数据集</p></div>
+            <div class="channel violet"><i class="arrow-left"></i><i class="arrow-right"></i><h4>② 标签字典双向同步</h4><p>标签编码、标签名称、违章类型、启停状态、版本号</p></div>
+            <div class="channel blue to-left"><i class="arrow-left"></i><i class="arrow-right"></i><h4>③ 业务上下文查询</h4><p>作业单号 + 摄像头ID + 时间戳 → 作业状态、类型、人员信息</p></div>
+            <div class="channel green to-left"><i class="arrow-left"></i><i class="arrow-right"></i><h4>④ 标注 / 样本处理状态回告</h4><p>样本接收状态、标注任务编号、处理进度、质检结果</p></div>
+          </div>
+          <div class="pair-platform right">
+            <h3>训练标注平台（ATP）</h3>
+            <ul><li>自动创建标注任务</li><li>使用线上 bbox 预标注</li><li>人工修正与质检</li><li>形成标准训练数据集</li></ul>
+          </div>
+          <p class="pair-tag">离线 / 准异步交互；仅传样本元数据和对象存储 URL，不传原始视频二进制。</p>
+        </div>
+
+        <div class="pair">
+          <div class="pair-platform">
+            <h3>训练标注平台（ATP）</h3>
+            <ul><li>数据集版本冻结</li><li>模型训练与评估</li><li>模型权重导出</li><li>标签映射打包</li></ul>
+          </div>
+          <div class="channels">
+            <div class="channel blue to-right"><i class="arrow-left"></i><i class="arrow-right"></i><h4>① 训练任务申请</h4><p>训练场景、数据集版本、算法类型、资源规格、优先级</p></div>
+            <div class="channel green to-left"><i class="arrow-left"></i><i class="arrow-right"></i><h4>② 训练状态回调</h4><p>训练任务编号、排队 / 运行 / 完成状态、进度、指标与日志URL</p></div>
+            <div class="channel violet to-right"><i class="arrow-left"></i><i class="arrow-right"></i><h4>③ 模型版本同步</h4><p>模型版本、模型文件URL、标签字典、评估指标、适用场景</p></div>
+            <div class="channel amber to-left"><i class="arrow-left"></i><i class="arrow-right"></i><h4>④ 发布状态回告</h4><p>待验证、灰度、已发布、已回退；线上统一算法版本号</p></div>
+          </div>
+          <div class="pair-platform right">
+            <h3>智能调度平台（ISP）</h3>
+            <ul><li>训练算力资源调度</li><li>模型包校验与加载</li><li>灰度切换与版本回退</li><li>线上模型版本管理</li></ul>
+          </div>
+          <p class="pair-tag">标注平台负责训练导出；模型加载、上线、灰度和回退由智能调度平台负责。</p>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="section-title"><span class="section-index">3</span>一次实时 AI 预警任务的完整时序</h2>
+        <div class="sequence">
+          <div class="step"><strong>Step 1 创建作业计划</strong><span>业务平台选择摄像头、业务场景、作业周期和起止时间</span><code>camera + scene + schedule</code></div>
+          <div class="step"><strong>Step 2 统一下发计划</strong><span>将计划ID、摄像头集合和场景编码发送至调度平台</span><code>POST /api/work-plans</code></div>
+          <div class="step"><strong>Step 3 匹配场景配置</strong><span>调度平台通过场景编码匹配内置算力与算法配置</span><code>sceneCode → policy</code></div>
+          <div class="step"><strong>Step 4 自动生成任务</strong><span>依据资源、轮询、并发和优先级规则创建算力任务</span><code>policy → compute tasks</code></div>
+          <div class="step"><strong>Step 5 获取视频流</strong><span>调度申请流地址，算力节点按需直连拉流</span><code>RTSP URL + token</code></div>
+          <div class="step"><strong>Step 6 算力推理</strong><span>分配节点、加载模型并按计划周期执行识别</span><code>schedule + inference</code></div>
+          <div class="step"><strong>Step 7 预警闭环</strong><span>调度聚合结果，业务平台展示、复核并处置</span><code>Webhook / MQ callback</code></div>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="section-title"><span class="section-index">4</span>一次样本回流到新模型上线的完整时序</h2>
+        <div class="sequence five">
+          <div class="step offline"><strong>Step 1 人工复核</strong><span>业务人员标记误报、漏报、难例或边界案例</span><code>样本元数据 + 文件URL</code></div>
+          <div class="step offline"><strong>Step 2 标注质检</strong><span>自动建任务、预标注、人工修正并质检</span><code>YOLO / COCO / JSONL</code></div>
+          <div class="step offline"><strong>Step 3 训练评估</strong><span>冻结数据集版本，申请算力并产出模型</span><code>dataset → training → metrics</code></div>
+          <div class="step offline"><strong>Step 4 模型同步</strong><span>推送模型版本、权重URL、标签字典与指标</span><code>model package metadata</code></div>
+          <div class="step offline"><strong>Step 5 灰度上线</strong><span>调度平台校验、加载、灰度切换，可随时回退</span><code>verify → canary → release</code></div>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="section-title"><span class="section-index">5</span>系统边界与对接原则</h2>
+        <p class="boundary-intro">边界判定采用五个维度：系统负责什么、拥有什么权威数据、可以向外提供什么、可以从外部接收什么，以及明确禁止承担什么。</p>
+        <div class="boundary-grid">
+          <details class="boundary video-boundary" open>
+            <summary><span class="boundary-icon">VAP</span><span class="boundary-title"><strong>视频汇聚平台边界</strong><span>视频设备与媒体资源的统一接入、管理和分发域</span></span></summary>
+            <div class="boundary-body"><table class="boundary-table">
+              <tr><th>核心职责</th><td>接入摄像头、NVR、DVR；维护设备目录和在线状态；提供实时流、录像检索、截图和回放能力；完成转码、转封装及国标级联。</td></tr>
+              <tr><th>权威数据</th><td>设备ID、通道号、设备名称与位置、在线状态、码流信息、录像索引、流地址生成规则。</td></tr>
+              <tr><th>对外提供</th><td>设备元数据、在线状态、鉴权后的 RTSP/HTTP-FLV/HLS 流地址、录像与截图文件 URL、流异常事件。</td></tr>
+              <tr><th>允许接收</th><td>智能调度平台的流地址申请、录像检索请求和心跳探测；设备侧的视频流及状态上报。</td></tr>
+              <tr class="forbid"><th>禁止事项</th><td>不管理作业单和违章业务；不决定使用哪个算法；不生成业务预警；不向训练标注平台持续推送实时视频。</td></tr>
+              <tr><th>故障影响</th><td>设备或流服务故障会影响实时分析与录像取证，但不应破坏既有业务台账、标注数据集和模型版本记录。</td></tr>
+            </table></div>
+          </details>
+
+          <details class="boundary schedule-boundary" open>
+            <summary><span class="boundary-icon">ISP</span><span class="boundary-title"><strong>智能调度平台边界</strong><span>实时推理编排、算力控制与线上模型运行域</span></span></summary>
+            <div class="boundary-body"><table class="boundary-table">
+              <tr><th>核心职责</th><td>接收分析任务，匹配场景规则，分配算力节点，加载模型，组织视频拉流推理，聚合过滤结果并输出预警事件。</td></tr>
+              <tr><th>权威数据</th><td>算力节点状态与负载、运行中任务状态、线上模型版本、模型加载状态、灰度策略、推理运行指标。</td></tr>
+              <tr><th>对外提供</th><td>任务执行状态、推理结果、预警事件、模型运行版本、模型效果指标、算力与服务健康状态。</td></tr>
+              <tr><th>允许接收</th><td>业务系统的任务和场景规则；汇聚平台的设备与流信息；训练标注平台的模型包 URL、标签字典和发布申请。</td></tr>
+              <tr class="forbid"><th>禁止事项</th><td>不维护作业业务主数据；不进行人工标注；不修改已冻结数据集；不允许训练标注平台直接控制线上算力节点。</td></tr>
+              <tr><th>故障影响</th><td>会影响新任务调度、实时推理和预警输出；业务系统历史台账、汇聚平台录像及标注平台离线作业仍可独立保留。</td></tr>
+            </table></div>
+          </details>
+
+          <details class="boundary business-boundary" open>
+            <summary><span class="boundary-icon">BIZ</span><span class="boundary-title"><strong>无视频不作业业务系统边界</strong><span>作业业务、预警处置与业务台账的权威域</span></span></summary>
+            <div class="boundary-body"><table class="boundary-table">
+              <tr><th>核心职责</th><td>管理作业单、作业区域、人员与时段；配置业务场景；展示和复核预警；发起工单并形成隐患、违章处置闭环。</td></tr>
+              <tr><th>权威数据</th><td>作业单、作业状态、作业类型、作业人员、场景绑定、违章类型、人工复核结论、工单与业务台账。</td></tr>
+              <tr><th>对外提供</th><td>分析任务、业务场景和规则、业务上下文查询结果、标签字典、误报/漏报/难例样本元数据及文件 URL。</td></tr>
+              <tr><th>允许接收</th><td>智能调度平台的预警事件、任务状态、模型版本与效果指标；训练标注平台的样本接收及标注处理状态。</td></tr>
+              <tr class="forbid"><th>禁止事项</th><td>不直接连接算力节点执行推理；不加载或保存模型权重；不承担视频流转发；不把人工业务结论交由其他平台覆盖。</td></tr>
+              <tr><th>故障影响</th><td>影响任务发起、告警展示和处置闭环；已经运行的调度任务可按既定策略短时继续，但结果需缓存并等待业务恢复。</td></tr>
+            </table></div>
+          </details>
+
+          <details class="boundary training-boundary" open>
+            <summary><span class="boundary-icon">ATP</span><span class="boundary-title"><strong>训练标注平台边界</strong><span>离线样本、数据集、训练与模型产出的研发域</span></span></summary>
+            <div class="boundary-body"><table class="boundary-table">
+              <tr><th>核心职责</th><td>接收难例样本元数据，创建标注任务，执行预标注、人工标注与质检，管理数据集版本，训练评估并导出模型。</td></tr>
+              <tr><th>权威数据</th><td>标注任务、标注结果、质检结论、数据集内容与版本、训练任务记录、离线评估指标、模型产物元数据。</td></tr>
+              <tr><th>对外提供</th><td>标注处理状态、标准数据集 URL、训练状态、模型版本、模型文件 URL、标签字典、评估指标和发布申请。</td></tr>
+              <tr><th>允许接收</th><td>业务系统的难例/疑似样本和业务上下文；智能调度平台分配的训练资源、训练状态与模型发布结果。</td></tr>
+              <tr class="forbid"><th>禁止事项</th><td>不参与实时预警链路；不接收持续实时视频流；不直接发布模型到线上节点；不维护作业单和告警处置台账。</td></tr>
+              <tr><th>故障影响</th><td>只影响样本标注、数据集生产和新模型迭代，不应影响现场已有模型的实时推理、预警展示及工单处置。</td></tr>
+            </table></div>
+          </details>
+        </div>
+        <div class="global-rules">
+          <h3>跨系统统一边界原则</h3>
+          <div class="rule"><strong>主数据唯一归属</strong><span>同一类主数据只允许一个权威源，其他系统通过接口查询或缓存，不得形成双主。</span></div>
+          <div class="rule"><strong>大文件存储解耦</strong><span>截图、视频、数据集和模型统一进入 MinIO/OSS，接口和消息只携带 URL 与校验信息。</span></div>
+          <div class="rule"><strong>实时与离线隔离</strong><span>实时告警不得依赖标注或训练服务；离线链路阻塞不能传导到现场实时业务。</span></div>
+          <div class="rule"><strong>状态可追溯可补偿</strong><span>跨系统操作携带业务ID、版本号和幂等键，采用回调、重试、对账保证最终一致。</span></div>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="section-title"><span class="section-index">6</span>岗位角色及其系统操作职责</h2>
+        <div class="role-wrap">
+          <table class="role-table">
+            <thead><tr><th style="width:15%">岗位</th><th style="width:15%">角色</th><th style="width:18%">主要操作平台</th><th style="width:31%">岗位职责</th><th>主要系统操作</th></tr></thead>
+            <tbody>
+              <tr><td class="role-name" style="color: #175ea8;font-size:14px;">系统管理员</td><td class="role-name">系统管理员</td><td><span class="role-platform">跨平台</span></td><td>维护组织、账号、岗位、权限及基础字典，保障各平台身份和权限口径一致。</td><td>组织机构维护、用户授权、角色分配、接口鉴权配置、操作日志与系统参数维护。</td></tr>
+              <tr><td class="role-name" style="color: #175ea8;font-size:14px;">视频平台管理员</td><td class="role-name">视频平台管理员</td><td><span class="role-platform">视频汇聚平台</span></td><td>负责摄像机、NVR/DVR及上下级平台接入，保障视频资源可用、目录准确。</td><td>设备注册、通道管理、在线状态巡检、流地址服务、录像检索、转码及级联配置。</td></tr>
+              <tr><td class="role-name" style="color: #175ea8;font-size:14px;">安全值守人员</td><td class="role-name">作业计划管理员</td><td><span class="role-platform biz">自进化业务平台</span></td><td>创建作业计划，完成摄像头、业务场景、算法需求、执行时段和优先级绑定并下发。</td><td>新建/编辑作业计划、选择摄像头与场景、配置周期和优先级、启停计划、下发及查看执行状态。</td></tr>
+              <tr><td class="role-name" style="color: #175ea8;font-size:14px;">安全值守人员</td><td class="role-name">监控值守与复核人员</td><td><span class="role-platform biz">自进化业务平台</span></td><td>监看实时预警，核实AI识别结果，并将误报、漏报和难例沉淀为改进样本。</td><td>查看实时监控、预警复核、确认或驳回告警、补录说明、标记问题样本、发起隐患或违章处置。</td></tr>
+              <tr><td class="role-name" style="color: #175ea8;font-size:14px;">隐患指派的整改人</td><td class="role-name">隐患处置人员</td><td><span class="role-platform biz">自进化业务平台</span></td><td>承接复核后的隐患与违章，落实整改、复查和销号，形成业务闭环。</td><td>接收工单、填写整改措施、上传整改凭证、提交复查、完成销号及查看处置台账。</td></tr>
+              <tr><td class="role-name" style="color: #175ea8;font-size:14px;">调度平台运维管理员</td><td class="role-name">算力调度管理员</td><td><span class="role-platform isp">智能算力调度平台</span></td><td>根据业务场景维护算力资源、轮询和优先级规则，保障任务自动生成和稳定执行。</td><td>场景配置、资源规则配置、轮询规则维护、任务优先级设置、资源监测、算法调度与异常任务干预。</td></tr>
+              <tr><td class="role-name" style="color: #175ea8;font-size:14px;">调度平台运维管理员</td><td class="role-name">算法与模型管理员</td><td><span class="role-platform isp">智能算力调度平台</span></td><td>维护算法、模型及其版本关系，审核模型上线并控制灰度、切换和回退。</td><td>算法管理、模型管理、版本校验、模型发布、灰度配置、运行版本切换及模型回退。</td></tr>
+              <tr><td class="role-name" style="color: #175ea8;font-size:14px;">安全值守人员/合作伙伴</td><td class="role-name">样本与数据集管理员</td><td><span class="role-platform atp">标注训练平台</span></td><td>汇聚业务问题样本，组织数据集生产，控制数据来源、版本、冻结与训练提交。</td><td>样本导入、正负样本管理、无效图片处理、数据集创建与冻结、训练参数配置、提交算力训练。</td></tr>
+              <tr><td class="role-name" style="color: #175ea8;font-size:14px;">安全值守人员/合作伙伴</td><td class="role-name">标注员 / 质检员</td><td><span class="role-platform atp">标注训练平台</span></td><td>依据算法与目标物标签规范完成图片标注、复核和质量验收，保证训练数据质量。</td><td>领取标注任务、目标框标注、样本判定、修改与删除标注、质检抽查、退回整改及确认通过。</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="role-note"><strong>职责分离原则：</strong>作业计划创建与算力规则配置、预警复核与隐患销号、数据标注与质量验收、模型生产与线上发布应由相应岗位分权操作；关键发布、回退和批量操作需保留审批及审计记录。</p>
+      </section>
+
+      <footer class="footnote">本图为系统对接参考示意。接口路径、消息主题、字段定义、超时重试及鉴权方式以正式接口文档为准。</footer>
+    </article>
+  </main>
+
+  <script>
+    let zoom = 1;
+    const canvas = document.getElementById('canvas');
+    const zoomText = document.getElementById('zoomText');
+    function applyZoom() {
+      canvas.style.transform = `scale(${zoom})`;
+      canvas.style.marginBottom = `${(zoom - 1) * canvas.offsetHeight}px`;
+      zoomText.textContent = `${Math.round(zoom * 100)}%`;
+    }
+    function setZoom(delta) {
+      zoom = Math.min(1.3, Math.max(.6, +(zoom + delta).toFixed(1)));
+      applyZoom();
+    }
+    function resetZoom() { zoom = 1; applyZoom(); }
+    // Keep the default view at native CSS scale. The canvas is responsive now,
+    // so shrinking it with a transform would only soften the diagram text.
+  </script>
+</body>
+</html>
